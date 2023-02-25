@@ -5,17 +5,40 @@
 using namespace wor::Json;
 
 JsonManager::JsonManager()
-        : _fileStatus(FileStatus::ZeroCheck) {
+        : fileStatus(FileStatus::ZeroCheck),
+          _filePath("none") {
 }
 
 JsonManager::FileStatus JsonManager::TryToFindFile(const std::string&& filePath_) noexcept {
-    if (!IsFileExist(filePath_)) {
-        return FileStatus::Unreachable;
+    fileStatus = IsFileExist(filePath_)
+                 ? FileStatus::Ready
+                 : FileStatus::Unreachable;
+    if (fileStatus == FileStatus::Ready) {
+        _filePath = filePath_;
     }
-    return FileStatus::Ready;
+    return fileStatus;
 }
 
 bool JsonManager::IsFileExist(const std::string& filePath_) noexcept {
     struct stat buffer{};
     return (stat(filePath_.c_str(), &buffer) == 0);
 }
+
+bool JsonManager::TryToSaveFile() noexcept {
+    if (!IsFileReady()) {
+        return false;
+    }
+    return true;
+}
+
+inline bool JsonManager::IsFileReady() const noexcept {
+    return fileStatus == FileStatus::Ready;
+}
+
+#pragma region Accessors
+
+std::string JsonManager::GetFileName() const noexcept {
+    return _filePath;
+}
+
+#pragma endregion Accessors

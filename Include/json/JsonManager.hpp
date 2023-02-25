@@ -4,33 +4,69 @@
 #include <fstream>
 #include <iostream>
 
-#include "../ThirdParty/nlohmann/json/single_include/json.hpp"
+#include "../ThirdParty/nlohmann/json/single_include/nlohmann/json.hpp"
 
 namespace wor::Json {
 
-    class JsonManager {
+    /**
+     *
+     */
+    class JsonManager final {
     public:
+        /**
+         * Enum describes current file state
+         */
         enum class FileStatus {
+            /// File didn't checked
             ZeroCheck,
+            /// File don't exist
             Unreachable,
+            /// File is busy by other process
+            Busy,
+            /// File ready to read/write operation
             Ready
-        } _fileStatus;
+        } fileStatus;
 
         JsonManager();
 
-        virtual ~JsonManager() = default;
+        /**
+         * Check file to destination and accessible file\n
+         * Result will wrote to internal variable\n
+         * Also file path will saved to internal variable if successful
+         * @param filePath_ Absolute or relative file path
+         * @return          file status
+         */
+        [[nodiscard]] FileStatus TryToFindFile(const std::string&& filePath_) noexcept;
 
-        [[nodiscard]] FileStatus static TryToFindFile(const std::string&& filePath_) noexcept;
+        /**
+         *
+         * @return
+         */
+        [[nodiscard]] bool TryToSaveFile() noexcept;
 
     private:
+        std::string _filePath;
+
+        /**
+         * Just check file to existing
+         * @param filePath_ absolute or relative file path
+         * @return          checking result
+         */
         [[nodiscard]] static bool IsFileExist(const std::string& filePath_) noexcept;
+
+        /**
+         * Small method just to make code more comfortable
+         * @return  is file ready
+         */
+        [[nodiscard]] inline bool IsFileReady() const noexcept;
 
     public:
 #pragma region Accessors
-#pragma endregion Accessors
 
-#pragma region Mutators
-#pragma endregion Mutators
+        [[nodiscard]] std::string GetFileName() const noexcept;
+
+#pragma endregion Accessors
     };
 }
+
 #endif
