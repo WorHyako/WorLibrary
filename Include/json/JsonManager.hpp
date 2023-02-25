@@ -40,9 +40,16 @@ namespace wor::Json {
 
         /**
          *
+         * @param configString
          * @return
          */
-        [[nodiscard]] bool TryToSaveFile() noexcept;
+        [[nodiscard]] bool TryToSaveFile(const std::string& configString) noexcept;
+
+        /**
+         *
+         * @return
+         */
+        [[nodiscard]] bool TryToLoadFile() noexcept;
 
     private:
         std::string _filePath;

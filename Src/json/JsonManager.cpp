@@ -24,7 +24,15 @@ bool JsonManager::IsFileExist(const std::string& filePath_) noexcept {
     return (stat(filePath_.c_str(), &buffer) == 0);
 }
 
-bool JsonManager::TryToSaveFile() noexcept {
+bool JsonManager::TryToSaveFile(const std::string& configString) noexcept {
+    if (!IsFileReady()) {
+        return false;
+    }
+    nlohmann::json nlJson(configString);
+    return true;
+}
+
+bool JsonManager::TryToLoadFile() noexcept {
     if (!IsFileReady()) {
         return false;
     }
