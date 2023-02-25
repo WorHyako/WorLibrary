@@ -25,7 +25,7 @@ namespace wor::Json {
             Busy,
             /// File ready to read/write operation
             Ready
-        } fileStatus;
+        };
 
         JsonManager();
 
@@ -36,23 +36,28 @@ namespace wor::Json {
          * @param filePath_ Absolute or relative file path
          * @return          file status
          */
-        [[nodiscard]] FileStatus TryToFindFile(const std::string&& filePath_) noexcept;
+        [[nodiscard]] FileStatus TryToFindFile(const std::string&& filePath_, bool createFile_ = true) noexcept;
 
         /**
          *
-         * @param configString
+         * @param jsonString_
+         * @param scope_
          * @return
          */
-        [[nodiscard]] bool TryToSaveFile(const std::string& configString) noexcept;
+        [[nodiscard]] bool
+        TryToSaveFile(const std::string& jsonString_, const std::string& scope_ = std::string()) noexcept;
 
         /**
          *
+         * @param scope_
          * @return
          */
-        [[nodiscard]] bool TryToLoadFile() noexcept;
+        [[nodiscard]] bool TryToLoadFile(const std::string& scope_ = std::string()) noexcept;
 
     private:
         std::string _filePath;
+
+        FileStatus _fileStatus;
 
         /**
          * Just check file to existing
@@ -71,6 +76,8 @@ namespace wor::Json {
 #pragma region Accessors
 
         [[nodiscard]] std::string GetFileName() const noexcept;
+
+        [[nodiscard]] FileStatus GetFileStatus() const noexcept;
 
 #pragma endregion Accessors
     };
