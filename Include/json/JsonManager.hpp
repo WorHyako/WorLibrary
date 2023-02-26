@@ -72,6 +72,13 @@ namespace wor::Json {
          */
         [[nodiscard]] inline bool IsFileReady() const noexcept;
 
+        /**
+         *
+         * @param filePath_
+         * @return
+         */
+        [[nodiscard]] static inline bool CreateFile(const std::string& filePath_) noexcept;
+
     public:
 #pragma region Accessors
 

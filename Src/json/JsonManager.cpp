@@ -10,9 +10,15 @@ JsonManager::JsonManager()
 }
 
 JsonManager::FileStatus JsonManager::TryToFindFile(const std::string&& filePath_, bool createFile_) noexcept {
-    _fileStatus = IsFileExist(filePath_)
-                  ? FileStatus::Ready
-                  : FileStatus::Unreachable;
+    if (createFile_) {
+        _fileStatus = CreateFile(filePath_)
+                      ? FileStatus::Ready
+                      : FileStatus::Unreachable;
+    } else {
+        _fileStatus = IsFileExist(filePath_)
+                      ? FileStatus::Ready
+                      : FileStatus::Unreachable;
+    }
     if (_fileStatus == FileStatus::Ready) {
         _filePath = filePath_;
     }
@@ -48,7 +54,7 @@ bool JsonManager::TryToSaveFile(const std::string& jsonString_, const std::strin
     if (scope_.empty()) {
         fileContent.push_back(nlohmann::json::parse(jsonString_));
     } else {
-        fileContent["QuickButtonsScope"] = nlohmann::json::parse(jsonString_);
+        fileContent[scope_] = nlohmann::json::parse(jsonString_);
     }
     {
         std::ofstream file(_filePath);
@@ -67,6 +73,13 @@ bool JsonManager::TryToLoadFile(const std::string& scope_) noexcept {
 
 inline bool JsonManager::IsFileReady() const noexcept {
     return _fileStatus == FileStatus::Ready;
+}
+
+bool JsonManager::CreateFile(const std::string& filePath_) noexcept {
+    std::ofstream file;
+    file.open(filePath_, std::ios::app | std::ios::in);
+    file.close();
+    return IsFileExist(filePath_);
 }
 
 #pragma region Accessors
