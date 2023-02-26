@@ -64,11 +64,25 @@ bool JsonManager::TryToSaveFile(const std::string& jsonString_, const std::strin
     return true;
 }
 
-bool JsonManager::TryToLoadFile(const std::string& scope_) noexcept {
+nlohmann::json JsonManager::TryToLoadFile(const std::string& scopeName_) noexcept {
     if (!IsFileReady()) {
         return false;
     }
-    return true;
+    nlohmann::json fileContent;
+    std::ifstream file(_filePath);
+    auto fileEmpty = file.peek() == std::ifstream::traits_type::eof();
+    if (file.is_open() && !fileEmpty) {
+        try {
+            fileContent = nlohmann::json::parse(file);
+        }
+        catch (...) {
+            /// Nothing happened. Just forgive this scope.
+        }
+    }
+    file.close();
+    return scopeName_.empty()
+           ? fileContent
+           : fileContent[scopeName_];
 }
 
 inline bool JsonManager::IsFileReady() const noexcept {

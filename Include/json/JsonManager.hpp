@@ -49,10 +49,10 @@ namespace wor::Json {
 
         /**
          *
-         * @param scope_
+         * @param scopeName_
          * @return
          */
-        [[nodiscard]] bool TryToLoadFile(const std::string& scope_ = std::string()) noexcept;
+        [[nodiscard]] nlohmann::json TryToLoadFile(const std::string& scopeName_ = std::string()) noexcept;
 
     private:
         std::string _filePath;
