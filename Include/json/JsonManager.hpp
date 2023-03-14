@@ -4,7 +4,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "../ThirdParty/nlohmann/json/single_include/nlohmann/json.hpp"
+#include "nlohmann/json.hpp"
 
 namespace wor::Json {
 

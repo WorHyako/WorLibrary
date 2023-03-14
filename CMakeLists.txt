@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.24)
 
 set(worLib_Dir ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
 set(worLib_Include_Dir ${CMAKE_CURRENT_SOURCE_DIR}/Include PARENT_SCOPE)
