@@ -16,14 +16,31 @@ void TcpSocket::CleanErrors() noexcept {
     _errors.clear();
 }
 
-void TcpSocket::Send(const std::string &message_) noexcept {
-
+std::size_t TcpSocket::Send(const std::string &message_) noexcept {
+    std::size_t bytesSent = -1;
+    if(!_socket.is_open()){
+        return bytesSent;
+    }
+    auto buf = boost::asio::buffer(message_, (std::size_t) message_.size());
+    bytesSent = _socket.send(buf);
+    return bytesSent;
 }
 
 bool TcpSocket::TryToConnect() noexcept {
+    auto destinationEndPoint = AsioTcpEndPoint(
+            boost::asio::ip::address::from_string(_destinationEndPoint.address.c_str()),
+            _destinationEndPoint.port);
+    auto asy = std::async(std::launch::async,
+                          [this, &destinationEndPoint]() {
+                              _socket.connect(destinationEndPoint);
+                          });
     try {
-        _socket.connect(AsioTcpEndPoint(boost::asio::ip::address::from_string(_destinationEndPoint.address.c_str()),
-                                        _destinationEndPoint.port));
+        auto timeout = asy.wait_for(std::chrono::milliseconds(100));
+        if (timeout == std::future_status::timeout) {
+            _socket.cancel();
+            _socket.close();
+            return false;
+        }
     } catch (std::exception &e) {
         /// Temporary. Just for debug in development
         std::string errorMessage = e.what();
@@ -44,11 +61,11 @@ bool TcpSocket::CheckEndPoint(const std::string &address) noexcept {
 
 #pragma region Accessors
 
-EndPoint TcpSocket::GetDestinationEndPoint() const noexcept {
+const EndPoint &TcpSocket::DestinationEndPoint() const noexcept {
     return _destinationEndPoint;
 }
 
-EndPoint TcpSocket::GetSourceEndPoint() const noexcept {
+const EndPoint &TcpSocket::SourceEndPoint() const noexcept {
     return _sourceEndPoint;
 }
 
@@ -64,12 +81,12 @@ const std::vector<boost::system::error_code> &TcpSocket::GetErrors() const noexc
 
 #pragma region Mutators
 
-EndPoint::Status TcpSocket::SetDestinationEndPoint(EndPoint endPoint_) noexcept {
+EndPoint::Status TcpSocket::DestinationEndPoint(EndPoint endPoint_) noexcept {
     _destinationEndPoint = std::move(endPoint_);
     return _destinationEndPoint.status;
 }
 
-EndPoint::Status TcpSocket::SetSourceEndPoint(EndPoint endPoint_) noexcept {
+EndPoint::Status TcpSocket::SourceEndPoint(EndPoint endPoint_) noexcept {
     _sourceEndPoint = std::move(endPoint_);
     return _sourceEndPoint.status;
 }

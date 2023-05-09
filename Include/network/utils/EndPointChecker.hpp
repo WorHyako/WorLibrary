@@ -56,7 +56,7 @@ namespace wor::network::utils {
 //            printf("\n\tIcmpSendEcho returned error: %u", static_cast<unsigned>(GetLastError()));
 //            return false;
 //        }
-        return true;
+        return false;
     }
 }
 

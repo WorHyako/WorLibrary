@@ -22,9 +22,9 @@ namespace wor::network {
 
         explicit TcpSocket(boost::asio::io_context &context) noexcept;
 
-        ~TcpSocket() noexcept override;
+        ~TcpSocket() noexcept;
 
-        void Send(const std::string &message_) noexcept override;
+        std::size_t Send(const std::string &message_) noexcept override;
 
         /**
          *
@@ -60,9 +60,9 @@ namespace wor::network {
     public:
 #pragma region Accessors
 
-        [[nodiscard]] EndPoint GetDestinationEndPoint() const noexcept;
+        [[nodiscard]] const EndPoint& DestinationEndPoint() const noexcept;
 
-        [[nodiscard]] EndPoint GetSourceEndPoint() const noexcept;
+        [[nodiscard]] const EndPoint& SourceEndPoint() const noexcept;
 
         [[nodiscard]] std::string GetLastError() const noexcept;
 
@@ -73,9 +73,9 @@ namespace wor::network {
 
 #pragma region Mutators
 
-        EndPoint::Status SetDestinationEndPoint(EndPoint endPoint_) noexcept;
+        [[nodiscard]] EndPoint::Status DestinationEndPoint(EndPoint endPoint_) noexcept;
 
-        EndPoint::Status SetSourceEndPoint(EndPoint endPoint_) noexcept;
+        [[nodiscard]] EndPoint::Status SourceEndPoint(EndPoint endPoint_) noexcept;
 
 #pragma endregion Mutators
     };
