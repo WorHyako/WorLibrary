@@ -1,7 +1,7 @@
 #ifndef WORLIBRARY_VECTOR_VECTOR2_HPP
 #define WORLIBRARY_VECTOR_VECTOR2_HPP
 
-#include "vector/Vector.hpp"
+#include "Vector/Vector.hpp"
 
 namespace wor::Vector {
 

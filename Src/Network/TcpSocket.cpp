@@ -1,6 +1,6 @@
-#include "network/TcpSocket.hpp"
+#include "Network/TcpSocket.hpp"
 
-#include "network/utils/EndPointChecker.hpp"
+#include "Network/utils/EndPointChecker.hpp"
 
 using namespace wor::network;
 

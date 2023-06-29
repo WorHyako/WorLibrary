@@ -1,4 +1,4 @@
-#include "network/EndPoint.hpp"
+#include "Network/EndPoint.hpp"
 
 using namespace wor::network;
 

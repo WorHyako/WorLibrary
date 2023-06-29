@@ -7,8 +7,8 @@
 #include <vector>
 #include <memory>
 
-#include "network/EndPoint.hpp"
-#include "network/ISocket.hpp"
+#include "Network/EndPoint.hpp"
+#include "Network/ISocket.hpp"
 
 namespace wor::network {
 
