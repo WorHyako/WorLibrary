@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace wor::network {
+namespace wor::Network {
 
     /**
      *

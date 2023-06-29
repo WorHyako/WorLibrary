@@ -8,7 +8,7 @@
 
 #include <string>
 
-namespace wor::network::utils {
+namespace wor::Network::Utils {
 
     static bool checkEndPoint(const std::string &destinationIp_) noexcept {
 //        HANDLE hIcmpFile;

@@ -2,7 +2,7 @@
 
 #include "Network/utils/EndPointChecker.hpp"
 
-using namespace wor::network;
+using namespace wor::Network;
 
 TcpSocket::TcpSocket(boost::asio::io_context &context) noexcept
         : _socket(context) {
@@ -18,7 +18,7 @@ void TcpSocket::CleanErrors() noexcept {
 
 std::size_t TcpSocket::Send(const std::string &message_) noexcept {
     std::size_t bytesSent = -1;
-    if(!_socket.is_open()){
+    if (!_socket.is_open()) {
         return bytesSent;
     }
     auto buf = boost::asio::buffer(message_, (std::size_t) message_.size());
@@ -56,7 +56,7 @@ void TcpSocket::CloseConnection() noexcept {
 }
 
 bool TcpSocket::CheckEndPoint(const std::string &address) noexcept {
-    return wor::network::utils::checkEndPoint(address);
+    return wor::Network::Utils::checkEndPoint(address);
 }
 
 #pragma region Accessors

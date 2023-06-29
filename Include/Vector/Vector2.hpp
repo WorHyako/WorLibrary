@@ -1,12 +1,10 @@
 #ifndef WORLIBRARY_VECTOR_VECTOR2_HPP
 #define WORLIBRARY_VECTOR_VECTOR2_HPP
 
-#include "Vector/Vector.hpp"
-
 namespace wor::Vector {
 
     template<typename T>
-    struct Vector2 : public Vector<T> {
+    struct Vector2 {
 
         Vector2() noexcept;
 
@@ -16,31 +14,31 @@ namespace wor::Vector {
 
 #pragma region Operators
 
-        friend bool operator<(const Vector2<T>& lhs_, const Vector2<T>& rhs_) noexcept;
+        friend bool operator<(const Vector2<T> &lhs_, const Vector2<T> &rhs_) noexcept;
 
-        friend bool operator>(const Vector2<T>& lhs_, const Vector2<T>& rhs_) noexcept;
+        friend bool operator>(const Vector2<T> &lhs_, const Vector2<T> &rhs_) noexcept;
 
-        friend bool operator<=(const Vector2<T>& lhs_, const Vector2<T>& rhs_) noexcept;
+        friend bool operator<=(const Vector2<T> &lhs_, const Vector2<T> &rhs_) noexcept;
 
-        friend bool operator>=(const Vector2<T>& lhs_, const Vector2<T>& rhs_) noexcept;
+        friend bool operator>=(const Vector2<T> &lhs_, const Vector2<T> &rhs_) noexcept;
 
-        virtual Vector2<T>& operator*=(T rhs_) noexcept;
+        Vector2<T> &operator*=(T rhs_) noexcept;
 
-        virtual Vector2<T>& operator*=(const Vector2<T>& rhs_) noexcept;
+        Vector2<T> &operator*=(const Vector2<T> &rhs_) noexcept;
 
-        virtual Vector2<T>& operator/=(T rhs_) noexcept;
+        Vector2<T> &operator/=(T rhs_) noexcept;
 
-        virtual Vector2<T>& operator/=(const Vector2<T>& rhs_) noexcept;
+        Vector2<T> &operator/=(const Vector2<T> &rhs_) noexcept;
 
-        virtual Vector2<T>& operator+=(T rhs_) noexcept;
+        Vector2<T> &operator+=(T rhs_) noexcept;
 
-        virtual Vector2<T>& operator+=(const Vector2<T>& rhs_) noexcept;
+        Vector2<T> &operator+=(const Vector2<T> &rhs_) noexcept;
 
-        virtual Vector2<T>& operator-=(T rhs_) noexcept;
+        Vector2<T> &operator-=(T rhs_) noexcept;
 
-        virtual Vector2<T>& operator-=(const Vector2<T>& rhs_) noexcept;
+        Vector2<T> &operator-=(const Vector2<T> &rhs_) noexcept;
 
-        virtual Vector2<T>& operator=(T rhs_) noexcept;
+        Vector2<T> &operator=(T rhs_) noexcept;
 
         friend Vector2<T> operator+(Vector2<T> lhs_, Vector2<T> rhs_) noexcept;
 
@@ -50,9 +48,9 @@ namespace wor::Vector {
 
         friend Vector2<T> operator-(Vector2<T> lhs_, Vector2<T> rhs_) noexcept;
 
-        bool operator==(const Vector2<T>& rhs_) const noexcept;
+        bool operator==(const Vector2<T> &rhs_) const noexcept;
 
-        bool operator!=(const Vector2<T>& rhs_) const noexcept;
+        bool operator!=(const Vector2<T> &rhs_) const noexcept;
 
 #pragma endregion Operators
 
@@ -71,34 +69,34 @@ namespace wor::Vector {
 #pragma region Operators
 
     template<typename T>
-    bool operator<(const Vector2<T>& lhs_, const Vector2<T>& rhs_) noexcept {
+    bool operator<(const Vector2<T> &lhs_, const Vector2<T> &rhs_) noexcept {
         return lhs_.x < rhs_.x
                && lhs_.y < rhs_.y;
     }
 
     template<typename T>
-    bool operator>(const Vector2<T>& lhs_, const Vector2<T>& rhs_) noexcept {
+    bool operator>(const Vector2<T> &lhs_, const Vector2<T> &rhs_) noexcept {
         return rhs_ < lhs_;
     }
 
     template<typename T>
-    bool operator>=(const Vector2<T>& lhs_, const Vector2<T>& rhs_) noexcept {
+    bool operator>=(const Vector2<T> &lhs_, const Vector2<T> &rhs_) noexcept {
         return !(lhs_ < rhs_);
     }
 
     template<typename T>
-    bool operator<=(const Vector2<T>& lhs_, const Vector2<T>& rhs_) noexcept {
+    bool operator<=(const Vector2<T> &lhs_, const Vector2<T> &rhs_) noexcept {
         return !(lhs_ > rhs_);
     }
 
     template<typename T>
-    bool Vector2<T>::operator==(const Vector2<T>& rhs_) const noexcept {
+    bool Vector2<T>::operator==(const Vector2<T> &rhs_) const noexcept {
         return x == rhs_.x
                && y == rhs_.y;
     }
 
     template<typename T>
-    bool Vector2<T>::operator!=(const Vector2<T>& rhs_) const noexcept {
+    bool Vector2<T>::operator!=(const Vector2<T> &rhs_) const noexcept {
         return x != rhs_.x
                && y != rhs_.y;
     }
@@ -126,63 +124,63 @@ namespace wor::Vector {
     }
 
     template<typename T>
-    Vector2<T>& Vector2<T>::operator*=(const Vector2<T>& rhs_) noexcept {
+    Vector2<T> &Vector2<T>::operator*=(const Vector2<T> &rhs_) noexcept {
         x *= rhs_.x;
         y *= rhs_.y;
         return *this;
     }
 
     template<typename T>
-    Vector2<T>& Vector2<T>::operator*=(T rhs_) noexcept {
+    Vector2<T> &Vector2<T>::operator*=(T rhs_) noexcept {
         x *= rhs_;
         y *= rhs_;
         return *this;
     }
 
     template<typename T>
-    Vector2<T>& Vector2<T>::operator/=(const Vector2<T>& rhs_) noexcept {
+    Vector2<T> &Vector2<T>::operator/=(const Vector2<T> &rhs_) noexcept {
         x /= rhs_.x;
         y /= rhs_.y;
         return *this;
     }
 
     template<typename T>
-    Vector2<T>& Vector2<T>::operator/=(T rhs_) noexcept {
+    Vector2<T> &Vector2<T>::operator/=(T rhs_) noexcept {
         x /= rhs_;
         y /= rhs_;
         return *this;
     }
 
     template<typename T>
-    Vector2<T>& Vector2<T>::operator+=(const Vector2<T>& rhs_) noexcept {
+    Vector2<T> &Vector2<T>::operator+=(const Vector2<T> &rhs_) noexcept {
         x += rhs_.x;
         y += rhs_.y;
         return *this;
     }
 
     template<typename T>
-    Vector2<T>& Vector2<T>::operator+=(T rhs_) noexcept {
+    Vector2<T> &Vector2<T>::operator+=(T rhs_) noexcept {
         x += rhs_;
         y += rhs_;
         return *this;
     }
 
     template<typename T>
-    Vector2<T>& Vector2<T>::operator-=(T rhs_) noexcept {
+    Vector2<T> &Vector2<T>::operator-=(T rhs_) noexcept {
         x -= rhs_;
         y -= rhs_;
         return *this;
     }
 
     template<typename T>
-    Vector2<T>& Vector2<T>::operator-=(const Vector2<T>& rhs_) noexcept {
+    Vector2<T> &Vector2<T>::operator-=(const Vector2<T> &rhs_) noexcept {
         x -= rhs_.x;
         y -= rhs_.y;
         return *this;
     }
 
     template<typename T>
-    Vector2<T>& Vector2<T>::operator=(T rhs_) noexcept {
+    Vector2<T> &Vector2<T>::operator=(T rhs_) noexcept {
         x = rhs_;
         y = rhs_;
         return *this;

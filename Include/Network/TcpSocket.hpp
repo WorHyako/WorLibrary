@@ -10,7 +10,7 @@
 #include "Network/EndPoint.hpp"
 #include "Network/ISocket.hpp"
 
-namespace wor::network {
+namespace wor::Network {
 
     /**
      *
@@ -22,9 +22,9 @@ namespace wor::network {
 
         explicit TcpSocket(boost::asio::io_context &context) noexcept;
 
-        ~TcpSocket() noexcept;
+        ~TcpSocket() noexcept override;
 
-        std::size_t Send(const std::string &message_) noexcept override;
+        [[nodiscard]] std::size_t Send(const std::string &message_) noexcept override;
 
         /**
          *
