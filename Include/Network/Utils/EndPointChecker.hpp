@@ -1,5 +1,4 @@
-#ifndef WORLIBRARY_NETWORK_UTILS_ENDPOINTCHECKER_HPP
-#define WORLIBRARY_NETWORK_UTILS_ENDPOINTCHECKER_HPP
+#pragma once
 
 //#include <winsock2.h>
 //
@@ -8,7 +7,7 @@
 
 #include <string>
 
-namespace wor::Network::Utils {
+namespace Wor::Network::Utils {
 
     static bool checkEndPoint(const std::string &destinationIp_) noexcept {
 //        HANDLE hIcmpFile;
@@ -59,5 +58,3 @@ namespace wor::Network::Utils {
         return false;
     }
 }
-
-#endif

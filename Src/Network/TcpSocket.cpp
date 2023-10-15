@@ -1,15 +1,27 @@
 #include "Network/TcpSocket.hpp"
 
-#include "Network/utils/EndPointChecker.hpp"
+#include "Network/Utils/EndPointChecker.hpp"
 
-using namespace wor::Network;
+using namespace Wor::Network;
 
-TcpSocket::TcpSocket(boost::asio::io_context &context) noexcept
-        : _socket(context) {
+namespace {
+
+    /**
+     * Boost socket context
+     */
+    boost::asio::io_context context;
+}
+
+TcpSocket::TcpSocket() noexcept
+        : _socket(::context),
+          _status(SocketStatus::ZeroCheck) {
 }
 
 TcpSocket::~TcpSocket() noexcept {
-    CloseConnection();
+    if (_status == SocketStatus::Connected) {
+        CloseSocket();
+        _status = SocketStatus::ZeroCheck;
+    }
 }
 
 void TcpSocket::CleanErrors() noexcept {
@@ -18,24 +30,25 @@ void TcpSocket::CleanErrors() noexcept {
 
 std::size_t TcpSocket::Send(const std::string &message_) noexcept {
     std::size_t bytesSent = -1;
-    if (!_socket.is_open()) {
+    if (_status != SocketStatus::Connected) {
         return bytesSent;
     }
-    auto buf = boost::asio::buffer(message_, (std::size_t) message_.size());
+    const auto buf = boost::asio::buffer(message_, (std::size_t) message_.size());
     bytesSent = _socket.send(buf);
     return bytesSent;
 }
 
 bool TcpSocket::TryToConnect() noexcept {
+    _status = SocketStatus::Unreachable;
     auto destinationEndPoint = AsioTcpEndPoint(
             boost::asio::ip::address::from_string(_destinationEndPoint.address.c_str()),
             _destinationEndPoint.port);
-    auto asy = std::async(std::launch::async,
+    auto asyncConnect = std::async(std::launch::async,
                           [this, &destinationEndPoint]() {
                               _socket.connect(destinationEndPoint);
                           });
     try {
-        auto timeout = asy.wait_for(std::chrono::milliseconds(100));
+        auto timeout = asyncConnect.wait_for(std::chrono::milliseconds(100));
         if (timeout == std::future_status::timeout) {
             _socket.cancel();
             _socket.close();
@@ -46,17 +59,24 @@ bool TcpSocket::TryToConnect() noexcept {
         std::string errorMessage = e.what();
         return false;
     }
+    _status = SocketStatus::Connected;
     return true;
 }
 
 void TcpSocket::CloseConnection() noexcept {
-    if (_socket.is_open()) {
-        _socket.close();
-    }
+    CloseSocket();
 }
 
 bool TcpSocket::CheckEndPoint(const std::string &address) noexcept {
-    return wor::Network::Utils::checkEndPoint(address);
+    return Wor::Network::Utils::checkEndPoint(address);
+}
+
+void TcpSocket::CloseSocket() noexcept {
+    if (_socket.is_open()) {
+        _socket.cancel();
+        _socket.close();
+    }
+    _status = SocketStatus::Reachable;
 }
 
 #pragma region Accessors
@@ -73,22 +93,24 @@ std::string TcpSocket::GetLastError() const noexcept {
     return _errors.back().message();
 }
 
-const std::vector<boost::system::error_code> &TcpSocket::GetErrors() const noexcept {
+const std::vector<TcpSocket::BoostErrorCode> &TcpSocket::GetErrors() const noexcept {
     return _errors;
+}
+
+SocketStatus TcpSocket::Status() noexcept {
+    return _status;
 }
 
 #pragma endregion Accessors
 
 #pragma region Mutators
 
-EndPoint::Status TcpSocket::DestinationEndPoint(EndPoint endPoint_) noexcept {
+void TcpSocket::DestinationEndPoint(EndPoint endPoint_) noexcept {
     _destinationEndPoint = std::move(endPoint_);
-    return _destinationEndPoint.status;
 }
 
-EndPoint::Status TcpSocket::SourceEndPoint(EndPoint endPoint_) noexcept {
+void TcpSocket::SourceEndPoint(EndPoint endPoint_) noexcept {
     _sourceEndPoint = std::move(endPoint_);
-    return _sourceEndPoint.status;
 }
 
 #pragma endregion Mutators

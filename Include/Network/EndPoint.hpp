@@ -1,15 +1,15 @@
-#ifndef WORLIBRARY_NETWORK_ENDPOINT_HPP
-#define WORLIBRARY_NETWORK_ENDPOINT_HPP
+#pragma once
 
 #include <string>
 
-namespace wor::Network {
+namespace Wor::Network {
 
     /**
      *
      */
     struct EndPoint {
     public:
+
         /**
          *
          */
@@ -20,11 +20,10 @@ namespace wor::Network {
             Error
         } status;
 
-        explicit EndPoint(std::string address_ = {}, int port_ = -1) noexcept;
+        explicit EndPoint(std::string address_ = {}, uint32_t port_ = 0) noexcept;
 
         std::string address;
 
-        unsigned short port;
+        uint32_t port;
     };
 }
-#endif

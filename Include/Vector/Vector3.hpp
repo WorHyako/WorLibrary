@@ -1,17 +1,39 @@
-#ifndef WORLIBRARY_VECTOR_VECTOR3_HPP
-#define WORLIBRARY_VECTOR_VECTOR3_HPP
+#pragma once
 
-namespace wor::Vector {
+namespace Wor::Vector {
+
     /**
-     * Struct to store int or float data via XYZ
-     * @tparam T int/float value
+     * Struct to store data via XYZ
      */
     template<typename T>
     struct Vector3 {
-        T x, y, z;
 
+        /**
+         * x value
+         */
+        T x;
+
+        /**
+         * y value
+         */
+        T y;
+
+        /**
+         * z value
+         */
+        T z;
+
+        /**
+         * Ctor
+         */
         Vector3() noexcept;
 
+        /**
+         * Ctor
+         * @param x_    x value
+         * @param y_    y value
+         * @param z_    z value
+         */
         Vector3(T x_, T y_, T z_) noexcept;
 
 #pragma region Operators
@@ -182,5 +204,3 @@ namespace wor::Vector {
 
 #pragma endregion Operators
 }
-
-#endif

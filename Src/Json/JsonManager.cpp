@@ -2,7 +2,7 @@
 
 #include <sys/stat.h>
 
-using namespace wor::Json;
+using namespace Wor::Json;
 
 JsonManager::JsonManager()
         : _fileStatus(FileStatus::ZeroCheck),

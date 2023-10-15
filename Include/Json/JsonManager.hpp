@@ -1,12 +1,11 @@
-#ifndef MEDIASERVERMANAGER_WOR_JSON_JSONMANAGER_HPP
-#define MEDIASERVERMANAGER_WOR_JSON_JSONMANAGER_HPP
+#pragma once
 
 #include <fstream>
 #include <iostream>
 
 #include "nlohmann/json.hpp"
 
-namespace wor::Json {
+namespace Wor::Json {
 
     /**
      *
@@ -17,16 +16,27 @@ namespace wor::Json {
          * Enum describes current file state
          */
         enum class FileStatus {
-            /// File didn't checked
+            /**
+             * File didn't checked
+             */
             ZeroCheck,
-            /// File don't exist
+            /**
+             * File don't exist
+             */
             Unreachable,
-            /// File is busy by other process
+            /**
+             * File is busy by other process
+             */
             Busy,
-            /// File ready to read/write operation
+            /**
+             * File ready to read/write operation
+             */
             Ready
         };
 
+        /**
+         * Ctor
+         */
         JsonManager();
 
         /**
@@ -45,18 +55,24 @@ namespace wor::Json {
          * @return
          */
         [[nodiscard]] bool
-        TryToSaveFile(const std::string& jsonString_, const std::string& scope_ = std::string()) noexcept;
+        TryToSaveFile(const std::string& jsonString_, const std::string& scope_ = {}) noexcept;
 
         /**
          *
          * @param scopeName_
          * @return
          */
-        [[nodiscard]] nlohmann::json TryToLoadFile(const std::string& scopeName_ = std::string()) noexcept;
+        [[nodiscard]] nlohmann::json TryToLoadFile(const std::string& scopeName_ = {}) noexcept;
 
     private:
+        /**
+         * Path to current status
+         */
         std::string _filePath;
 
+        /**
+         * Current file status
+         */
         FileStatus _fileStatus;
 
         /**
@@ -89,5 +105,3 @@ namespace wor::Json {
 #pragma endregion Accessors
     };
 }
-
-#endif

@@ -1,16 +1,34 @@
-#ifndef WORLIBRARY_VECTOR_VECTOR2_HPP
-#define WORLIBRARY_VECTOR_VECTOR2_HPP
+#pragma once
 
-namespace wor::Vector {
+namespace Wor::Vector {
 
+    /**
+     * Struct to store data via XY
+     */
     template<typename T>
     struct Vector2 {
 
+        /**
+         * Ctor
+         */
         Vector2() noexcept;
 
+        /**
+         * Ctor
+         * @param x_    x value
+         * @param y_    y value
+         */
         Vector2(T x_, T y_) noexcept;
 
-        T x, y;
+        /**
+         * x value
+         */
+        T x;
+
+        /**
+         * y value
+         */
+        T y;
 
 #pragma region Operators
 
@@ -188,5 +206,3 @@ namespace wor::Vector {
 
 #pragma endregion Operators
 }
-
-#endif

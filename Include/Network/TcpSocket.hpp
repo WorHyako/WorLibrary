@@ -1,5 +1,4 @@
-#ifndef WORLIBRARY_NETWORK_TCPSOCKET_HPP
-#define WORLIBRARY_NETWORK_TCPSOCKET_HPP
+#pragma once
 
 #include <boost/asio.hpp>
 
@@ -10,7 +9,7 @@
 #include "Network/EndPoint.hpp"
 #include "Network/ISocket.hpp"
 
-namespace wor::Network {
+namespace Wor::Network {
 
     /**
      *
@@ -19,11 +18,28 @@ namespace wor::Network {
     public:
         using AsioTcp = boost::asio::ip::tcp;
         using AsioTcpEndPoint = AsioTcp::endpoint;
+        using BoostErrorCode = boost::system::error_code;
 
-        explicit TcpSocket(boost::asio::io_context &context) noexcept;
+        /**
+         * Ctor
+         */
+        TcpSocket() noexcept;
 
+        /**
+         * Ctor
+         */
+        TcpSocket(TcpSocket &) = delete;
+
+        /**
+         * Dtor
+         */
         ~TcpSocket() noexcept override;
 
+        /**
+         *
+         * @param message_
+         * @return
+         */
         [[nodiscard]] std::size_t Send(const std::string &message_) noexcept override;
 
         /**
@@ -34,12 +50,12 @@ namespace wor::Network {
         /**
          *
          */
-        [[nodiscard]] bool TryToConnect() noexcept;
+        [[nodiscard]] bool TryToConnect() noexcept override;
 
         /**
          *
          */
-        void CloseConnection() noexcept;
+        void CloseConnection() noexcept override;
 
         /**
          *
@@ -49,35 +65,57 @@ namespace wor::Network {
         [[nodiscard]] static bool CheckEndPoint(const std::string &address) noexcept;
 
     private:
+        /**
+         * Destination endpoint
+         */
         EndPoint _destinationEndPoint;
 
+        /**
+         * Source endpoint
+         */
         EndPoint _sourceEndPoint;
 
-        std::vector<boost::system::error_code> _errors;
+        /**
+         * List of socket's errors
+         */
+        std::vector<BoostErrorCode> _errors;
 
+        /**
+         * Socket ref
+         */
         AsioTcp::socket _socket;
+
+        /**
+         * Socket status
+         */
+        SocketStatus _status;
+
+        /**
+         *
+         */
+        void CloseSocket() noexcept;
 
     public:
 #pragma region Accessors
 
-        [[nodiscard]] const EndPoint& DestinationEndPoint() const noexcept;
+        [[nodiscard]] const EndPoint &DestinationEndPoint() const noexcept;
 
-        [[nodiscard]] const EndPoint& SourceEndPoint() const noexcept;
+        [[nodiscard]] const EndPoint &SourceEndPoint() const noexcept;
 
         [[nodiscard]] std::string GetLastError() const noexcept;
 
-        [[nodiscard]] const std::vector<boost::system::error_code> &
-        GetErrors() const noexcept;
+        [[nodiscard]] const std::vector<BoostErrorCode> &GetErrors() const noexcept;
+
+        [[nodiscard]] SocketStatus Status() noexcept override;
 
 #pragma endregion Accessors
 
 #pragma region Mutators
 
-        [[nodiscard]] EndPoint::Status DestinationEndPoint(EndPoint endPoint_) noexcept;
+        void DestinationEndPoint(EndPoint endPoint_) noexcept;
 
-        [[nodiscard]] EndPoint::Status SourceEndPoint(EndPoint endPoint_) noexcept;
+        void SourceEndPoint(EndPoint endPoint_) noexcept;
 
 #pragma endregion Mutators
     };
 }
-#endif
