@@ -6,8 +6,8 @@
 #include <vector>
 #include <memory>
 
-#include "Network/EndPoint.hpp"
-#include "Network/ISocket.hpp"
+#include "WorLibrary/Network/EndPoint.hpp"
+#include "WorLibrary/Network/ISocket.hpp"
 
 namespace Wor::Network {
 

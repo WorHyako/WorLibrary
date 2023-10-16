@@ -1,6 +1,6 @@
-#include "Network/TcpSocket.hpp"
+#include "WorLibrary/Network/TcpSocket.hpp"
 
-#include "Network/Utils/EndPointChecker.hpp"
+#include "WorLibrary/Network/Utils/EndPointChecker.hpp"
 
 using namespace Wor::Network;
 
@@ -73,7 +73,9 @@ bool TcpSocket::CheckEndPoint(const std::string &address) noexcept {
 
 void TcpSocket::CloseSocket() noexcept {
     if (_socket.is_open()) {
-        _socket.cancel();
+//        boost::system::error_code ec;
+//        auto sec = _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_send, ec);
+        auto t = _socket.available();
         _socket.close();
     }
     _status = SocketStatus::Reachable;
