@@ -29,7 +29,7 @@ void TcpSocket::CleanErrors() noexcept {
 }
 
 std::size_t TcpSocket::Send(const std::string &message_) noexcept {
-    std::size_t bytesSent = -1;
+    std::size_t bytesSent = 0;
     if (_status != SocketStatus::Connected) {
         return bytesSent;
     }
@@ -55,7 +55,7 @@ bool TcpSocket::TryToConnect() noexcept {
             return false;
         }
     } catch (std::exception &e) {
-        /// Temporary. Just for debug in development
+        /// Temporary. Just for debug
         std::string errorMessage = e.what();
         return false;
     }
