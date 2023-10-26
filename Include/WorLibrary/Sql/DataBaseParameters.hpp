@@ -7,8 +7,17 @@ namespace Wor::Sql {
     /**
      * Provide data to connect to Data Base
      */
-    struct DataBaseParameters {
-        explicit DataBaseParameters(const std::string &connectionString = "") noexcept;
+    struct DataBaseParameters final {
+        /**
+         * Ctor
+         * @param connectionString
+         */
+        explicit DataBaseParameters(const std::string &connectionString) noexcept;
+
+        /**
+         * Ctor
+         */
+        DataBaseParameters() noexcept = default;
 
         /**
          * Data base type

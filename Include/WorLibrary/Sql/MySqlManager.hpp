@@ -5,10 +5,15 @@
 #include "soci/mysql/soci-mysql.h"
 
 #include "WorLibrary/Sql/DataBaseParameters.hpp"
+#include "WorLibrary/Sql/SelectStatementData.hpp"
+#include "WorLibrary/Sql/DbCellStrView.hpp"
 
 #include <string>
 
 namespace Wor::Sql {
+
+    template<typename T>
+    using TableMap = std::vector<std::vector<Wor::Sql::DbCellStrView<T>>>;
 
     /**
      *
@@ -43,11 +48,9 @@ namespace Wor::Sql {
         };
 
         /**
-         * Ctor
+         *
          */
-        explicit MySqlManager(DataBaseParameters dbParameters) noexcept;
-
-        MySqlManager() = default;
+        void Configure(DataBaseParameters dbParameters) noexcept;
 
         /**
          *
@@ -55,6 +58,19 @@ namespace Wor::Sql {
          * @return
          */
         [[nodiscard]] ConnectionStatus TryToConnect() noexcept;
+
+        /**
+         *
+         * @return
+         */
+        [[nodiscard]] TableMap<std::string> Select(const SelectStatementData &statementData) noexcept;
+
+    protected:
+
+        /**
+         * Ctor
+         */
+        explicit MySqlManager(DataBaseParameters dbParameters = {}) noexcept;
 
     private:
         /**
@@ -77,7 +93,7 @@ namespace Wor::Sql {
 
         [[nodiscard]] ConnectionStatus Status() const noexcept;
 
-        [[nodiscard]] const DataBaseParameters& DpParameters() const noexcept;
+        [[nodiscard]] const DataBaseParameters &DpParameters() const noexcept;
 
 #pragma endregion Accessors
 
