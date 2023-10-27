@@ -20,10 +20,10 @@ namespace Wor::Network {
             Error
         } status;
 
-        explicit EndPoint(std::string address_ = {}, uint32_t port_ = 0) noexcept;
+        explicit EndPoint(std::string address_ = {}, std::uint32_t port_ = 0) noexcept;
 
         std::string address;
 
-        uint32_t port;
+        std::uint32_t port;
     };
 }

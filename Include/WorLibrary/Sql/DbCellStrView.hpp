@@ -32,6 +32,12 @@ namespace Wor::Sql {
         T value;
     };
 
+    /**
+     *
+     */
+    template<typename T = std::string>
+    using TableMap = std::vector<std::vector<Wor::Sql::DbCellStrView<T>>>;
+
     template<typename T>
     DbCellStrView<T>::DbCellStrView(std::string cellName, std::string cellValue)
             : name(std::move(cellName)),

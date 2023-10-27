@@ -49,13 +49,13 @@ MySqlManager::ConnectionStatus MySqlManager::TryToConnect() noexcept {
 }
 
 TableMap<std::string> MySqlManager::Select(const SelectStatementData &statementData) noexcept {
-    soci::rowset<soci::row> rs = _session.prepare << statementData.ToString();
-    if (!CheckEmptiness(rs)) {
+    soci::rowset<soci::row> rowset = _session.prepare << statementData.ToString();
+    if (!CheckEmptiness(rowset)) {
         return {};
     }
     TableMap<std::string> tableMap;
     uint16_t rowCount = 0;
-    for (const auto &row : rs) {
+    for (const auto &row : rowset) {
         std::vector<DbCellStrView<std::string>> tableRow;
         for (std::size_t i = 0; i < statementData.selectValues.size(); i++) {
             const auto strValue = Utils::DataConverter::SociToString(row, i);

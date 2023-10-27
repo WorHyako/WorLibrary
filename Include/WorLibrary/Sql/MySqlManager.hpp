@@ -12,9 +12,6 @@
 
 namespace Wor::Sql {
 
-    template<typename T>
-    using TableMap = std::vector<std::vector<Wor::Sql::DbCellStrView<T>>>;
-
     /**
      *
      */
@@ -49,6 +46,7 @@ namespace Wor::Sql {
 
         /**
          *
+         * @param dbParameters
          */
         void Configure(DataBaseParameters dbParameters) noexcept;
 

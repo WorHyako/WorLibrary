@@ -20,10 +20,10 @@ namespace Wor::Sql::Utils {
          * @param cellIndex
          * @return
          */
-        static std::string SociToString(const soci::row &row, int cellIndex) noexcept;
+        [[nodiscard]] static std::string SociToString(const soci::row &row, std::int64_t cellIndex) noexcept;
     };
 
-    inline std::string DataConverter::SociToString(const soci::row &row, int cellIndex) noexcept {
+    std::string Wor::Sql::Utils::DataConverter::SociToString(const soci::row &row, std::int64_t cellIndex) noexcept {
         std::string s {};
         if (cellIndex > (row.size() - 1)) {
             return s;
