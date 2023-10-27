@@ -1,14 +1,70 @@
 cmake_minimum_required(VERSION 3.24)
 
-set(WorLib_Dir ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
+set(CMAKE_CXX_COMPILER_VERSION 17)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+project(WorLibrary
+        VERSION 0.1
+        LANGUAGES CXX)
+
+option(WOR_JSON "" ON)
+option(WOR_NETWORK "" ON)
+option(WOR_SQL "" ON)
+option(WOR_MATH "" ON)
+
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_NO_BOOST_CMAKE ON)
+set(Boost_NO_WARN_NEW_VERSIONS ON)
+find_package(Boost 1.81.0 REQUIRED COMPONENTS date_time)
+
+if (${WOR_JSON})
+    file(GLOB_RECURSE WorLib_Json_Src ${CMAKE_CURRENT_SOURCE_DIR}/Src/Json/*.cpp)
+    list(APPEND WorLib_Sources ${WorLib_Json_Src})
+endif ()
+
+if (${WOR_MATH})
+endif ()
+
+if (${WOR_NETWORK})
+    file(GLOB_RECURSE WorLib_Network_Sources ${CMAKE_CURRENT_SOURCE_DIR}/Src/Network/*.cpp)
+    list(APPEND WorLib_Sources ${WorLib_Network_Sources})
+endif ()
+
+if (${WOR_SQL})
+    set(Soci_Install_Root_Dir ${CMAKE_CURRENT_SOURCE_DIR}/../soci-install)
+    option(SOCI_EMPTY "Build the sample backend called Empty" ON)
+    find_package(Soci REQUIRED
+            PATHS ${Soci_Install_Root_Dir}/lib/cmake/SOCI)
+
+    find_library(mysqlcl mysqlclient REQUIRED)
+
+    list(APPEND Soci_Libs
+            soci_core
+            soci_empty
+            soci_mysql
+            ${mysqlcl})
+    list(APPEND Soci_Include_Dir
+            /opt/homebrew/Cellar/mysql/8.1.0/include/mysql
+            ${Soci_Install_Root_Dir}/include)
+    list(APPEND Soci_Libs_Dir
+            ${Soci_Install_Root_Dir}/lib/)
+
+    file(GLOB_RECURSE WorLib_Sql_Sources
+            ${CMAKE_CURRENT_SOURCE_DIR}/Src/Sql/*.cpp)
+    list(APPEND WorLib_Sources ${WorLib_Sql_Sources})
+endif ()
+
+add_library(${PROJECT_NAME} STATIC)
+target_include_directories(${PROJECT_NAME}
+        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Include
+        PUBLIC ${Soci_Include_Dir}
+        PUBLIC ${Boost_INCLUDE_DIRS})
+target_sources(${PROJECT_NAME}
+        PRIVATE ${WorLib_Sources})
+target_link_libraries(${PROJECT_NAME}
+        PUBLIC ${Soci_Libs}
+        PUBLIC ${Boost_LIBRARIES})
+target_link_directories(${PROJECT_NAME}
+        PUBLIC ${Soci_Libs_Dir})
 set(WorLib_Include_Dir ${CMAKE_CURRENT_SOURCE_DIR}/Include PARENT_SCOPE)
-
-file(GLOB_RECURSE WorLib_Json ${CMAKE_CURRENT_SOURCE_DIR}/Src/Json/*.cpp)
-file(GLOB_RECURSE WorLib_Vector ${WorLib_Include_Dir}/WorLibrary/Vector/*.hpp)
-file(GLOB_RECURSE WorLib_Network ${CMAKE_CURRENT_SOURCE_DIR}/Src/Network/*.cpp)
-file(GLOB_RECURSE WorLib_Sql ${CMAKE_CURRENT_SOURCE_DIR}/Src/Sql/*.cpp)
-
-set(WorLib_Json ${WorLib_Json} PARENT_SCOPE)
-set(WorLib_Sql ${WorLib_Sql} PARENT_SCOPE)
-set(WorLib_Vector ${WorLib_Vector} PARENT_SCOPE)
-set(WorLib_Network ${WorLib_Network} PARENT_SCOPE)
