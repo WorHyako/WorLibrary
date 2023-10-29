@@ -32,7 +32,6 @@ void EventManager::UpdateEventList(bool executeNewEvents) noexcept {
         return;
     }
     auto newEvents = updateEvent->eventFunction(_lastEventId);
-    _lastEventId += static_cast<std::int64_t>(newEvents.Size() - 1);
     ExecuteEvents(newEvents);
 }
 

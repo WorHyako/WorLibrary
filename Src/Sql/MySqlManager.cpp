@@ -59,7 +59,7 @@ DbTableView MySqlManager::Select(const Event::SelectStatementData &statementData
         DbRowView tableRow;
         for (std::size_t i = 0; i < statementData.selectValues.size(); i++) {
             const auto strValue = Utils::DataConverter::SociToString(row, static_cast<std::int64_t>(i));
-            tableRow.emplace_back(statementData.selectValues[i], strValue);
+            tableRow.Add({statementData.selectValues[i], strValue});
         }
         std::ignore = tableMap.AddRow(tableRow, true);
         rowCount++;

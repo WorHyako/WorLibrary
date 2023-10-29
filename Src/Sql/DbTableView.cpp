@@ -31,7 +31,7 @@ bool DbTableView::AddRow(DbRowView row, bool overwrite) noexcept {
     const int eventId = std::atoi(std::any_cast<std::string>(it->value).c_str());
     const auto rowExist = _tableView.find(eventId) != _tableView.end();
     if ((rowExist && overwrite) || !rowExist) {
-        _tableView[eventId] = row;
+        _tableView[eventId] = std::move(row);
     }
     return true;
 }

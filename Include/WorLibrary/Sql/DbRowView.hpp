@@ -1,0 +1,50 @@
+#pragma once
+
+#include "WorLibrary/Sql/DbCellView.hpp"
+
+#include <vector>
+#include <iterator>
+
+namespace Wor::Sql {
+
+    /**
+     *
+     */
+    class DbRowView {
+    public:
+        /**
+         * Ctor
+         */
+        DbRowView() noexcept = default;
+
+        /**
+         *
+         */
+        void Add(const DbCellView& element) noexcept;
+
+    private:
+        /**
+         * 
+         */
+        std::vector<DbCellView> _rowView;
+
+    public:
+#pragma region Operators
+
+        [[nodiscard]] DbCellView &operator[](std::int64_t idx) noexcept;
+
+        [[nodiscard]] std::vector<DbCellView>::iterator begin() noexcept;
+
+        [[nodiscard]] std::vector<DbCellView>::const_iterator begin() const noexcept;
+
+        [[nodiscard]] std::vector<DbCellView>::iterator end() noexcept;
+
+        [[nodiscard]] std::vector<DbCellView>::const_iterator end() const noexcept;
+
+        [[nodiscard]] std::vector<DbCellView>::const_iterator cbegin() const noexcept;
+
+        [[nodiscard]] std::vector<DbCellView>::const_iterator cend() const noexcept;
+
+#pragma endregion Operators
+    };
+}

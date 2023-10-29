@@ -1,17 +1,12 @@
 #pragma once
 
-#include "WorLibrary/Sql/DbCellView.hpp"
+#include "WorLibrary/Sql/DbRowView.hpp"
 
 #include <map>
 #include <optional>
 #include <iterator>
 
 namespace Wor::Sql {
-
-    /**
-     *
-     */
-    using DbRowView = std::vector<DbCellView>;
 
     /**
      *

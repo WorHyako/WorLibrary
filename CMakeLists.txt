@@ -11,11 +11,17 @@ option(WORLIBRARY_JSON "" ON)
 option(WORLIBRARY_NETWORK "" ON)
 option(WORLIBRARY_SQL "" ON)
 option(WORLIBRARY_MATH "" ON)
+option(WORLIBRARY_CURRENCY "" ON)
 
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_NO_BOOST_CMAKE ON)
 set(Boost_NO_WARN_NEW_VERSIONS ON)
 find_package(Boost 1.81.0 REQUIRED COMPONENTS date_time)
+
+if(${WORLIBRARY_CURRENCY})
+    file(GLOB_RECURSE WorLib_Currency_Src ${CMAKE_CURRENT_SOURCE_DIR}/Src/Currency/*.cpp)
+    list(APPEND WorLib_Sources ${WorLib_Currency_Src})
+endif ()
 
 if (${WORLIBRARY_JSON})
     file(GLOB_RECURSE WorLib_Json_Src ${CMAKE_CURRENT_SOURCE_DIR}/Src/Json/*.cpp)
