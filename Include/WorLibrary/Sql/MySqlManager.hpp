@@ -5,8 +5,8 @@
 #include "soci/mysql/soci-mysql.h"
 
 #include "WorLibrary/Sql/DataBaseParameters.hpp"
-#include "WorLibrary/Sql/SelectStatementData.hpp"
-#include "WorLibrary/Sql/DbCellStrView.hpp"
+#include "WorLibrary/Sql/Event/SelectStatementData.hpp"
+#include "WorLibrary/Sql/DbTableView.hpp"
 
 #include <string>
 
@@ -61,7 +61,7 @@ namespace Wor::Sql {
          *
          * @return
          */
-        [[nodiscard]] TableMap<std::string> Select(const SelectStatementData &statementData) noexcept;
+        [[nodiscard]] DbTableView Select(const Event::SelectStatementData &statementData) noexcept;
 
     protected:
 

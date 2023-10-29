@@ -2,7 +2,7 @@
 
 #include <functional>
 
-#include "WorLibrary/Sql/DbCellStrView.hpp"
+#include "WorLibrary/Sql/DbTableView.hpp"
 
 namespace Wor::Sql::Event {
 
@@ -10,11 +10,18 @@ namespace Wor::Sql::Event {
      *
      */
     struct EventType {
+        friend bool operator==(const EventType &lhs, const EventType &rhs) {
+            return lhs.eventId == rhs.eventId;
+        }
+
+        friend bool operator!=(const EventType &lhs, const EventType &rhs) {
+            return !(rhs == lhs);
+        }
 
         /**
          *
          */
-        std::function<TableMap<std::string>(std::uint64_t)> eventFunction;
+        std::function<DbTableView(std::uint64_t)> eventFunction;
 
         /**
          *

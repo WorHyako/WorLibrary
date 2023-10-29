@@ -12,7 +12,7 @@ namespace {
     /**
      * Check if rowset is empty
      */
-    bool CheckEmptiness(const soci::rowset<soci::row> &rowset) {
+    bool IsEmpty(const soci::rowset<soci::row> &rowset) {
         return rowset.begin() == rowset.end();
     }
 }
@@ -48,20 +48,20 @@ MySqlManager::ConnectionStatus MySqlManager::TryToConnect() noexcept {
     return Status();
 }
 
-TableMap<std::string> MySqlManager::Select(const SelectStatementData &statementData) noexcept {
+DbTableView MySqlManager::Select(const Event::SelectStatementData &statementData) noexcept {
     soci::rowset<soci::row> rowset = _session.prepare << statementData.ToString();
-    if (!CheckEmptiness(rowset)) {
+    if (IsEmpty(rowset)) {
         return {};
     }
-    TableMap<std::string> tableMap;
+    DbTableView tableMap;
     uint16_t rowCount = 0;
     for (const auto &row : rowset) {
-        std::vector<DbCellStrView<std::string>> tableRow;
+        DbRowView tableRow;
         for (std::size_t i = 0; i < statementData.selectValues.size(); i++) {
-            const auto strValue = Utils::DataConverter::SociToString(row, i);
+            const auto strValue = Utils::DataConverter::SociToString(row, static_cast<std::int64_t>(i));
             tableRow.emplace_back(statementData.selectValues[i], strValue);
         }
-        tableMap.emplace_back(tableRow);
+        std::ignore = tableMap.AddRow(tableRow, true);
         rowCount++;
     }
     return tableMap;

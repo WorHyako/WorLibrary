@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-namespace Wor::Sql {
+namespace Wor::Sql::Event {
 
     /**
      *

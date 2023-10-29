@@ -20,17 +20,32 @@ namespace Wor::Sql::Event {
 
         /**
          *
+         * @param executeNewEvents
+         */
+        void UpdateEventList(bool executeNewEvents = true) noexcept;
+
+        /**
+         *
+         */
+        void ExecuteEvents(const DbTableView& answerList) noexcept;
+
+        /**
+         *
          * @param eventList
          * @return
          */
         [[nodiscard]] bool Configure(EventList eventList) noexcept;
 
-    private:
     public:
         /**
          *
          */
         EventList _eventList;
+
+        /**
+         *
+         */
+        std::int64_t _lastEventId = 0;
 
         /**
          *
