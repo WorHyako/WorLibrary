@@ -12,15 +12,19 @@ namespace Wor::Sql {
      */
     class DbRowView {
     public:
-        /**
-         * Ctor
-         */
-        DbRowView() noexcept = default;
 
         /**
          *
+         * @param cell
          */
-        void Add(const DbCellView& element) noexcept;
+        void Add(DbCellView cell) noexcept;
+
+        /**
+         *
+         * @param cellName
+         * @return
+         */
+        [[nodiscard]] std::string Find(const std::string& cellName) const noexcept;
 
     private:
         /**
@@ -31,7 +35,9 @@ namespace Wor::Sql {
     public:
 #pragma region Operators
 
-        [[nodiscard]] DbCellView &operator[](std::int64_t idx) noexcept;
+        [[nodiscard]] DbCellView &operator[](std::size_t idx) noexcept;
+
+        [[nodiscard]] const DbCellView &operator[](std::size_t idx) const noexcept;
 
         [[nodiscard]] std::vector<DbCellView>::iterator begin() noexcept;
 

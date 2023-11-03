@@ -4,12 +4,29 @@
 
 using namespace Wor::Sql;
 
+std::vector<DbRowView>::iterator DbTableView::Find(const DbRowView &element) const noexcept {
+    return {};
+}
+
+std::vector<DbRowView>::iterator DbTableView::Find(std::int64_t eventId) const noexcept {
+    return {};
+}
+
+void DbTableView::Sort(const std::string& property) noexcept {
+    std::sort(std::begin(_tableView), std::end(_tableView),
+              [&property](const DbRowView &a, const DbRowView &b) {
+                  auto aEventId = std::atoi(a.Find(property).c_str());
+                  auto bEventId = std::atoi(b.Find(property).c_str());
+                  return aEventId < bEventId;
+              });
+}
+
 #pragma region Accessors
 
 std::optional<DbRowView> DbTableView::GetRow(std::int64_t eventId) const noexcept {
-    auto event = _tableView.find(eventId);
+    auto event = Find(eventId);
     return event != _tableView.end()
-           ? event->second
+           ? *event
            : std::optional<DbRowView>();
 }
 
@@ -21,19 +38,11 @@ std::size_t DbTableView::Size() const noexcept {
 
 #pragma region Mutators
 
-bool DbTableView::AddRow(DbRowView row, bool overwrite) noexcept {
-    const auto it = std::find_if(row.begin(), row.end(), [](DbCellView &each) {
-        return each.name == "EventID";
-    });
-    if (it == row.end()) {
-        return false;
-    }
-    const int eventId = std::atoi(std::any_cast<std::string>(it->value).c_str());
-    const auto rowExist = _tableView.find(eventId) != _tableView.end();
+void DbTableView::AddRow(DbRowView row, bool overwrite) noexcept {
+    const auto rowExist = Find(row) != _tableView.end();
     if ((rowExist && overwrite) || !rowExist) {
-        _tableView[eventId] = std::move(row);
+        _tableView.emplace_back(std::move(row));
     }
-    return true;
 }
 
 #pragma endregion Mutators
@@ -44,27 +53,31 @@ DbRowView &DbTableView::operator[](std::int64_t idx) noexcept {
     return _tableView[idx];
 }
 
-std::map<std::int64_t, DbRowView>::iterator DbTableView::begin() noexcept {
+const DbRowView &DbTableView::operator[](std::int64_t idx) const noexcept {
+    return _tableView[idx];
+}
+
+std::vector<DbRowView>::iterator DbTableView::begin() noexcept {
     return std::begin(_tableView);
 }
 
-std::map<std::int64_t, DbRowView>::const_iterator DbTableView::begin() const noexcept {
+std::vector<DbRowView>::const_iterator DbTableView::begin() const noexcept {
     return std::begin(_tableView);
 }
 
-std::map<std::int64_t, DbRowView>::iterator DbTableView::end() noexcept {
+std::vector<DbRowView>::iterator DbTableView::end() noexcept {
     return std::end(_tableView);
 }
 
-std::map<std::int64_t, DbRowView>::const_iterator DbTableView::end() const noexcept {
+std::vector<DbRowView>::const_iterator DbTableView::end() const noexcept {
     return std::end(_tableView);
 }
 
-std::map<std::int64_t, DbRowView>::const_iterator DbTableView::cbegin() const noexcept {
+std::vector<DbRowView>::const_iterator DbTableView::cbegin() const noexcept {
     return std::cbegin(_tableView);
 }
 
-std::map<std::int64_t, DbRowView>::const_iterator DbTableView::cend() const noexcept {
+std::vector<DbRowView>::const_iterator DbTableView::cend() const noexcept {
     return std::cend(_tableView);
 }
 

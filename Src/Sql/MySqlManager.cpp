@@ -7,16 +7,6 @@
 
 using namespace Wor::Sql;
 
-namespace {
-
-    /**
-     * Check if rowset is empty
-     */
-    bool IsEmpty(const soci::rowset<soci::row> &rowset) {
-        return rowset.begin() == rowset.end();
-    }
-}
-
 MySqlManager::MySqlManager(DataBaseParameters dbParameters) noexcept :
         _status(ConnectionStatus::ZeroCheck) {
     Configure(std::move(dbParameters));
@@ -49,20 +39,21 @@ MySqlManager::ConnectionStatus MySqlManager::TryToConnect() noexcept {
 }
 
 DbTableView MySqlManager::Select(const Event::SelectStatementData &statementData) noexcept {
-    soci::rowset<soci::row> rowset = _session.prepare << statementData.ToString();
-    if (IsEmpty(rowset)) {
-        return {};
-    }
+    const soci::rowset<soci::row>& rowset = _session.prepare << statementData.ToString();
     DbTableView tableMap;
-    uint16_t rowCount = 0;
     for (const auto &row : rowset) {
         DbRowView tableRow;
+
+        const auto eventIdOpt = Utils::DataConverter::SociTo<int>(row, static_cast<std::int64_t>(0));
+        if (!eventIdOpt.has_value()) {
+            return {};
+        }
         for (std::size_t i = 0; i < statementData.selectValues.size(); i++) {
             const auto strValue = Utils::DataConverter::SociToString(row, static_cast<std::int64_t>(i));
-            tableRow.Add({statementData.selectValues[i], strValue});
+            tableRow.Add({ statementData.selectValues[i], strValue });
         }
-        std::ignore = tableMap.AddRow(tableRow, true);
-        rowCount++;
+
+        tableMap.AddRow(tableRow, true);
     }
     return tableMap;
 }

@@ -18,31 +18,32 @@ bool EventManager::Configure(EventList eventList) noexcept {
 }
 
 void EventManager::UpdateEventList(bool executeNewEvents) noexcept {
-    EventType y {
-            {},
-            0
-    };
     auto updateEvent =
-            std::find(std::begin(_eventList), std::end(_eventList),
-                      EventType {{}, -1 });
+            std::find_if(std::begin(_eventList), std::end(_eventList),
+                         [](const EventType &a) {
+                             return a.eventId == -1;
+                         });
     if (updateEvent == _eventList.end()) {
         return;
     }
+    auto newEvents = updateEvent->eventFunction(0);
+    newEvents.Sort();
     if (!executeNewEvents) {
         return;
     }
-    auto newEvents = updateEvent->eventFunction(_lastEventId);
     ExecuteEvents(newEvents);
 }
 
 void EventManager::ExecuteEvents(const DbTableView &answerList) noexcept {
-    for (const auto &cell : answerList) {
-        auto f = cell.second;
-        std::int16_t eventType = std::atoi(std::any_cast<std::string>(f[1].value).c_str());
-        std::int64_t eventId = std::atoi(std::any_cast<std::string>(f[0].value).c_str());
-        auto event =
+    for (const auto &row : answerList) {
+        const std::int64_t eventId = std::stol(row[0].value);
+        const std::int32_t eventType = std::stoi(row[1].value);
+        const auto event =
                 std::find(std::begin(_eventList), std::end(_eventList),
                           EventType {{}, eventType });
+        if (event == _eventList.end()) {
+            continue;
+        }
         auto ans = event->eventFunction(eventId);
     }
 }

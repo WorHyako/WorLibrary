@@ -2,14 +2,29 @@
 
 using namespace Wor::Sql;
 
-void DbRowView::Add(const DbCellView &element) noexcept {
-    _rowView.emplace_back(element);
+void DbRowView::Add(DbCellView cell) noexcept {
+    _rowView.emplace_back(std::move(cell));
+}
+
+std::string DbRowView::Find(const std::string &cellName) const noexcept {
+    auto element = std::find_if(std::begin(_rowView), std::end(_rowView),
+                                [&cellName](const DbCellView &cell) {
+                                    return cellName == cell.name;
+                                });
+    if (element == std::end(_rowView)) {
+        return "";
+    }
+    return element->value;
 }
 
 #pragma region Operators
 
-DbCellView &DbRowView::operator[](std::int64_t idx) noexcept {
-    return _rowView[idx];
+DbCellView &DbRowView::operator[](std::size_t idx) noexcept {
+    return _rowView.at(idx);
+}
+
+const DbCellView &DbRowView::operator[](std::size_t idx) const noexcept {
+    return _rowView.at(idx);
 }
 
 std::vector<DbCellView>::iterator DbRowView::begin() noexcept {

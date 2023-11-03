@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <any>
 
 namespace Wor::Sql {
 
@@ -22,7 +21,7 @@ namespace Wor::Sql {
          * @param name
          * @param value
          */
-        DbCellView(std::string cellName, std::any cellValue) noexcept
+        DbCellView(std::string cellName, std::string cellValue) noexcept
                 : name(std::move(cellName)),
                   value(std::move(cellValue)) {
         };
@@ -35,6 +34,6 @@ namespace Wor::Sql {
         /**
          *
          */
-        std::any value;
+        std::string value;
     };
 }

@@ -29,7 +29,7 @@ namespace Wor::Sql::Utils {
 
     std::string Wor::Sql::Utils::DataConverter::SociToString(const soci::row &row, std::int64_t cellIndex) noexcept {
         std::string s {};
-        if (cellIndex > (row.size() - 1)) {
+        if (row.get_indicator(cellIndex) == soci::i_null) {
             return s;
         }
         const soci::column_properties &property = row.get_properties(cellIndex);
@@ -55,7 +55,7 @@ namespace Wor::Sql::Utils {
     template<typename Type>
     std::optional<Type> Wor::Sql::Utils::DataConverter::SociTo(const soci::row &row, std::int64_t cellIndex) noexcept {
         std::any value;
-        if (cellIndex > (row.size() - 1)) {
+        if (row.get_indicator(cellIndex) == soci::i_null) {
             return {};
         }
         const soci::column_properties &property = row.get_properties(cellIndex);

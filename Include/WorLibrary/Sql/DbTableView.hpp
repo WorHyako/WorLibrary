@@ -18,11 +18,31 @@ namespace Wor::Sql {
          */
         DbTableView() = default;
 
+        /**
+         *
+         * @param property
+         */
+        void Sort(const std::string& property = "EventID") noexcept;
+
     private:
         /**
          *
          */
-        std::map<std::int64_t, DbRowView> _tableView;
+        std::vector<DbRowView> _tableView;
+
+        /**
+         *
+         * @param element
+         * @return
+         */
+        [[nodiscard]] std::vector<DbRowView>::iterator Find(const DbRowView& element) const noexcept;
+
+        /**
+         *
+         * @param eventId
+         * @return
+         */
+        [[nodiscard]] std::vector<DbRowView>::iterator Find(std::int64_t eventId) const noexcept;
 
     public:
 #pragma region Accessors
@@ -48,9 +68,8 @@ namespace Wor::Sql {
          *
          * @param row
          * @param overwrite
-         * @return
          */
-        [[nodiscard]] bool AddRow(DbRowView row, bool overwrite = false) noexcept;
+        void AddRow(DbRowView row, bool overwrite = false) noexcept;
 
 #pragma endregion Mutators
 
@@ -58,17 +77,19 @@ namespace Wor::Sql {
 
         [[nodiscard]] DbRowView &operator[](std::int64_t idx) noexcept;
 
-        [[nodiscard]] std::map<std::int64_t, DbRowView>::iterator begin() noexcept;
+        [[nodiscard]] const DbRowView &operator[](std::int64_t idx) const noexcept;
 
-        [[nodiscard]] std::map<std::int64_t, DbRowView>::const_iterator begin() const noexcept;
+        [[nodiscard]] std::vector<DbRowView>::iterator begin() noexcept;
 
-        [[nodiscard]] std::map<std::int64_t, DbRowView>::iterator end() noexcept;
+        [[nodiscard]] std::vector<DbRowView>::const_iterator begin() const noexcept;
 
-        [[nodiscard]] std::map<std::int64_t, DbRowView>::const_iterator end() const noexcept;
+        [[nodiscard]] std::vector<DbRowView>::iterator end() noexcept;
 
-        [[nodiscard]] std::map<std::int64_t, DbRowView>::const_iterator cbegin() const noexcept;
+        [[nodiscard]] std::vector<DbRowView>::const_iterator end() const noexcept;
 
-        [[nodiscard]] std::map<std::int64_t, DbRowView>::const_iterator cend() const noexcept;
+        [[nodiscard]] std::vector<DbRowView>::const_iterator cbegin() const noexcept;
+
+        [[nodiscard]] std::vector<DbRowView>::const_iterator cend() const noexcept;
 
 #pragma endregion Operators
     };
