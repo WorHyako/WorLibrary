@@ -7,18 +7,18 @@ project(WorLibrary
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-option(WORLIBRARY_JSON "" ON)
-option(WORLIBRARY_NETWORK "" ON)
-option(WORLIBRARY_SQL "" ON)
-option(WORLIBRARY_MATH "" ON)
-option(WORLIBRARY_CURRENCY "" ON)
+option(WORLIBRARY_JSON "" OFF)
+option(WORLIBRARY_NETWORK "" OFF)
+option(WORLIBRARY_SQL "" OFF)
+option(WORLIBRARY_MATH "" OFF)
+option(WORLIBRARY_CURRENCY "" OFF)
 
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_NO_BOOST_CMAKE ON)
 set(Boost_NO_WARN_NEW_VERSIONS ON)
 find_package(Boost 1.81.0 REQUIRED COMPONENTS date_time)
 
-if(${WORLIBRARY_CURRENCY})
+if (${WORLIBRARY_CURRENCY})
     file(GLOB_RECURSE WorLib_Currency_Src ${CMAKE_CURRENT_SOURCE_DIR}/Src/Currency/*.cpp)
     list(APPEND WorLib_Sources ${WorLib_Currency_Src})
 endif ()
@@ -60,17 +60,19 @@ if (${WORLIBRARY_SQL})
     list(APPEND WorLib_Sources ${WorLib_Sql_Sources})
 endif ()
 
-add_library(${PROJECT_NAME} STATIC)
-target_include_directories(${PROJECT_NAME}
-        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Include
-        PUBLIC ${Soci_Include_Dir}
-        PUBLIC ${Boost_INCLUDE_DIRS})
-target_sources(${PROJECT_NAME}
-        PRIVATE ${WorLib_Sources})
-target_link_libraries(${PROJECT_NAME}
-        PUBLIC ${Soci_Libs}
-        PUBLIC ${Boost_LIBRARIES})
-target_link_directories(${PROJECT_NAME}
-        PUBLIC ${Soci_Libs_Dir})
+if (${WorLib_Sources} NOT STREQUAL "")
+    add_library(${PROJECT_NAME} STATIC)
+    target_include_directories(${PROJECT_NAME}
+            PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Include
+            PUBLIC ${Soci_Include_Dir}
+            PUBLIC ${Boost_INCLUDE_DIRS})
+    target_sources(${PROJECT_NAME}
+            PRIVATE ${WorLib_Sources})
+    target_link_libraries(${PROJECT_NAME}
+            PUBLIC ${Soci_Libs}
+            PUBLIC ${Boost_LIBRARIES})
+    target_link_directories(${PROJECT_NAME}
+            PUBLIC ${Soci_Libs_Dir})
+endif ()
 
 set(WorLib_Include_Dir ${CMAKE_CURRENT_SOURCE_DIR}/Include PARENT_SCOPE)
