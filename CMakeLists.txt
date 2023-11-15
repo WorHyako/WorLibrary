@@ -60,7 +60,7 @@ if (${WORLIBRARY_SQL})
     list(APPEND WorLib_Sources ${WorLib_Sql_Sources})
 endif ()
 
-if (${WorLib_Sources} NOT STREQUAL "")
+if (WorLib_Sources)
     add_library(${PROJECT_NAME} STATIC)
     target_include_directories(${PROJECT_NAME}
             PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Include
