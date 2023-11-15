@@ -46,7 +46,7 @@ namespace Wor::Json {
          * @param filePath_ Absolute or relative file path
          * @return          file status
          */
-        [[nodiscard]] FileStatus TryToFindFile(const std::string&& filePath_, bool createFile_ = true) noexcept;
+        [[nodiscard]] FileStatus tryToFindFile(const std::string&& filePath_, bool createFile_ = true) noexcept;
 
         /**
          *
@@ -55,14 +55,14 @@ namespace Wor::Json {
          * @return
          */
         [[nodiscard]] bool
-        TryToSaveFile(const std::string& jsonString_, const std::string& scope_ = {}) noexcept;
+        tryToSaveFile(const std::string& jsonString_, const std::string& scope_ = {}) noexcept;
 
         /**
          *
          * @param scopeName_
          * @return
          */
-        [[nodiscard]] nlohmann::json TryToLoadFile(const std::string& scopeName_ = {}) noexcept;
+        [[nodiscard]] nlohmann::json tryToLoadFile(const std::string& scopeName_ = {}) noexcept;
 
     private:
         /**
@@ -80,27 +80,27 @@ namespace Wor::Json {
          * @param filePath_ absolute or relative file path
          * @return          checking result
          */
-        [[nodiscard]] static bool IsFileExist(const std::string& filePath_) noexcept;
+        [[nodiscard]] static bool isFileExist(const std::string& filePath_) noexcept;
 
         /**
          * Small method just to make code more comfortable
          * @return  is file ready
          */
-        [[nodiscard]] inline bool IsFileReady() const noexcept;
+        [[nodiscard]] inline bool isFileReady() const noexcept;
 
         /**
          *
          * @param filePath_
          * @return
          */
-        [[nodiscard]] static inline bool CreateFile(const std::string& filePath_) noexcept;
+        [[nodiscard]] static inline bool createFile(const std::string& filePath_) noexcept;
 
     public:
 #pragma region Accessors
 
-        [[nodiscard]] std::string GetFileName() const noexcept;
+        [[nodiscard]] std::string getFileName() const noexcept;
 
-        [[nodiscard]] FileStatus GetFileStatus() const noexcept;
+        [[nodiscard]] FileStatus getFileStatus() const noexcept;
 
 #pragma endregion Accessors
     };

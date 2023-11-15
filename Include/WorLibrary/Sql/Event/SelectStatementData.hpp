@@ -34,6 +34,6 @@ namespace Wor::Sql::Event {
          * Return sql request via string view with current parameters
          * @return Sql request string
          */
-        [[nodiscard]] std::string ToString() const noexcept;
+        [[nodiscard]] std::string toString() const noexcept;
     };
 }

@@ -17,14 +17,14 @@ namespace Wor::Sql {
          *
          * @param cell
          */
-        void Add(DbCellView cell) noexcept;
+        void add(DbCellView cell) noexcept;
 
         /**
          *
          * @param cellName
          * @return
          */
-        [[nodiscard]] std::string Find(const std::string& cellName) const noexcept;
+        [[nodiscard]] std::string find(const std::string& cellName) const noexcept;
 
     private:
         /**

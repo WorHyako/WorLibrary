@@ -34,7 +34,7 @@ namespace Wor::TemplateWrapper {
          *
          * @return  Static object instance
          */
-        static T &GetInstance();
+        static T &getInstance();
 
 #pragma endregion Accessors
     };
@@ -42,7 +42,7 @@ namespace Wor::TemplateWrapper {
 #pragma region Accessors
 
     template<typename T>
-    T &Singleton<T>::GetInstance() {
+    T &Singleton<T>::getInstance() {
         static Singleton instance {};
         return instance;
     }

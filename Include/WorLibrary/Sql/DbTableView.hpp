@@ -35,14 +35,14 @@ namespace Wor::Sql {
          * @param element
          * @return
          */
-        [[nodiscard]] std::vector<DbRowView>::iterator Find(const DbRowView& element) const noexcept;
+        [[nodiscard]] std::vector<DbRowView>::iterator find(const DbRowView& element) const noexcept;
 
         /**
          *
          * @param eventId
          * @return
          */
-        [[nodiscard]] std::vector<DbRowView>::iterator Find(std::int64_t eventId) const noexcept;
+        [[nodiscard]] std::vector<DbRowView>::iterator find(std::int64_t eventId) const noexcept;
 
     public:
 #pragma region Accessors
@@ -52,13 +52,15 @@ namespace Wor::Sql {
          * @param rowIndex
          * @return
          */
-        [[nodiscard]] std::optional<DbRowView> GetRow(std::int64_t eventId) const noexcept;
+        [[nodiscard]] std::optional<DbRowView> getRow(std::int64_t eventId) const noexcept;
 
         /**
          *
          * @return
          */
-        [[nodiscard]] std::size_t Size() const noexcept;
+        [[nodiscard]] std::size_t size() const noexcept;
+
+        [[nodiscard]] const DbRowView& back() const noexcept;
 
 #pragma endregion Accessors
 

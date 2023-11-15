@@ -2,11 +2,11 @@
 
 using namespace Wor::Sql;
 
-void DbRowView::Add(DbCellView cell) noexcept {
+void DbRowView::add(DbCellView cell) noexcept {
     _rowView.emplace_back(std::move(cell));
 }
 
-std::string DbRowView::Find(const std::string &cellName) const noexcept {
+std::string DbRowView::find(const std::string &cellName) const noexcept {
     auto element = std::find_if(std::begin(_rowView), std::end(_rowView),
                                 [&cellName](const DbCellView &cell) {
                                     return cellName == cell.name;

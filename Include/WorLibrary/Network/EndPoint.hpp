@@ -14,6 +14,9 @@ namespace Wor::Network {
          *
          */
         enum class Status {
+            /**
+             * End point did'n
+             */
             ZeroCheck,
             Unreachable,
             Ready,

@@ -19,16 +19,16 @@ TcpSocket::TcpSocket() noexcept
 
 TcpSocket::~TcpSocket() noexcept {
     if (_status == SocketStatus::Connected) {
-        CloseSocket();
+        closeSocket();
         _status = SocketStatus::ZeroCheck;
     }
 }
 
-void TcpSocket::CleanErrors() noexcept {
+void TcpSocket::cleanErrors() noexcept {
     _errors.clear();
 }
 
-std::size_t TcpSocket::Send(const std::string &message_) noexcept {
+std::size_t TcpSocket::send(const std::string &message_) noexcept {
     std::size_t bytesSent = 0;
     if (_status != SocketStatus::Connected) {
         return bytesSent;
@@ -38,7 +38,7 @@ std::size_t TcpSocket::Send(const std::string &message_) noexcept {
     return bytesSent;
 }
 
-bool TcpSocket::TryToConnect() noexcept {
+bool TcpSocket::tryToConnect() noexcept {
     _status = SocketStatus::Unreachable;
     auto destinationEndPoint = AsioTcpEndPoint(
             boost::asio::ip::address::from_string(_destinationEndPoint.address.c_str()),
@@ -63,15 +63,15 @@ bool TcpSocket::TryToConnect() noexcept {
     return true;
 }
 
-void TcpSocket::CloseConnection() noexcept {
-    CloseSocket();
+void TcpSocket::closeConnection() noexcept {
+    closeSocket();
 }
 
-bool TcpSocket::CheckEndPoint(const std::string &address) noexcept {
+bool TcpSocket::checkEndPoint(const std::string &address) noexcept {
     return Wor::Network::Utils::checkEndPoint(address);
 }
 
-void TcpSocket::CloseSocket() noexcept {
+void TcpSocket::closeSocket() noexcept {
     if (_socket.is_open()) {
 //        boost::system::error_code ec;
 //        auto sec = _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_send, ec);
@@ -83,23 +83,23 @@ void TcpSocket::CloseSocket() noexcept {
 
 #pragma region Accessors
 
-const EndPoint &TcpSocket::DestinationEndPoint() const noexcept {
+const EndPoint &TcpSocket::destinationEndPoint() const noexcept {
     return _destinationEndPoint;
 }
 
-const EndPoint &TcpSocket::SourceEndPoint() const noexcept {
+const EndPoint &TcpSocket::sourceEndPoint() const noexcept {
     return _sourceEndPoint;
 }
 
-std::string TcpSocket::GetLastError() const noexcept {
+std::string TcpSocket::getLastError() const noexcept {
     return _errors.back().message();
 }
 
-const std::vector<TcpSocket::BoostErrorCode> &TcpSocket::GetErrors() const noexcept {
+const std::vector<TcpSocket::BoostErrorCode> &TcpSocket::getErrors() const noexcept {
     return _errors;
 }
 
-SocketStatus TcpSocket::Status() noexcept {
+SocketStatus TcpSocket::status() noexcept {
     return _status;
 }
 
@@ -107,11 +107,11 @@ SocketStatus TcpSocket::Status() noexcept {
 
 #pragma region Mutators
 
-void TcpSocket::DestinationEndPoint(EndPoint endPoint_) noexcept {
+void TcpSocket::destinationEndPoint(EndPoint endPoint_) noexcept {
     _destinationEndPoint = std::move(endPoint_);
 }
 
-void TcpSocket::SourceEndPoint(EndPoint endPoint_) noexcept {
+void TcpSocket::sourceEndPoint(EndPoint endPoint_) noexcept {
     _sourceEndPoint = std::move(endPoint_);
 }
 

@@ -9,14 +9,14 @@ using namespace Wor::Sql;
 
 MySqlManager::MySqlManager(DataBaseParameters dbParameters) noexcept :
         _status(ConnectionStatus::ZeroCheck) {
-    Configure(std::move(dbParameters));
+    configure(std::move(dbParameters));
 }
 
-void MySqlManager::Configure(DataBaseParameters dbParameters) noexcept {
+void MySqlManager::configure(DataBaseParameters dbParameters) noexcept {
     _dbParameters = std::move(dbParameters);
 }
 
-MySqlManager::ConnectionStatus MySqlManager::TryToConnect() noexcept {
+MySqlManager::ConnectionStatus MySqlManager::tryToConnect() noexcept {
     const std::string connectionString {
             "db=" + _dbParameters.dbName +
             " user=" + _dbParameters.user +
@@ -35,22 +35,22 @@ MySqlManager::ConnectionStatus MySqlManager::TryToConnect() noexcept {
     catch (...) {
         _status = ConnectionStatus::Unreachable;
     }
-    return Status();
+    return status();
 }
 
-DbTableView MySqlManager::Select(const Event::SelectStatementData &statementData) noexcept {
-    const soci::rowset<soci::row>& rowset = _session.prepare << statementData.ToString();
+DbTableView MySqlManager::select(const Event::SelectStatementData &statementData) noexcept {
+    const soci::rowset<soci::row>& rowset = _session.prepare << statementData.toString();
     DbTableView tableMap;
     for (const auto &row : rowset) {
         DbRowView tableRow;
 
-        const auto eventIdOpt = Utils::DataConverter::SociTo<int>(row, static_cast<std::int64_t>(0));
+        const auto eventIdOpt = Utils::DataConverter::sociTo<int>(row, static_cast<std::int64_t>(0));
         if (!eventIdOpt.has_value()) {
             return {};
         }
         for (std::size_t i = 0; i < statementData.selectValues.size(); i++) {
-            const auto strValue = Utils::DataConverter::SociToString(row, static_cast<std::int64_t>(i));
-            tableRow.Add({ statementData.selectValues[i], strValue });
+            const auto strValue = Utils::DataConverter::sociToString(row, static_cast<std::int64_t>(i));
+            tableRow.add({ statementData.selectValues[i], strValue });
         }
 
         tableMap.AddRow(tableRow, true);
@@ -60,11 +60,11 @@ DbTableView MySqlManager::Select(const Event::SelectStatementData &statementData
 
 #pragma region Accessors
 
-MySqlManager::ConnectionStatus MySqlManager::Status() const noexcept {
+MySqlManager::ConnectionStatus MySqlManager::status() const noexcept {
     return _status;
 }
 
-const DataBaseParameters &MySqlManager::DpParameters() const noexcept {
+const DataBaseParameters &MySqlManager::dpParameters() const noexcept {
     return _dbParameters;
 }
 
@@ -72,7 +72,7 @@ const DataBaseParameters &MySqlManager::DpParameters() const noexcept {
 
 #pragma region Mutators
 
-bool MySqlManager::DpParameters(DataBaseParameters dpParameters) noexcept {
+bool MySqlManager::dpParameters(DataBaseParameters dpParameters) noexcept {
     _dbParameters = std::move(dpParameters);
     return true;
 }

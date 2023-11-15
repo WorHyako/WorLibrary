@@ -3,6 +3,8 @@
 #include <vector>
 #include <utility>
 #include <string>
+#include <thread>
+#include <mutex>
 
 #include "WorLibrary/Sql/Event/EventType.hpp"
 
@@ -16,27 +18,41 @@ namespace Wor::Sql::Event {
         /**
          * Ctor
          */
-        EventManager();
+        EventManager() noexcept;
+
+        /**
+         * Dtor
+         */
+        ~EventManager() noexcept;
 
         /**
          *
-         * @param executeNewEvents
          */
-        void UpdateEventList(bool executeNewEvents = true) noexcept;
-
-        /**
-         *
-         */
-        void ExecuteEvents(const DbTableView& answerList) noexcept;
+        void executeEvents(const DbTableView& answerList) noexcept;
 
         /**
          *
          * @param eventList
          * @return
          */
-        [[nodiscard]] bool Configure(EventList eventList) noexcept;
+        [[nodiscard]] bool configure(EventList eventList) noexcept;
 
-    public:
+        /**
+         *
+         */
+         void startUpdatingThread() noexcept;
+
+         /**
+          *
+          */
+         void stopUpdatingThread() noexcept;
+
+    private:
+        /**
+         *
+         */
+         std::thread _updatingThread;
+
         /**
          *
          */
@@ -52,10 +68,36 @@ namespace Wor::Sql::Event {
          */
         bool _empty;
 
+        /**
+         *
+         */
+        bool _updatingActivity;
+
+        /**
+         *
+         */
+        std::chrono::milliseconds _updatingTimeBreak;
+
+        /**
+         *
+         */
+        std::mutex _mutex;
+
+        /**
+         *
+         * @param executeNewEvents
+         */
+        void updateEventList(bool executeNewEvents = true) noexcept;
+
+        /**
+         *
+         */
+        void updateEventListOnOtherThread(bool executeNewEvents = true) noexcept;
+
     public:
 #pragma region Accessors
 
-        [[nodiscard]] inline bool IsEmpty() const noexcept;
+        [[nodiscard]] inline bool isEmpty() const noexcept;
 
 #pragma endregion Accessors
 

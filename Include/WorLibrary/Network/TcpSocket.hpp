@@ -40,29 +40,29 @@ namespace Wor::Network {
          * @param message_
          * @return
          */
-        [[nodiscard]] std::size_t Send(const std::string &message_) noexcept override;
+        [[nodiscard]] std::size_t send(const std::string &message_) noexcept override;
 
         /**
          *
          */
-        void CleanErrors() noexcept;
+        void cleanErrors() noexcept;
 
         /**
          *
          */
-        [[nodiscard]] bool TryToConnect() noexcept override;
+        [[nodiscard]] bool tryToConnect() noexcept override;
 
         /**
          *
          */
-        void CloseConnection() noexcept override;
+        void closeConnection() noexcept override;
 
         /**
          *
          * @param address
          * @return          ping success
          */
-        [[nodiscard]] static bool CheckEndPoint(const std::string &address) noexcept;
+        [[nodiscard]] static bool checkEndPoint(const std::string &address) noexcept;
 
     private:
         /**
@@ -93,28 +93,28 @@ namespace Wor::Network {
         /**
          *
          */
-        void CloseSocket() noexcept;
+        void closeSocket() noexcept;
 
     public:
 #pragma region Accessors
 
-        [[nodiscard]] const EndPoint &DestinationEndPoint() const noexcept;
+        [[nodiscard]] const EndPoint &destinationEndPoint() const noexcept;
 
-        [[nodiscard]] const EndPoint &SourceEndPoint() const noexcept;
+        [[nodiscard]] const EndPoint &sourceEndPoint() const noexcept;
 
-        [[nodiscard]] std::string GetLastError() const noexcept;
+        [[nodiscard]] std::string getLastError() const noexcept;
 
-        [[nodiscard]] const std::vector<BoostErrorCode> &GetErrors() const noexcept;
+        [[nodiscard]] const std::vector<BoostErrorCode> &getErrors() const noexcept;
 
-        [[nodiscard]] SocketStatus Status() noexcept override;
+        [[nodiscard]] SocketStatus status() noexcept override;
 
 #pragma endregion Accessors
 
 #pragma region Mutators
 
-        void DestinationEndPoint(EndPoint endPoint_) noexcept;
+        void destinationEndPoint(EndPoint endPoint_) noexcept;
 
-        void SourceEndPoint(EndPoint endPoint_) noexcept;
+        void sourceEndPoint(EndPoint endPoint_) noexcept;
 
 #pragma endregion Mutators
     };

@@ -4,34 +4,38 @@
 
 using namespace Wor::Sql;
 
-std::vector<DbRowView>::iterator DbTableView::Find(const DbRowView &element) const noexcept {
+std::vector<DbRowView>::iterator DbTableView::find(const DbRowView &element) const noexcept {
     return {};
 }
 
-std::vector<DbRowView>::iterator DbTableView::Find(std::int64_t eventId) const noexcept {
+std::vector<DbRowView>::iterator DbTableView::find(std::int64_t eventId) const noexcept {
     return {};
 }
 
 void DbTableView::Sort(const std::string& property) noexcept {
     std::sort(std::begin(_tableView), std::end(_tableView),
               [&property](const DbRowView &a, const DbRowView &b) {
-                  auto aEventId = std::atoi(a.Find(property).c_str());
-                  auto bEventId = std::atoi(b.Find(property).c_str());
+                  auto aEventId = std::atoi(a.find(property).c_str());
+                  auto bEventId = std::atoi(b.find(property).c_str());
                   return aEventId < bEventId;
               });
 }
 
 #pragma region Accessors
 
-std::optional<DbRowView> DbTableView::GetRow(std::int64_t eventId) const noexcept {
-    auto event = Find(eventId);
+std::optional<DbRowView> DbTableView::getRow(std::int64_t eventId) const noexcept {
+    auto event = find(eventId);
     return event != _tableView.end()
            ? *event
            : std::optional<DbRowView>();
 }
 
-std::size_t DbTableView::Size() const noexcept {
+std::size_t DbTableView::size() const noexcept {
     return _tableView.size();
+}
+
+const DbRowView& DbTableView::back() const noexcept {
+    return _tableView.back();
 }
 
 #pragma endregion Accessors
@@ -39,7 +43,7 @@ std::size_t DbTableView::Size() const noexcept {
 #pragma region Mutators
 
 void DbTableView::AddRow(DbRowView row, bool overwrite) noexcept {
-    const auto rowExist = Find(row) != _tableView.end();
+    const auto rowExist = find(row) != _tableView.end();
     if ((rowExist && overwrite) || !rowExist) {
         _tableView.emplace_back(std::move(row));
     }

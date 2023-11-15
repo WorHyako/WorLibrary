@@ -48,20 +48,20 @@ namespace Wor::Sql {
          *
          * @param dbParameters
          */
-        void Configure(DataBaseParameters dbParameters) noexcept;
+        void configure(DataBaseParameters dbParameters) noexcept;
 
         /**
          *
          * @param connectionString
          * @return
          */
-        [[nodiscard]] ConnectionStatus TryToConnect() noexcept;
+        [[nodiscard]] ConnectionStatus tryToConnect() noexcept;
 
         /**
          *
          * @return
          */
-        [[nodiscard]] DbTableView Select(const Event::SelectStatementData &statementData) noexcept;
+        [[nodiscard]] DbTableView select(const Event::SelectStatementData &statementData) noexcept;
 
     protected:
 
@@ -89,15 +89,15 @@ namespace Wor::Sql {
     public:
 #pragma region Accessors
 
-        [[nodiscard]] ConnectionStatus Status() const noexcept;
+        [[nodiscard]] ConnectionStatus status() const noexcept;
 
-        [[nodiscard]] const DataBaseParameters &DpParameters() const noexcept;
+        [[nodiscard]] const DataBaseParameters &dpParameters() const noexcept;
 
 #pragma endregion Accessors
 
 #pragma region Mutators
 
-        [[nodiscard]] bool DpParameters(DataBaseParameters dpParameters) noexcept;
+        [[nodiscard]] bool dpParameters(DataBaseParameters dpParameters) noexcept;
 
 #pragma endregion Mutators
     };

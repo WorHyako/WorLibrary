@@ -57,7 +57,7 @@ namespace Wor::Currency {
          * @param currencyType
          * @return
          */
-        [[nodiscard]] static std::string FormatMoney(std::string value,
+        [[nodiscard]] static std::string formatMoney(std::string value,
                                                      Rules format,
                                                      CurrencyType currencyType) noexcept;
 
@@ -66,6 +66,6 @@ namespace Wor::Currency {
          * @param str
          * @return
          */
-        [[nodiscard]] static bool IsNumber(const std::string &str) noexcept;
+        [[nodiscard]] static bool isNumber(const std::string &str) noexcept;
     };
 }

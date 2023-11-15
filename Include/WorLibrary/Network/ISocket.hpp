@@ -44,24 +44,24 @@ namespace Wor::Network {
         /**
          *
          */
-        virtual void CloseConnection() noexcept = 0;
+        virtual void closeConnection() noexcept = 0;
 
         /**
          *
          * @return
          */
-        [[nodiscard]] virtual bool TryToConnect() noexcept = 0;
+        [[nodiscard]] virtual bool tryToConnect() noexcept = 0;
 
         /**
          *
          * @param message_
          */
-        [[nodiscard]] virtual std::size_t Send(const std::string &message_) noexcept = 0;
+        [[nodiscard]] virtual std::size_t send(const std::string &message_) noexcept = 0;
 
         /**
          *
          * @return
          */
-        [[nodiscard]] virtual SocketStatus Status() noexcept = 0;
+        [[nodiscard]] virtual SocketStatus status() noexcept = 0;
     };
 }

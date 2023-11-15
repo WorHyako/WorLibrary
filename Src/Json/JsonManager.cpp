@@ -9,13 +9,13 @@ JsonManager::JsonManager()
           _filePath("none") {
 }
 
-JsonManager::FileStatus JsonManager::TryToFindFile(const std::string&& filePath_, bool createFile_) noexcept {
+JsonManager::FileStatus JsonManager::tryToFindFile(const std::string&& filePath_, bool createFile_) noexcept {
     if (createFile_) {
-        _fileStatus = CreateFile(filePath_)
+        _fileStatus = createFile(filePath_)
                       ? FileStatus::Ready
                       : FileStatus::Unreachable;
     } else {
-        _fileStatus = IsFileExist(filePath_)
+        _fileStatus = isFileExist(filePath_)
                       ? FileStatus::Ready
                       : FileStatus::Unreachable;
     }
@@ -25,13 +25,13 @@ JsonManager::FileStatus JsonManager::TryToFindFile(const std::string&& filePath_
     return _fileStatus;
 }
 
-bool JsonManager::IsFileExist(const std::string& filePath_) noexcept {
+bool JsonManager::isFileExist(const std::string& filePath_) noexcept {
     struct stat buffer{};
     return stat(filePath_.c_str(), &buffer) == 0;
 }
 
-bool JsonManager::TryToSaveFile(const std::string& jsonString_, const std::string& scope_) noexcept {
-    if (!IsFileReady()) {
+bool JsonManager::tryToSaveFile(const std::string& jsonString_, const std::string& scope_) noexcept {
+    if (!isFileReady()) {
         return false;
     }
     nlohmann::json fileContent;
@@ -64,8 +64,8 @@ bool JsonManager::TryToSaveFile(const std::string& jsonString_, const std::strin
     return true;
 }
 
-nlohmann::json JsonManager::TryToLoadFile(const std::string& scopeName_) noexcept {
-    if (!IsFileReady()) {
+nlohmann::json JsonManager::tryToLoadFile(const std::string& scopeName_) noexcept {
+    if (!isFileReady()) {
         return false;
     }
     nlohmann::json fileContent;
@@ -85,24 +85,24 @@ nlohmann::json JsonManager::TryToLoadFile(const std::string& scopeName_) noexcep
            : fileContent[scopeName_];
 }
 
-inline bool JsonManager::IsFileReady() const noexcept {
+inline bool JsonManager::isFileReady() const noexcept {
     return _fileStatus == FileStatus::Ready;
 }
 
-bool JsonManager::CreateFile(const std::string& filePath_) noexcept {
+bool JsonManager::createFile(const std::string& filePath_) noexcept {
     std::ofstream file;
     file.open(filePath_, std::ios::app | std::ios::in);
     file.close();
-    return IsFileExist(filePath_);
+    return isFileExist(filePath_);
 }
 
 #pragma region Accessors
 
-std::string JsonManager::GetFileName() const noexcept {
+std::string JsonManager::getFileName() const noexcept {
     return _filePath;
 }
 
-JsonManager::FileStatus JsonManager::GetFileStatus() const noexcept {
+JsonManager::FileStatus JsonManager::getFileStatus() const noexcept {
     return _fileStatus;
 }
 

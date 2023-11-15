@@ -21,13 +21,13 @@ namespace Wor::Sql::Utils {
          * @param cellIndex
          * @return
          */
-        [[nodiscard]] static std::string SociToString(const soci::row &row, std::int64_t cellIndex) noexcept;
+        [[nodiscard]] static std::string sociToString(const soci::row &row, std::int64_t cellIndex) noexcept;
 
         template<typename Type>
-        [[nodiscard]] static std::optional<Type> SociTo(const soci::row &row, std::int64_t cellIndex) noexcept;
+        [[nodiscard]] static std::optional<Type> sociTo(const soci::row &row, std::int64_t cellIndex) noexcept;
     };
 
-    std::string Wor::Sql::Utils::DataConverter::SociToString(const soci::row &row, std::int64_t cellIndex) noexcept {
+    std::string Wor::Sql::Utils::DataConverter::sociToString(const soci::row &row, std::int64_t cellIndex) noexcept {
         std::string s {};
         if (row.get_indicator(cellIndex) == soci::i_null) {
             return s;
@@ -53,7 +53,7 @@ namespace Wor::Sql::Utils {
     }
 
     template<typename Type>
-    std::optional<Type> Wor::Sql::Utils::DataConverter::SociTo(const soci::row &row, std::int64_t cellIndex) noexcept {
+    std::optional<Type> Wor::Sql::Utils::DataConverter::sociTo(const soci::row &row, std::int64_t cellIndex) noexcept {
         std::any value;
         if (row.get_indicator(cellIndex) == soci::i_null) {
             return {};

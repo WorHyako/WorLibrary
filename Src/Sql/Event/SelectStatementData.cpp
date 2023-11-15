@@ -5,7 +5,7 @@
 
 using namespace Wor::Sql::Event;
 
-std::string SelectStatementData::ToString() const noexcept {
+std::string SelectStatementData::toString() const noexcept {
     if (selectValues.empty()) {
         return std::string {};
     }

@@ -2,7 +2,7 @@
 
 using namespace Wor::Currency;
 
-std::string MoneyPresentation::FormatMoney(std::string value,
+std::string MoneyPresentation::formatMoney(std::string value,
                                            Rules format,
                                            CurrencyType currencyType) noexcept {
     std::string originValue = value;
@@ -31,16 +31,16 @@ std::string MoneyPresentation::FormatMoney(std::string value,
         value = value.substr(0, currencyIndex + 1);
     }
 
-    std::int16_t pennyIndex = value.find(',');
+    auto pennyIndex = static_cast<std::int16_t>(value.find(','));
     if (pennyIndex == std::string::npos) {
-        pennyIndex = value.find('.');
+        pennyIndex = static_cast<std::int16_t>(value.find('.'));
     }
     if (pennyIndex != std::string::npos) {
         pennyPart = value.substr(pennyIndex + 1, std::size(value));
         value = value.substr(0, pennyIndex);
     }
 
-    if (!IsNumber(value)) {
+    if (!isNumber(value)) {
         return originValue;
     }
 
@@ -62,8 +62,7 @@ std::string MoneyPresentation::FormatMoney(std::string value,
     return resultView;
 }
 
-
-bool MoneyPresentation::IsNumber(const std::string &str) noexcept {
+bool MoneyPresentation::isNumber(const std::string &str) noexcept {
     const auto nonDigitSymbol = std::find_if(std::begin(str), std::end(str),
                                              [](unsigned char c) {
                                                  return !std::isdigit(c);
