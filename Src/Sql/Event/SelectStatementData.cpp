@@ -13,7 +13,7 @@ std::string SelectStatementData::toString() const noexcept {
     std::stringstream ss;
 
     ss << "SELECT ";
-    std::for_each(selectValues.begin(), selectValues.end() - 1, [&ss](const auto &select) {
+    std::for_each(std::begin(selectValues), std::end(selectValues) - 1, [&ss](const auto &select) {
         ss << select << ", ";
     });
     ss << selectValues.back() << " ";

@@ -6,7 +6,8 @@ EventManager::EventManager() noexcept
         : _empty(true),
           _eventList {},
           _updatingActivity(false),
-          _updatingTimeBreak(10) {
+          _updatingTimeBreak(10),
+          _lastEventId(0) {
 }
 
 EventManager::~EventManager() noexcept {
@@ -14,7 +15,7 @@ EventManager::~EventManager() noexcept {
 }
 
 void EventManager::startUpdatingThread() noexcept {
-    _updatingThread = std::thread(&EventManager::updateEventList, this, false);
+    _updatingThread = std::thread(&EventManager::updateEventList, this, true);
 }
 
 void EventManager::stopUpdatingThread() noexcept {
@@ -25,14 +26,17 @@ void EventManager::stopUpdatingThread() noexcept {
     }
 }
 
-bool EventManager::configure(EventList eventList) noexcept {
+void EventManager::setUpdateEvent(Event::UpdateEventType updateType) noexcept {
+    _updateEvent = std::move(updateType);
+}
+
+void EventManager::setEventList(EventList eventList) noexcept {
     if (eventList.empty()) {
-        return false;
+        return;
     }
     _eventList.resize(eventList.size());
-    std::move(eventList.begin(), eventList.end(), _eventList.begin());
+    std::move(std::begin(eventList), std::end(eventList), std::begin(_eventList));
     _empty = false;
-    return true;
 }
 
 void EventManager::updateEventListOnOtherThread(bool executeNewEvents) noexcept {
@@ -43,18 +47,9 @@ void EventManager::updateEventListOnOtherThread(bool executeNewEvents) noexcept 
 }
 
 void EventManager::updateEventList(bool executeNewEvents) noexcept {
-    const std::lock_guard<std::mutex> lock(_mutex);
-    auto updateEvent =
-            std::find_if(std::begin(_eventList), std::end(_eventList),
-                         [](const EventType &a) {
-                             return a.eventId == -1;
-                         });
-    if (updateEvent == _eventList.end()) {
-        return;
-    }
-    auto newEvents = updateEvent->eventFunction(0);
-    newEvents.Sort();
-    _lastEventId = std::atoi(newEvents.back().find("EventID").c_str());
+    auto newEvents = _updateEvent.eventFunction(0);
+    newEvents.sort();
+    _lastEventId = std::stoi(newEvents.back().find("EventID"));
     if (!executeNewEvents) {
         return;
     }
@@ -68,10 +63,10 @@ void EventManager::executeEvents(const DbTableView &answerList) noexcept {
         const auto event =
                 std::find(std::begin(_eventList), std::end(_eventList),
                           EventType {{}, eventType });
-        if (event == _eventList.end()) {
+        if (event == std::end(_eventList)) {
             continue;
         }
-        auto ans = event->eventFunction(eventId);
+        event->eventFunction(eventId);
     }
 }
 

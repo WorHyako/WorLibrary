@@ -21,16 +21,31 @@ namespace Wor::Sql::Event {
         /**
          *
          */
-        std::function<DbTableView(std::uint64_t)> eventFunction;
+        std::function<void(std::uint64_t)> eventFunction;
 
         /**
          *
          */
-        std::int32_t eventId;
+        std::int32_t eventId = 0;
     };
 
     /**
      *
      */
     using EventList = std::vector<EventType>;
+
+    /**
+     *
+     */
+    struct UpdateEventType {
+        /**
+         *
+         */
+        std::function<DbTableView(std::uint64_t)> eventFunction;
+
+        /**
+         *
+         */
+        std::int32_t eventId = 0;
+    };
 }

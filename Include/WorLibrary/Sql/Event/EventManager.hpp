@@ -32,10 +32,15 @@ namespace Wor::Sql::Event {
 
         /**
          *
-         * @param eventList
-         * @return
+         * @param updateType
          */
-        [[nodiscard]] bool configure(EventList eventList) noexcept;
+        void setUpdateEvent(Event::UpdateEventType updateType) noexcept;
+
+        /**
+         *
+         * @param eventList
+         */
+        void setEventList(EventList eventList) noexcept;
 
         /**
          *
@@ -61,7 +66,12 @@ namespace Wor::Sql::Event {
         /**
          *
          */
-        std::int64_t _lastEventId = 0;
+        UpdateEventType _updateEvent;
+
+        /**
+         *
+         */
+        std::int64_t _lastEventId;
 
         /**
          *

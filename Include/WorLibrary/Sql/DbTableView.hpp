@@ -22,7 +22,7 @@ namespace Wor::Sql {
          *
          * @param property
          */
-        void Sort(const std::string& property = "EventID") noexcept;
+        void sort(const std::string& property = "EventID") noexcept;
 
     private:
         /**

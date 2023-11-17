@@ -12,11 +12,11 @@ std::vector<DbRowView>::iterator DbTableView::find(std::int64_t eventId) const n
     return {};
 }
 
-void DbTableView::Sort(const std::string& property) noexcept {
+void DbTableView::sort(const std::string& property) noexcept {
     std::sort(std::begin(_tableView), std::end(_tableView),
               [&property](const DbRowView &a, const DbRowView &b) {
-                  auto aEventId = std::atoi(a.find(property).c_str());
-                  auto bEventId = std::atoi(b.find(property).c_str());
+                  auto aEventId = std::stoi(a.find(property));
+                  auto bEventId = std::stoi(b.find(property));
                   return aEventId < bEventId;
               });
 }
@@ -25,7 +25,7 @@ void DbTableView::Sort(const std::string& property) noexcept {
 
 std::optional<DbRowView> DbTableView::getRow(std::int64_t eventId) const noexcept {
     auto event = find(eventId);
-    return event != _tableView.end()
+    return event != std::end(_tableView)
            ? *event
            : std::optional<DbRowView>();
 }
@@ -43,7 +43,7 @@ const DbRowView& DbTableView::back() const noexcept {
 #pragma region Mutators
 
 void DbTableView::AddRow(DbRowView row, bool overwrite) noexcept {
-    const auto rowExist = find(row) != _tableView.end();
+    const auto rowExist = find(row) != std::end(_tableView);
     if ((rowExist && overwrite) || !rowExist) {
         _tableView.emplace_back(std::move(row));
     }
