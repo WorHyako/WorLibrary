@@ -62,7 +62,10 @@ void EventManager::executeEvents(const DbTableView &answerList) noexcept {
         const std::int32_t eventType = std::stoi(row[1].value);
         const auto event =
                 std::find(std::begin(_eventList), std::end(_eventList),
-                          EventType {{}, eventType });
+                          EventType {
+                                  .eventFunction = {},
+                                  .eventId = eventType
+                          });
         if (event == std::end(_eventList)) {
             continue;
         }

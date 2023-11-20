@@ -12,5 +12,5 @@
         [](std::int64_t eventId) {                          \
             EventName(eventId);                             \
         },                                                  \
-        static_cast<std::int32_t>(EventTypes::EventName)    \
+        static_cast<std::int64_t>(EventTypes::EventName)    \
     }
