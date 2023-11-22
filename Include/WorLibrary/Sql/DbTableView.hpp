@@ -2,7 +2,6 @@
 
 #include "WorLibrary/Sql/DbRowView.hpp"
 
-#include <map>
 #include <optional>
 #include <iterator>
 

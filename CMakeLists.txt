@@ -28,6 +28,11 @@ if (${WORLIBRARY_JSON})
     list(APPEND WorLib_Sources ${WorLib_Json_Src})
 endif ()
 
+if(${WORLIBRARY_DATA_CONVERTER})
+    file(GLOB_RECURSE WorLib_DataConverter_Src ${CMAKE_CURRENT_SOURCE_DIR}/Src/DataConverter/*.cpp)
+    list(APPEND WorLib_Sources ${WorLib_DataConverter_Src})
+endif ()
+
 if (${WORLIBRARY_MATH})
 endif ()
 
@@ -37,6 +42,7 @@ if (${WORLIBRARY_NETWORK})
 endif ()
 
 if (${WORLIBRARY_SQL})
+    list(APPEND Wor_Compile_Defs "-DWORLIBRARY_SQL=1")
     set(Soci_Install_Root_Dir ${CMAKE_CURRENT_SOURCE_DIR}/../soci-install)
     option(SOCI_EMPTY "Build the sample backend called Empty" ON)
     find_package(Soci REQUIRED
@@ -63,16 +69,24 @@ endif ()
 if (WorLib_Sources)
     add_library(${PROJECT_NAME} STATIC)
     target_include_directories(${PROJECT_NAME}
-            PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Include
-            PUBLIC ${Soci_Include_Dir}
-            PUBLIC ${Boost_INCLUDE_DIRS})
+            PUBLIC
+            ${CMAKE_CURRENT_SOURCE_DIR}/Include
+            ${Soci_Include_Dir}
+            ${Boost_INCLUDE_DIRS})
     target_sources(${PROJECT_NAME}
-            PRIVATE ${WorLib_Sources})
+            PRIVATE
+            ${WorLib_Sources})
     target_link_libraries(${PROJECT_NAME}
-            PUBLIC ${Soci_Libs}
-            PUBLIC ${Boost_LIBRARIES})
+            PUBLIC
+            ${Soci_Libs}
+            ${Boost_LIBRARIES})
     target_link_directories(${PROJECT_NAME}
-            PUBLIC ${Soci_Libs_Dir})
+            PUBLIC
+            ${Soci_Libs_Dir})
+    target_compile_definitions(${PROJECT_NAME}
+            PUBLIC
+            ${Wor_Compile_Defs})
 endif ()
 
 set(WorLib_Include_Dir ${CMAKE_CURRENT_SOURCE_DIR}/Include PARENT_SCOPE)
+set(Wor_Compile_Defs ${Wor_Compile_Defs} PARENT_SCOPE)

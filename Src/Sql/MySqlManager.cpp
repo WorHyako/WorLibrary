@@ -3,7 +3,7 @@
 #include <iostream>
 #include <utility>
 
-#include "WorLibrary/Sql/Utils/DataConverter.hpp"
+#include "WorLibrary/DataConverter/DataConverter.hpp"
 
 using namespace Wor::Sql;
 
@@ -39,17 +39,17 @@ MySqlManager::ConnectionStatus MySqlManager::tryToConnect() noexcept {
 }
 
 DbTableView MySqlManager::select(const Event::SelectStatementData &statementData) noexcept {
-    const soci::rowset<soci::row>& rowset = _session.prepare << statementData.toString();
+    const soci::rowset<soci::row> &rowset = _session.prepare << statementData.toString();
     DbTableView tableMap;
     for (const auto &row : rowset) {
         DbRowView tableRow;
 
-        const auto eventIdOpt = Utils::DataConverter::sociTo<int>(row, static_cast<std::int64_t>(0));
+        const auto eventIdOpt = Wor::DataConverter::sociTo<int>(row, static_cast<std::int64_t>(0));
         if (!eventIdOpt.has_value()) {
             return {};
         }
-        for (std::size_t i = 0; i < statementData.selectValues.size(); i++) {
-            const auto strValue = Utils::DataConverter::sociToString(row, static_cast<std::int64_t>(i));
+        for (std::size_t i = 0; i < statementData.selectValues.size(); ++i) {
+            const auto strValue = Wor::DataConverter::sociToString(row, static_cast<std::int64_t>(i));
             tableRow.add({ statementData.selectValues[i], strValue });
         }
 
