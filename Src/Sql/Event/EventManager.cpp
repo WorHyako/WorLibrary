@@ -26,7 +26,7 @@ void EventManager::stopUpdatingThread() noexcept {
     }
 }
 
-void EventManager::setUpdateEvent(Event::UpdateEventType updateType) noexcept {
+void EventManager::setUpdateEvent(UpdateEventType updateType) noexcept {
     _updateEvent = std::move(updateType);
 }
 

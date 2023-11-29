@@ -1,8 +1,5 @@
 #pragma once
 
-#include <vector>
-#include <utility>
-#include <string>
 #include <thread>
 #include <mutex>
 
@@ -34,7 +31,7 @@ namespace Wor::Sql::Event {
          *
          * @param updateType
          */
-        void setUpdateEvent(Event::UpdateEventType updateType) noexcept;
+        void setUpdateEvent(UpdateEventType updateType) noexcept;
 
         /**
          *
