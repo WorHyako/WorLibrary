@@ -13,16 +13,19 @@
 namespace Wor::Sql {
 
     /**
+     * @brief
      *
+     * @author WorHyako
      */
     class MySqlManager {
     public:
-
         /**
+         * @brief
          *
+         * @author WorHyako
          */
-        enum class ConnectionStatus {
-
+        enum class ConnectionStatus
+                : std::uint8_t {
             /**
              *
              */
@@ -45,28 +48,35 @@ namespace Wor::Sql {
         };
 
         /**
+         * @brief
          *
          * @param dbParameters
          */
         void configure(DataBaseParameters dbParameters) noexcept;
 
         /**
+         * @brief
          *
          * @param connectionString
-         * @return
-         */
-        [[nodiscard]] ConnectionStatus tryToConnect() noexcept;
-
-        /**
          *
          * @return
          */
-        [[nodiscard]] DbTableView select(const Event::SelectStatementData &statementData) noexcept;
-
-    protected:
+        [[nodiscard]]
+        ConnectionStatus tryToConnect() noexcept;
 
         /**
-         * Ctor
+         * @brief
+         *
+         * @return
+         */
+        [[nodiscard]]
+        DbTableView select(const Event::SelectStatementData &statementData) noexcept;
+
+    protected:
+        /**
+         * @brief Ctor.
+         *
+         * @param dbParameters
          */
         explicit MySqlManager(DataBaseParameters dbParameters = {}) noexcept;
 
@@ -89,15 +99,18 @@ namespace Wor::Sql {
     public:
 #pragma region Accessors
 
-        [[nodiscard]] ConnectionStatus status() const noexcept;
+        [[nodiscard]]
+        ConnectionStatus status() const noexcept;
 
-        [[nodiscard]] const DataBaseParameters &dpParameters() const noexcept;
+        [[nodiscard]]
+        const DataBaseParameters &dpParameters() const noexcept;
 
 #pragma endregion Accessors
 
 #pragma region Mutators
 
-        [[nodiscard]] bool dpParameters(DataBaseParameters dpParameters) noexcept;
+        [[nodiscard]]
+        bool dpParameters(DataBaseParameters dpParameters) noexcept;
 
 #pragma endregion Mutators
     };

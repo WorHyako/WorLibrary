@@ -5,35 +5,38 @@
 namespace Wor::Sql {
 
     /**
+     * @brief
      *
+     * @author WorHyako
      */
     struct DbCellView final {
         /**
-         * Ctor
+         * @brief Ctor
          */
         DbCellView() noexcept
-                : name({}),
-                  value({}) {
+                : _name({}),
+                  _value({}) {
         }
 
         /**
+         * @brief   Ctor.
          *
-         * @param name
-         * @param value
+         * @param   name
+         * @param   value
          */
         DbCellView(std::string cellName, std::string cellValue) noexcept
-                : name(std::move(cellName)),
-                  value(std::move(cellValue)) {
+                : _name(std::move(cellName)),
+                  _value(std::move(cellValue)) {
         };
 
         /**
          *
          */
-        std::string name;
+        std::string _name;
 
         /**
          *
          */
-        std::string value;
+        std::string _value;
     };
 }

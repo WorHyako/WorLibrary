@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
 project(WorLibrary
-        VERSION 0.1
+        VERSION 0.2
         LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -13,80 +13,106 @@ option(WORLIBRARY_SQL "" OFF)
 option(WORLIBRARY_MATH "" OFF)
 option(WORLIBRARY_CURRENCY "" OFF)
 
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_NO_BOOST_CMAKE ON)
 set(Boost_NO_WARN_NEW_VERSIONS ON)
-find_package(Boost 1.81.0 REQUIRED COMPONENTS date_time)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_NO_BOOST_CMAKE ON)
+find_package(Boost 1.79...1.85 REQUIRED GLOBAL COMPONENTS
+        date_time
+        thread)
 
-if (${WORLIBRARY_CURRENCY})
-    file(GLOB_RECURSE WorLib_Currency_Src ${CMAKE_CURRENT_SOURCE_DIR}/Src/Currency/*.cpp)
-    list(APPEND WorLib_Sources ${WorLib_Currency_Src})
+if (WORLIBRARY_CURRENCY)
+    add_library(WorLib_Currency)
+    add_library(Wor::Currency ALIAS WorLib_Currency)
+
+    file(GLOB_RECURSE Sources Src/Currency/*.cpp)
+
+    target_sources(WorLib_Currency
+            PRIVATE ${Sources})
+
+    target_include_directories(WorLib_Currency
+            PUBLIC Include)
+
+    unset(Sources)
 endif ()
 
-if (${WORLIBRARY_JSON})
-    file(GLOB_RECURSE WorLib_Json_Src ${CMAKE_CURRENT_SOURCE_DIR}/Src/Json/*.cpp)
-    list(APPEND WorLib_Sources ${WorLib_Json_Src})
+if (WORLIBRARY_JSON)
+    add_library(WorLib_Json)
+    add_library(Wor::Json ALIAS WorLib_Json)
+
+    file(GLOB_RECURSE Sources Src/Json/*.cpp)
+    target_sources(WorLib_Json
+            PRIVATE ${Sources})
+
+    target_include_directories(WorLib_Json
+            PUBLIC Include)
+
+    target_link_libraries(WorLib_Json
+            PUBLIC nlohmann_json::nlohmann_json)
+
+    unset(Sources)
 endif ()
 
-if(${WORLIBRARY_DATA_CONVERTER})
-    file(GLOB_RECURSE WorLib_DataConverter_Src ${CMAKE_CURRENT_SOURCE_DIR}/Src/DataConverter/*.cpp)
-    list(APPEND WorLib_Sources ${WorLib_DataConverter_Src})
+if (WORLIBRARY_DATA_CONVERTER)
+    add_library(WorLib_Converter)
+    add_library(Wor::Converter ALIAS WorLib_Converter)
+
+    file(GLOB_RECURSE Sources Src/DataConverter/*.cpp)
+
+    target_sources(WorLib_Converter
+            PRIVATE ${Sources})
+
+    target_include_directories(WorLib_Converter
+            PUBLIC Include)
+
+    target_link_libraries(WorLib_Converter
+            PUBLIC Soci::core)
+
+    unset(Sources)
 endif ()
 
-if (${WORLIBRARY_MATH})
+if (WORLIBRARY_MATH)
+    add_library(WorLib_Math INTERFACE)
+    add_library(Wor::Math ALIAS WorLib_Math)
+
+    target_include_directories(WorLib_Math
+            INTERFACE Include)
 endif ()
 
-if (${WORLIBRARY_NETWORK})
-    file(GLOB_RECURSE WorLib_Network_Sources ${CMAKE_CURRENT_SOURCE_DIR}/Src/Network/*.cpp)
-    list(APPEND WorLib_Sources ${WorLib_Network_Sources})
-endif ()
+if (WORLIBRARY_NETWORK)
+    add_library(WorLib_Network)
+    add_library(Wor::Network ALIAS WorLib_Network)
 
-if (${WORLIBRARY_SQL})
-    list(APPEND Wor_Compile_Defs "-DWORLIBRARY_SQL=1")
-    set(Soci_Install_Root_Dir ${CMAKE_CURRENT_SOURCE_DIR}/../soci-install)
-    option(SOCI_EMPTY "Build the sample backend called Empty" ON)
-    find_package(Soci REQUIRED
-            PATHS ${Soci_Install_Root_Dir}/lib/cmake/SOCI)
+    file(GLOB_RECURSE Sources Src/Network/*.cpp)
 
-    find_library(mysqlcl mysqlclient REQUIRED)
+    target_sources(WorLib_Network
+            PRIVATE ${Sources})
 
-    list(APPEND Soci_Libs
-            soci_core
-            soci_empty
-            soci_mysql
-            ${mysqlcl})
-    list(APPEND Soci_Include_Dir
-            /opt/homebrew/Cellar/mysql/8.1.0/include/mysql
-            ${Soci_Install_Root_Dir}/include)
-    list(APPEND Soci_Libs_Dir
-            ${Soci_Install_Root_Dir}/lib/)
-
-    file(GLOB_RECURSE WorLib_Sql_Sources
-            ${CMAKE_CURRENT_SOURCE_DIR}/Src/Sql/*.cpp)
-    list(APPEND WorLib_Sources ${WorLib_Sql_Sources})
-endif ()
-
-if (WorLib_Sources)
-    add_library(${PROJECT_NAME} STATIC)
-    target_include_directories(${PROJECT_NAME}
+    target_include_directories(WorLib_Network
             PUBLIC
-            ${CMAKE_CURRENT_SOURCE_DIR}/Include
-            ${Soci_Include_Dir}
-            ${Boost_INCLUDE_DIRS})
-    target_sources(${PROJECT_NAME}
-            PRIVATE
-            ${WorLib_Sources})
-    target_link_libraries(${PROJECT_NAME}
-            PUBLIC
-            ${Soci_Libs}
-            ${Boost_LIBRARIES})
-    target_link_directories(${PROJECT_NAME}
-            PUBLIC
-            ${Soci_Libs_Dir})
-    target_compile_definitions(${PROJECT_NAME}
-            PUBLIC
-            ${Wor_Compile_Defs})
+            Include
+            ${Boost_INCLUDE_DIR})
+
+    target_link_libraries(WorLib_Network
+            PUBLIC ${Boost_LIBRARIES})
+
+    unset(Sources)
 endif ()
 
-set(WorLib_Include_Dir ${CMAKE_CURRENT_SOURCE_DIR}/Include PARENT_SCOPE)
-set(Wor_Compile_Defs ${Wor_Compile_Defs} PARENT_SCOPE)
+if (WORLIBRARY_SQL)
+    add_library(WorLib_Sql)
+    add_library(Wor::Sql ALIAS WorLib_Sql)
+
+    file(GLOB_RECURSE Sources Src/Sql/*.cpp)
+    target_sources(WorLib_Sql
+            PRIVATE ${Sources})
+
+    target_include_directories(WorLib_Sql
+            PUBLIC Include)
+
+    target_link_libraries(WorLib_Sql
+            PUBLIC Soci::core
+            Soci::mysql)
+
+    unset(Sources)
+endif ()

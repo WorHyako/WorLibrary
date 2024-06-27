@@ -5,28 +5,36 @@
 namespace Wor::Network {
 
     /**
+     * @brief
      *
+     * @author WorHyako
      */
     struct EndPoint {
     public:
 
         /**
+         * @brief
          *
+         * @author WorHyako
          */
-        enum class Status {
-            /**
-             * End point did'n
-             */
+        enum class Status :
+                std::uint8_t {
             ZeroCheck,
             Unreachable,
             Ready,
             Error
-        } status;
+        } _status;
 
-        explicit EndPoint(std::string address_ = {}, std::uint32_t port_ = 0) noexcept;
+        /**
+         * @brief Ctor.
+         *
+         * @param address
+         * @param port
+         */
+        explicit EndPoint(std::string address = {}, std::uint32_t port = 0) noexcept;
 
-        std::string address;
+        std::string _address;
 
-        std::uint32_t port;
+        std::uint32_t _port;
     };
 }

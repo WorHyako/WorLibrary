@@ -4,7 +4,7 @@
 #include <string>
 #include <any>
 
-#ifdef WORLIBRARY_SQL
+#ifdef SOCI_H_INCLUDED
 
 #include "soci/soci.h"
 
@@ -12,7 +12,7 @@
 
 namespace Wor::DataConverter {
 
-#ifdef WORLIBRARY_SQL
+#ifdef SOCI_H_INCLUDED
 
     /**
      *
@@ -20,7 +20,8 @@ namespace Wor::DataConverter {
      * @param cellIndex
      * @return
      */
-    [[nodiscard]] std::string sociToString(const soci::row &row, std::int64_t cellIndex) noexcept;
+    [[nodiscard]]
+    std::string sociToString(const soci::row &row, std::int64_t cellIndex) noexcept;
 
     /**
      *
@@ -30,7 +31,8 @@ namespace Wor::DataConverter {
      * @return
      */
     template<typename Type>
-    [[nodiscard]] std::optional<Type> sociTo(const soci::row &row, std::int64_t cellIndex) noexcept {
+    [[nodiscard]]
+    std::optional<Type> sociTo(const soci::row &row, std::int64_t cellIndex) noexcept {
         if (row.get_indicator(cellIndex) == soci::i_null) {
             return {};
         }
@@ -60,10 +62,4 @@ namespace Wor::DataConverter {
     }
 
 #endif
-
-    /**
-     *
-     * @return
-     */
-    [[nodiscard]] std::string toString() noexcept;
 }

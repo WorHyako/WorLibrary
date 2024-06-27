@@ -8,14 +8,19 @@
 namespace Wor::Json {
 
     /**
+     * @brief
      *
+     * @author WorHyako
      */
     class JsonManager final {
     public:
         /**
-         * Enum describes current file state
+         * @brief Enum describes current file state
+         *
+         * @author WorHyako
          */
-        enum class FileStatus {
+        enum class FileStatus
+                : std::uint8_t {
             /**
              * File didn't checked
              */
@@ -40,29 +45,39 @@ namespace Wor::Json {
         JsonManager();
 
         /**
-         * Check file to destination and accessible file\n
-         * Result will wrote to internal variable\n
-         * Also file path will saved to internal variable if successful
-         * @param filePath_ Absolute or relative file path
-         * @return          file status
+         * @brief   Check file to destination and accessible file.
+         *          <p/>
+         *          Result will wrote to internal variable.
+         *          <p/>
+         *          Also file path will saved to internal variable if successful
+         *
+         * @param   filePath Absolute or relative file path
+         *
+         * @return  file status
          */
-        [[nodiscard]] FileStatus tryToFindFile(const std::string&& filePath_, bool createFile_ = true) noexcept;
+        [[nodiscard]]
+        FileStatus tryToFindFile(const std::string &&filePath, bool createFile = true) noexcept;
 
         /**
+         * @brief
          *
-         * @param jsonString_
-         * @param scope_
+         * @param jsonString
+         * @param scope
+         *
          * @return
          */
         [[nodiscard]] bool
-        tryToSaveFile(const std::string& jsonString_, const std::string& scope_ = {}) noexcept;
+        tryToSaveFile(const std::string &jsonString, const std::string &scope = {}) noexcept;
 
         /**
+         * @brief
          *
-         * @param scopeName_
+         * @param scopeName
+         *
          * @return
          */
-        [[nodiscard]] nlohmann::json tryToLoadFile(const std::string& scopeName_ = {}) noexcept;
+        [[nodiscard]]
+        nlohmann::json tryToLoadFile(const std::string &scopeName = {}) noexcept;
 
     private:
         /**
@@ -76,31 +91,41 @@ namespace Wor::Json {
         FileStatus _fileStatus;
 
         /**
-         * Just check file to existing
-         * @param filePath_ absolute or relative file path
-         * @return          checking result
+         * @brief   Just check file to existing
+         *
+         * @param   filePath absolute or relative file path
+         *
+         * @return  checking result
          */
-        [[nodiscard]] static bool isFileExist(const std::string& filePath_) noexcept;
+        [[nodiscard]]
+        static bool isFileExist(const std::string &filePath) noexcept;
 
         /**
-         * Small method just to make code more comfortable
+         * @brief   Small method just to make code more comfortable
+         *
          * @return  is file ready
          */
-        [[nodiscard]] inline bool isFileReady() const noexcept;
+        [[nodiscard]]
+        inline bool isFileReady() const noexcept;
 
         /**
+         * @brief
          *
-         * @param filePath_
+         * @param   filePath
+         *
          * @return
          */
-        [[nodiscard]] static inline bool createFile(const std::string& filePath_) noexcept;
+        [[nodiscard]]
+        static inline bool createFile(const std::string &filePath) noexcept;
 
     public:
 #pragma region Accessors
 
-        [[nodiscard]] std::string getFileName() const noexcept;
+        [[nodiscard]]
+        std::string getFileName() const noexcept;
 
-        [[nodiscard]] FileStatus getFileStatus() const noexcept;
+        [[nodiscard]]
+        FileStatus getFileStatus() const noexcept;
 
 #pragma endregion Accessors
     };

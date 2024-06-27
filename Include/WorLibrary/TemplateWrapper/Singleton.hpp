@@ -3,14 +3,16 @@
 namespace Wor::TemplateWrapper {
 
     /**
+     * @brief
      *
+     * @author WorHyako
      */
     template<typename T>
     class Singleton final
             : private T {
     public:
         /**
-         * Ctor
+         * @brief Ctor.
          */
         Singleton(const Singleton &) = delete;
 
@@ -18,12 +20,12 @@ namespace Wor::TemplateWrapper {
 
     private:
         /**
-         * Dtor
+         * @brief Dtor.
          */
         ~Singleton() noexcept = default;
 
         /**
-         * Ctor
+         * @brief Ctor.
          */
         Singleton() noexcept = default;
 
@@ -31,6 +33,7 @@ namespace Wor::TemplateWrapper {
 #pragma region Accessors
 
         /**
+         * @brief
          *
          * @return  Static object instance
          */

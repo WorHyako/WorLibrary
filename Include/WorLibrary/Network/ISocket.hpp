@@ -5,7 +5,9 @@
 namespace Wor::Network {
 
     /**
+     * @brief
      *
+     * @author WorHyako
      */
     enum class SocketStatus {
         /**
@@ -27,17 +29,19 @@ namespace Wor::Network {
     };
 
     /**
+     * @brief
      *
+     * @author WorHyako
      */
     class ISocket {
     public:
         /**
-         * Ctor
+         * @brief Ctor.
          */
         ISocket() = default;
 
         /**
-         * Dtor
+         * @brief Dtor.
          */
         virtual ~ISocket() noexcept = default;
 
@@ -47,21 +51,27 @@ namespace Wor::Network {
         virtual void closeConnection() noexcept = 0;
 
         /**
+         * @brief
          *
          * @return
          */
-        [[nodiscard]] virtual bool tryToConnect() noexcept = 0;
+        [[nodiscard]]
+        virtual bool tryToConnect() noexcept = 0;
 
         /**
+         * @brief
          *
          * @param message_
          */
-        [[nodiscard]] virtual std::size_t send(const std::string &message_) noexcept = 0;
+        [[nodiscard]]
+        virtual std::size_t send(const std::string &message) noexcept = 0;
 
         /**
+         * @brief
          *
          * @return
          */
-        [[nodiscard]] virtual SocketStatus status() noexcept = 0;
+        [[nodiscard]]
+        virtual SocketStatus status() noexcept = 0;
     };
 }

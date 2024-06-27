@@ -1,5 +1,7 @@
 #include "WorLibrary/DataConverter/DataConverter.hpp"
 
+#ifdef SOCI_H_INCLUDED
+
 std::string Wor::DataConverter::sociToString(const soci::row &row, std::int64_t cellIndex) noexcept {
     std::string s {};
     if (row.get_indicator(cellIndex) == soci::i_null) {
@@ -25,6 +27,4 @@ std::string Wor::DataConverter::sociToString(const soci::row &row, std::int64_t 
     return s;
 }
 
-[[nodiscard]] std::string toString() noexcept {
-    return {};
-}
+#endif

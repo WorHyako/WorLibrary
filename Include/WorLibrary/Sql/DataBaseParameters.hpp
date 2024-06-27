@@ -5,17 +5,20 @@
 namespace Wor::Sql {
 
     /**
-     * Provide data to connect to Data Base
+     * @brief Provide data to connect to Data Base
+     *
+     * @author WorHyako
      */
     struct DataBaseParameters final {
         /**
-         * Ctor
+         * @brief Ctor.
+         *
          * @param connectionString
          */
         explicit DataBaseParameters(const std::string &connectionString) noexcept;
 
         /**
-         * Ctor
+         * @brief Ctor.
          */
         DataBaseParameters() noexcept = default;
 

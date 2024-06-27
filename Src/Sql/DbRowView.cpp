@@ -9,12 +9,12 @@ void DbRowView::add(DbCellView cell) noexcept {
 std::string DbRowView::find(const std::string &cellName) const noexcept {
     auto element = std::find_if(std::begin(_rowView), std::end(_rowView),
                                 [&cellName](const DbCellView &cell) {
-                                    return cellName == cell.name;
+                                    return cellName == cell._name;
                                 });
     if (element == std::end(_rowView)) {
         return "";
     }
-    return element->value;
+    return element->_value;
 }
 
 #pragma region Operators

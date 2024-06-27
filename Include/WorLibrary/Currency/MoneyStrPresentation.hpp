@@ -13,7 +13,8 @@ namespace Wor::Currency {
     /**
      *
      */
-    enum class CurrencyType {
+    enum class CurrencyType
+            : std::uint8_t {
         /**
          *
          */
@@ -38,7 +39,8 @@ namespace Wor::Currency {
         /**
          *
          */
-        enum class Rules {
+        enum class Rules
+                : std::uint8_t {
             /**
              *
              */
@@ -57,15 +59,17 @@ namespace Wor::Currency {
          * @param currencyType
          * @return
          */
-        [[nodiscard]] static std::string formatMoney(std::string value,
-                                                     Rules format,
-                                                     CurrencyType currencyType) noexcept;
+        [[nodiscard]]
+        static std::string formatMoney(std::string value,
+                                       Rules format,
+                                       CurrencyType currencyType) noexcept;
 
         /**
          *
          * @param str
          * @return
          */
-        [[nodiscard]] static bool isNumber(const std::string &str) noexcept;
+        [[nodiscard]]
+        static bool isNumber(const std::string &str) noexcept;
     };
 }

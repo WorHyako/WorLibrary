@@ -2,8 +2,8 @@
 
 using namespace Wor::Network;
 
-EndPoint::EndPoint(std::string address_, std::uint32_t port_) noexcept
-        : address(std::move(address_)),
-          port(port_),
-          status(Status::ZeroCheck) {
+EndPoint::EndPoint(std::string address, std::uint32_t port) noexcept
+        : _address(std::move(address)),
+          _port(port),
+          _status(Status::ZeroCheck) {
 }

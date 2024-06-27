@@ -9,28 +9,28 @@ JsonManager::JsonManager()
           _filePath("none") {
 }
 
-JsonManager::FileStatus JsonManager::tryToFindFile(const std::string&& filePath_, bool createFile_) noexcept {
-    if (createFile_) {
-        _fileStatus = createFile(filePath_)
+JsonManager::FileStatus JsonManager::tryToFindFile(const std::string&& filePath, bool create) noexcept {
+    if (create) {
+        _fileStatus = createFile(filePath)
                       ? FileStatus::Ready
                       : FileStatus::Unreachable;
     } else {
-        _fileStatus = isFileExist(filePath_)
+        _fileStatus = isFileExist(filePath)
                       ? FileStatus::Ready
                       : FileStatus::Unreachable;
     }
     if (_fileStatus == FileStatus::Ready) {
-        _filePath = filePath_;
+        _filePath = filePath;
     }
     return _fileStatus;
 }
 
-bool JsonManager::isFileExist(const std::string& filePath_) noexcept {
+bool JsonManager::isFileExist(const std::string& filePath) noexcept {
     struct stat buffer{};
-    return stat(filePath_.c_str(), &buffer) == 0;
+    return stat(filePath.c_str(), &buffer) == 0;
 }
 
-bool JsonManager::tryToSaveFile(const std::string& jsonString_, const std::string& scope_) noexcept {
+bool JsonManager::tryToSaveFile(const std::string& jsonString, const std::string& scope) noexcept {
     if (!isFileReady()) {
         return false;
     }
@@ -51,10 +51,10 @@ bool JsonManager::tryToSaveFile(const std::string& jsonString_, const std::strin
         }
         file.close();
     }
-    if (scope_.empty()) {
-        fileContent.push_back(nlohmann::json::parse(jsonString_));
+    if (scope.empty()) {
+        fileContent.push_back(nlohmann::json::parse(jsonString));
     } else {
-        fileContent[scope_] = nlohmann::json::parse(jsonString_);
+        fileContent[scope] = nlohmann::json::parse(jsonString);
     }
     {
         std::ofstream file(_filePath);
@@ -64,7 +64,7 @@ bool JsonManager::tryToSaveFile(const std::string& jsonString_, const std::strin
     return true;
 }
 
-nlohmann::json JsonManager::tryToLoadFile(const std::string& scopeName_) noexcept {
+nlohmann::json JsonManager::tryToLoadFile(const std::string& scopeName) noexcept {
     if (!isFileReady()) {
         return false;
     }
@@ -80,20 +80,20 @@ nlohmann::json JsonManager::tryToLoadFile(const std::string& scopeName_) noexcep
         }
     }
     file.close();
-    return scopeName_.empty()
+    return scopeName.empty()
            ? fileContent
-           : fileContent[scopeName_];
+           : fileContent[scopeName];
 }
 
 inline bool JsonManager::isFileReady() const noexcept {
     return _fileStatus == FileStatus::Ready;
 }
 
-bool JsonManager::createFile(const std::string& filePath_) noexcept {
+bool JsonManager::createFile(const std::string& filePath) noexcept {
     std::ofstream file;
-    file.open(filePath_, std::ios::app | std::ios::in);
+    file.open(filePath, std::ios::app | std::ios::in);
     file.close();
-    return isFileExist(filePath_);
+    return isFileExist(filePath);
 }
 
 #pragma region Accessors

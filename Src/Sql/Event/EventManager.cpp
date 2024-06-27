@@ -58,8 +58,8 @@ void EventManager::updateEventList(bool executeNewEvents) noexcept {
 
 void EventManager::executeEvents(const DbTableView &answerList) noexcept {
     for (const auto &row : answerList) {
-        const std::int64_t eventId = std::stol(row[0].value);
-        const std::int32_t eventType = std::stoi(row[1].value);
+        const std::int64_t eventId = std::stol(row[0]._value);
+        const std::int32_t eventType = std::stoi(row[1]._value);
         const auto event =
                 std::find(std::begin(_eventList), std::end(_eventList),
                           EventType {
