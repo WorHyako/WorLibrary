@@ -12,6 +12,7 @@ option(WORLIBRARY_NETWORK "" OFF)
 option(WORLIBRARY_SQL "" OFF)
 option(WORLIBRARY_MATH "" OFF)
 option(WORLIBRARY_CURRENCY "" OFF)
+option(WORLIBRARY_TEMPLATE "" OFF)
 
 set(Boost_NO_WARN_NEW_VERSIONS ON)
 set(Boost_USE_MULTITHREADED ON)
@@ -113,6 +114,16 @@ if (WORLIBRARY_SQL)
     target_link_libraries(WorLib_Sql
             PUBLIC Soci::core
             Soci::mysql)
+
+    unset(Sources)
+endif ()
+
+if (WORLIBRARY_TEMPLATE)
+    add_library(WorLib_Template INTERFACE)
+    add_library(Wor::Template ALIAS WorLib_Template)
+
+    target_include_directories(WorLib_Sql
+            INTERFACE Include)
 
     unset(Sources)
 endif ()

@@ -40,7 +40,7 @@ bool Json::tryToSaveFile(const std::string &filePath, const std::string &jsonStr
             try {
                 fileContent = nlohmann::json::parse(file);
             }
-            catch (const nlohmann::json::exception& e) {
+            catch (const nlohmann::json::exception &e) {
                 std::printf("Fail to parse %s file\n Error: %s", filePath.c_str(), e.what());
             }
             if (!fileContent.is_object()) {
@@ -49,12 +49,10 @@ bool Json::tryToSaveFile(const std::string &filePath, const std::string &jsonStr
         }
         file.close();
     }
-    fileContent.push_back(nlohmann::json::parse(jsonString));
-    {
-        std::ofstream file(filePath);
-        file << std::setw(4) << fileContent.dump(4);
-        file.close();
-    }
+    std::ofstream file(filePath);
+    fileContent = nlohmann::json::parse(jsonString);
+    file << std::setw(4) << fileContent.dump(4);
+    file.close();
     return true;
 }
 

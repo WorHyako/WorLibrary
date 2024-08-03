@@ -23,12 +23,13 @@ namespace Wor::Network {
             Unreachable,
             Ready,
             Error
-        } _status;
+        };
 
         /**
          * @brief Ctor.
          *
          * @param address
+         *
          * @param port
          */
         explicit EndPoint(std::string address = {}, std::uint32_t port = 0) noexcept;
@@ -36,5 +37,7 @@ namespace Wor::Network {
         std::string _address;
 
         std::uint32_t _port;
+
+        Status _status;
     };
 }
