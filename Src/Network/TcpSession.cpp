@@ -1,13 +1,15 @@
 #include "WorLibrary/Network/TcpSession.hpp"
 
 #include <cstdio>
+#include <utility>
 
 using namespace Wor::Network;
 
 using namespace boost::asio::ip;
+using namespace boost;
 
-TcpSession::TcpSession(boost::asio::io_context &ioContext) noexcept
-        : _socket(ioContext),
+TcpSession::TcpSession(const std::shared_ptr<asio::io_service>& ioContext) noexcept
+        : _socket(*ioContext),
           _isActive(false) {
 }
 
@@ -19,10 +21,10 @@ void TcpSession::run() noexcept {
 }
 
 void TcpSession::send(const std::string &message) noexcept {
-    std::string endSymbol = "\r\n\r\n";
-    _socket.async_write_some(boost::asio::buffer(message + endSymbol),
+    std::string endSymbol = "\r\n";
+    _socket.async_write_some(asio::buffer(message + endSymbol),
                              [self = shared_from_this()]
-                                     (const boost::system::error_code &ec, std::size_t bytesTransferred) {
+                                     (const system::error_code &ec, std::size_t bytesTransferred) {
                                  std::printf("session send: \n\tbytes was transferred: %zu,\n\terror code: %i\n",
                                              bytesTransferred, ec.value());
                                  if (ec || bytesTransferred == 0) {
@@ -36,33 +38,33 @@ void TcpSession::send(const std::string &message) noexcept {
 
 void TcpSession::startReading() noexcept {
     std::printf("startReading:\n");
-    boost::asio::async_read(_socket, _buffer,
-                            boost::asio::transfer_at_least(1),
-                            [self = shared_from_this()]
-                                    (const boost::system::error_code &ec, std::size_t bytesTransferred) {
-                                if (!ec) {
-                                    std::printf("Received!\n\tbytes count: %zu\n",
-                                                bytesTransferred);
-                                    boost::asio::ip::tcp::endpoint endPoint = self->_socket.remote_endpoint();
-                                    self->startReading();
-                                    self->parseBuffer();
-                                } else {
-                                    self->close();
-                                }
-                            });
+    asio::async_read(_socket, _buffer,
+                     asio::transfer_at_least(1),
+                     [self = shared_from_this()]
+                             (const system::error_code &ec, std::size_t bytesTransferred) {
+                         if (!ec) {
+                             std::printf("Received!\n\tbytes count: %zu\n",
+                                         bytesTransferred);
+                             tcp::endpoint endPoint = self->_socket.remote_endpoint();
+                             self->startReading();
+                             self->parseBuffer();
+                         } else {
+                             self->close();
+                         }
+                     });
 }
 
 #pragma clang diagnostic pop
 
 void TcpSession::parseBuffer() noexcept {
-    boost::asio::ip::tcp::endpoint endPoint = _socket.remote_endpoint();
+    tcp::endpoint endPoint = _socket.remote_endpoint();
 
     std::printf("parseBuffer from %s:%i:\n", endPoint.address().to_string().c_str(), endPoint.port());
-    std::string strBuffer = { boost::asio::buffers_begin(_buffer.data()),
-                              boost::asio::buffers_end(_buffer.data()) };
+    std::string strBuffer = { asio::buffers_begin(_buffer.data()),
+                              asio::buffers_end(_buffer.data()) };
 
-    std::size_t size = std::distance(boost::asio::buffers_begin(_buffer.data()),
-                                     boost::asio::buffers_end(_buffer.data()));
+    std::size_t size = std::distance(asio::buffers_begin(_buffer.data()),
+                                     asio::buffers_end(_buffer.data()));
     _buffer.consume(size);
 
     std::vector<std::string> messages;
@@ -94,8 +96,8 @@ tcp::socket &TcpSession::socket() noexcept {
     return _socket;
 }
 
-TcpSession::ptr TcpSession::create(boost::asio::io_context &ioCtx) noexcept {
-    return ptr(new TcpSession(ioCtx));
+TcpSession::ptr TcpSession::create(std::shared_ptr<asio::io_service> ioService) noexcept {
+    return ptr(new TcpSession(std::move(ioService)));
 }
 
 #pragma region Accessors/Mutators

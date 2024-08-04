@@ -3,52 +3,59 @@
 namespace Wor::TemplateWrapper {
 
     /**
-     * @brief
+     * @brief   Just casual singleton wrapper.
      *
-     * @author WorHyako
+     * @usage
+     * @code
+     *          auto &instance = Singleton<InstanceType>::initInstance(arg0, arg1, ...);
+     *
+     *          auto &instance = Singleton<InstanceType>::getInstance();
+     * @endcode
+     *
+     * @author  WorHyako
      */
-    template<typename T>
+    template<typename TInstanceType>
     class Singleton final
-            : private T {
+            : private TInstanceType {
     public:
+        /**
+         * @brief Dtor.
+         */
+        ~Singleton() noexcept = delete;
+
+        /**
+         * @brief Ctor.
+         */
+        Singleton() noexcept = delete;
+
         /**
          * @brief Ctor.
          */
         Singleton(const Singleton &) = delete;
 
+        [[nodiscard]]
         Singleton &operator=(const Singleton) = delete;
 
-    private:
-        /**
-         * @brief Dtor.
-         */
-        ~Singleton() noexcept = default;
-
-        /**
-         * @brief Ctor.
-         */
-        Singleton() noexcept = default;
-
     public:
-#pragma region Accessors
+#pragma region Accessors/Mutators
 
         /**
          * @brief
          *
-         * @return  Static object instance
+         * @return
          */
-        static T &getInstance();
+        static TInstanceType &get() noexcept;
 
-#pragma endregion Accessors
+#pragma endregion Accessors/Mutators
     };
 
-#pragma region Accessors
+#pragma region Accessors/Mutators
 
-    template<typename T>
-    T &Singleton<T>::getInstance() {
-        static Singleton instance {};
+    template<typename TInstanceType>
+    TInstanceType &Singleton<TInstanceType>::get() noexcept {
+        static TInstanceType instance;
         return instance;
     }
 
-#pragma endregion Accessors
+#pragma endregion Accessors/Mutators
 }

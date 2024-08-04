@@ -16,11 +16,25 @@ namespace Wor::Network {
     class TcpServer {
     public:
         /**
-         * @brief
+         * @brief Ctor.
+         */
+        TcpServer() noexcept = default;
+
+        /**
+         * @brief Ctor.
          *
          * @param ioContext
          */
-        TcpServer(boost::asio::io_service &ioContext, std::uint16_t port) noexcept;
+        TcpServer(boost::asio::io_context& ioContext) noexcept;
+
+        void init(boost::asio::io_service& ioService) noexcept;
+
+        /**
+         * @brief
+         *
+         * @param endPoint
+         */
+        void bindTo(const boost::asio::ip::tcp::endpoint& endPoint) noexcept;
 
         /**
          * @brief
@@ -46,7 +60,7 @@ namespace Wor::Network {
          *
          * @param message
          */
-        void sendToAll(const std::string& message) noexcept;
+        void sendToAll(const std::string& message) const noexcept;
 
     private:
         /**
@@ -58,9 +72,9 @@ namespace Wor::Network {
          */
         void handleAccept(const TcpSession::ptr& sessionPtr, boost::system::error_code ec) noexcept;
 
-        boost::asio::io_service &_ioService;
+        std::shared_ptr<boost::asio::io_service> _ioService;
 
-        boost::asio::ip::tcp::acceptor _acceptor;
+        std::unique_ptr<boost::asio::ip::tcp::acceptor> _acceptor;
 
         std::vector<TcpSession::ptr> _sessionsList;
 

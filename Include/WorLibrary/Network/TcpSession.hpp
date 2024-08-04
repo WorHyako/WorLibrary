@@ -30,7 +30,7 @@ namespace Wor::Network {
          * @return
          */
         [[nodiscard]]
-        static TcpSession::ptr create(boost::asio::io_context &ioCtx) noexcept;
+        static TcpSession::ptr create(std::shared_ptr<boost::asio::io_service> ioService) noexcept;
 
         /**
          * @brief
@@ -58,7 +58,7 @@ namespace Wor::Network {
          *
          * @param ioContext
          */
-        explicit TcpSession(boost::asio::io_context &ioContext) noexcept;
+        explicit TcpSession(const std::shared_ptr<boost::asio::io_service>& ioContext) noexcept;
 
         /**
          * @brief

@@ -7,18 +7,22 @@
 using namespace Wor::Network;
 
 using namespace boost::asio::ip;
+using namespace boost;
 
-TcpServer::TcpServer(boost::asio::io_context &ioContext, std::uint16_t port) noexcept
-        : _ioService(ioContext),
-          _acceptor(ioContext, tcp::endpoint(tcp::v4(), port)) {
+TcpServer::TcpServer(asio::io_service& ioService) noexcept {
+    _ioService.reset(&ioService);
+    _acceptor = std::make_unique<asio::ip::tcp::acceptor>(ioService);
 }
 
 void TcpServer::start() noexcept {
+    if (!_acceptor->is_open()) {
+        return;
+    }
     auto newSession = TcpSession::create(_ioService);
     newSession->setName("session_" + std::to_string(_sessionsList.size()));
 
-    _acceptor.async_accept(newSession->socket(),
-                           [this, newSession](const boost::system::error_code &ec) {
+    _acceptor->async_accept(newSession->socket(),
+                           [this, newSession](const system::error_code &ec) {
                                if (!ec) {
                                    handleAccept(newSession, ec);
                                } else {
@@ -32,17 +36,20 @@ void TcpServer::start() noexcept {
 }
 
 void TcpServer::stop() noexcept {
-    std::for_each(std::begin(_sessionsList), std::end(_sessionsList), [](TcpSession::ptr session){
+    if (!_acceptor->is_open()) {
+        return;
+    }
+    std::for_each(std::begin(_sessionsList), std::end(_sessionsList), [](TcpSession::ptr session) {
         session->close();
         session.reset();
     });
     _sessionsList.clear();
-    _acceptor.close();
+    _acceptor->close();
 }
 
 void TcpServer::closeSession(const std::string &name) noexcept {
     auto session = getSession(name);
-    if(session ==nullptr) {
+    if (session == nullptr) {
         return;
     }
     session->close();
@@ -50,7 +57,7 @@ void TcpServer::closeSession(const std::string &name) noexcept {
     it->reset();
 }
 
-void TcpServer::handleAccept(const TcpSession::ptr &sessionPtr, boost::system::error_code ec) noexcept {
+void TcpServer::handleAccept(const TcpSession::ptr &sessionPtr, system::error_code ec) noexcept {
     if (!ec) {
         tcp::endpoint remoteEndpoint = sessionPtr->socket().remote_endpoint();
         std::printf("New session accepted.\n \tRemote endpoint address: %s:%s\n",
@@ -73,8 +80,22 @@ TcpSession::ptr TcpServer::getSession(const std::string &name) noexcept {
     return session == std::end(_sessionsList) ? nullptr : *session;
 }
 
-void TcpServer::sendToAll(const std::string &message) noexcept {
-    std::for_each(std::begin(_sessionsList), std::end(_sessionsList), [&message](TcpSession::ptr session){
+void TcpServer::sendToAll(const std::string &message) const noexcept {
+    std::for_each(std::begin(_sessionsList), std::end(_sessionsList), [&message](const TcpSession::ptr &session) {
         session->send(message);
     });
+}
+
+void TcpServer::bindTo(const boost::asio::ip::tcp::endpoint &endPoint) noexcept {
+    if (_acceptor->is_open()) {
+        stop();
+    }
+    _acceptor->open(endPoint.protocol());
+    _acceptor->bind(endPoint);
+    _acceptor->listen();
+}
+
+void TcpServer::init(asio::io_service& ioService) noexcept {
+    _ioService.reset(&ioService);
+    _acceptor = std::make_unique<asio::ip::tcp::acceptor>(ioService);
 }
