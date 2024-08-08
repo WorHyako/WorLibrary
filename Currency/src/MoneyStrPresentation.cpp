@@ -1,5 +1,7 @@
 #include "MoneyStrPresentation.hpp"
 
+#include <algorithm>
+
 using namespace Wor::Currency;
 
 std::string MoneyPresentation::formatMoney(std::string value,

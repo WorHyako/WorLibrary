@@ -3,6 +3,7 @@
 #include "boost/asio.hpp"
 
 #include <memory>
+#include <functional>
 
 namespace Wor::Network {
 
@@ -30,7 +31,7 @@ namespace Wor::Network {
          * @return
          */
         [[nodiscard]]
-        static TcpSession::ptr create(std::shared_ptr<boost::asio::io_service> ioService) noexcept;
+        static TcpSession::ptr create(boost::asio::io_service& ioService) noexcept;
 
         /**
          * @brief
@@ -58,7 +59,7 @@ namespace Wor::Network {
          *
          * @param ioContext
          */
-        explicit TcpSession(const std::shared_ptr<boost::asio::io_service>& ioContext) noexcept;
+        explicit TcpSession(boost::asio::io_service& ioContext) noexcept;
 
         /**
          * @brief
@@ -76,6 +77,8 @@ namespace Wor::Network {
 
         std::string _name;
 
+        std::function<void(TcpSession::ptr)> _closeCallback;
+
         bool _isActive;
 
     public:
@@ -86,7 +89,7 @@ namespace Wor::Network {
          *
          * @param name
          */
-        void setName(std::string name) noexcept;
+        void name(std::string name) noexcept;
 
         /**
          * @brief
@@ -94,7 +97,22 @@ namespace Wor::Network {
          * @return
          */
         [[nodiscard]]
-        std::string getName() noexcept;
+        std::string name() noexcept;
+
+        /**
+         * @brief
+         *
+         * @return
+         */
+        [[nodiscard]]
+        boost::asio::ip::tcp::endpoint endpoint() const noexcept;
+
+        /**
+         * @brief
+         *
+         * @param callback
+         */
+        void closeCallback(std::function<void(TcpSession::ptr)> callback) noexcept;
 
 #pragma endregion Accessors/Mutators
     };

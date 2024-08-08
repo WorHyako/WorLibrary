@@ -8,8 +8,8 @@ using namespace Wor::Network;
 using namespace boost::asio::ip;
 using namespace boost;
 
-TcpSession::TcpSession(const std::shared_ptr<asio::io_service>& ioContext) noexcept
-        : _socket(*ioContext),
+TcpSession::TcpSession(boost::asio::io_service &ioService) noexcept
+        : _socket(ioService),
           _isActive(false) {
 }
 
@@ -21,12 +21,14 @@ void TcpSession::run() noexcept {
 }
 
 void TcpSession::send(const std::string &message) noexcept {
-    std::string endSymbol = "\r\n";
-    _socket.async_write_some(asio::buffer(message + endSymbol),
-                             [self = shared_from_this()]
+    constexpr std::string_view endSymbol = "\r\n";
+    _socket.async_write_some(asio::buffer(message + endSymbol.data()),
+                             [self = shared_from_this(), message]
                                      (const system::error_code &ec, std::size_t bytesTransferred) {
-                                 std::printf("session send: \n\tbytes was transferred: %zu,\n\terror code: %i\n",
-                                             bytesTransferred, ec.value());
+                                 std::printf(
+                                         "TcpSession::send:\n\tremote client: %s%i\n\tmessage:%s\n\tbytes count: %zu\n",
+                                         self->endpoint().address().to_string().c_str(), self->endpoint().port(),
+                                         message.c_str(), bytesTransferred);
                                  if (ec || bytesTransferred == 0) {
                                      self->close();
                                  }
@@ -37,18 +39,16 @@ void TcpSession::send(const std::string &message) noexcept {
 #pragma ide diagnostic ignored "misc-no-recursion"
 
 void TcpSession::startReading() noexcept {
-    std::printf("startReading:\n");
     asio::async_read(_socket, _buffer,
                      asio::transfer_at_least(1),
                      [self = shared_from_this()]
                              (const system::error_code &ec, std::size_t bytesTransferred) {
                          if (!ec) {
-                             std::printf("Received!\n\tbytes count: %zu\n",
-                                         bytesTransferred);
                              tcp::endpoint endPoint = self->_socket.remote_endpoint();
                              self->startReading();
                              self->parseBuffer();
                          } else {
+                             std::printf("TcpSession::startReading::async_read:\n\tError: %s\n", ec.what().c_str());
                              self->close();
                          }
                      });
@@ -59,7 +59,8 @@ void TcpSession::startReading() noexcept {
 void TcpSession::parseBuffer() noexcept {
     tcp::endpoint endPoint = _socket.remote_endpoint();
 
-    std::printf("parseBuffer from %s:%i:\n", endPoint.address().to_string().c_str(), endPoint.port());
+    std::printf("TcpSession::parseBuffer:\n\tsender: %s:%i",
+                endPoint.address().to_string().c_str(), endPoint.port());
     std::string strBuffer = { asio::buffers_begin(_buffer.data()),
                               asio::buffers_end(_buffer.data()) };
 
@@ -80,7 +81,7 @@ void TcpSession::parseBuffer() noexcept {
     }
 
     std::for_each(std::begin(messages), std::end(messages), [](const std::string &message) {
-        std::printf("\tmessage: %s\n", message.c_str());
+        std::printf("\n\tmessage: %s\n", message.c_str());
     });
 }
 
@@ -88,26 +89,40 @@ void TcpSession::close() {
     if (!_isActive) {
         return;
     }
-    std::printf("Connection was closed.\n");
+    std::printf("TcpSession:\n\tConnection was closed.\n\tEndpoint: %s:%i\n",
+                _socket.remote_endpoint().address().to_string().c_str(),
+                _socket.remote_endpoint().port());
+    _isActive = false;
     _socket.close();
+    if (_closeCallback) {
+        _closeCallback(shared_from_this());
+    }
 }
 
 tcp::socket &TcpSession::socket() noexcept {
     return _socket;
 }
 
-TcpSession::ptr TcpSession::create(std::shared_ptr<asio::io_service> ioService) noexcept {
-    return ptr(new TcpSession(std::move(ioService)));
+TcpSession::ptr TcpSession::create(asio::io_service &ioService) noexcept {
+    return ptr(new TcpSession(ioService));
 }
 
 #pragma region Accessors/Mutators
 
-void TcpSession::setName(std::string name) noexcept {
+void TcpSession::name(std::string name) noexcept {
     _name = std::move(name);
 }
 
-std::string TcpSession::getName() noexcept {
+std::string TcpSession::name() noexcept {
     return _name;
+}
+
+boost::asio::ip::tcp::endpoint TcpSession::endpoint() const noexcept {
+    return _socket.is_open() ? _socket.remote_endpoint() : boost::asio::ip::tcp::endpoint();
+}
+
+void TcpSession::closeCallback(std::function<void(TcpSession::ptr)> callback) noexcept {
+    _closeCallback = std::move(callback);
 }
 
 #pragma endregion Accessors/Mutators

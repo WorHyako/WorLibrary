@@ -4,6 +4,7 @@
 
 #include <optional>
 #include <iterator>
+#include <cstdint>
 
 namespace Wor::Sql {
 

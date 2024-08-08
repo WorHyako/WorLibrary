@@ -1,5 +1,7 @@
 #include "DbRowView.hpp"
 
+#include <algorithm>
+
 using namespace Wor::Sql;
 
 void DbRowView::add(DbCellView cell) noexcept {

@@ -7,9 +7,7 @@ namespace Wor::TemplateWrapper {
      *
      * @usage
      * @code
-     *          auto &instance = Singleton<InstanceType>::initInstance(arg0, arg1, ...);
-     *
-     *          auto &instance = Singleton<InstanceType>::getInstance();
+     *          auto &instance = Singleton<InstanceType>::get();
      * @endcode
      *
      * @author  WorHyako
@@ -18,11 +16,6 @@ namespace Wor::TemplateWrapper {
     class Singleton final
             : private TInstanceType {
     public:
-        /**
-         * @brief Dtor.
-         */
-        ~Singleton() noexcept = delete;
-
         /**
          * @brief Ctor.
          */
@@ -44,6 +37,7 @@ namespace Wor::TemplateWrapper {
          *
          * @return
          */
+        [[nodiscard]]
         static TInstanceType &get() noexcept;
 
 #pragma endregion Accessors/Mutators

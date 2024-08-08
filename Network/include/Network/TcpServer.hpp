@@ -21,20 +21,24 @@ namespace Wor::Network {
         TcpServer() noexcept = default;
 
         /**
-         * @brief Ctor.
-         *
-         * @param ioContext
+         * @brief Dtor.
          */
-        TcpServer(boost::asio::io_context& ioContext) noexcept;
+        virtual ~TcpServer() noexcept;
 
-        void init(boost::asio::io_service& ioService) noexcept;
+        /**
+         * @brief
+         *
+         * @param ioService
+         */
+        void init(boost::asio::io_service &ioService) noexcept;
 
         /**
          * @brief
          *
          * @param endPoint
          */
-        void bindTo(const boost::asio::ip::tcp::endpoint& endPoint) noexcept;
+        [[nodiscard]]
+        bool bindTo(const boost::asio::ip::tcp::endpoint &endPoint) noexcept;
 
         /**
          * @brief
@@ -53,16 +57,25 @@ namespace Wor::Network {
          *
          * @param name
          */
-        void closeSession(const std::string& name) noexcept;
+        void closeSession(const std::string &name) noexcept;
 
         /**
          * @brief
          *
          * @param message
          */
-        void sendToAll(const std::string& message) const noexcept;
+        void sendToAll(const std::string &message) const noexcept;
 
     private:
+        /**
+         * @brief           Closes selected session.
+         *                  <p/>
+         *                  Nothing happened, If session doesn't exist in _sessionList.
+         *
+         * @param session   Session ptr to close.
+         */
+        void closeSession(TcpSession::ptr session) noexcept;
+
         /**
          * @brief
          *
@@ -70,9 +83,7 @@ namespace Wor::Network {
          *
          * @param ec
          */
-        void handleAccept(const TcpSession::ptr& sessionPtr, boost::system::error_code ec) noexcept;
-
-        std::shared_ptr<boost::asio::io_service> _ioService;
+        void handleAccept(const TcpSession::ptr &sessionPtr, boost::system::error_code ec) noexcept;
 
         std::unique_ptr<boost::asio::ip::tcp::acceptor> _acceptor;
 
@@ -89,7 +100,23 @@ namespace Wor::Network {
          * @return
          */
         [[nodiscard]]
-        TcpSession::ptr getSession(const std::string& name) noexcept;
+        TcpSession::ptr session(const std::string &name) noexcept;
+
+        /**
+         * @brief
+         *
+         * @return
+         */
+        [[nodiscard]]
+        std::vector<TcpSession::ptr> sessionList() const noexcept;
+
+        /**
+         * @brief
+         *
+         * @return
+         */
+        [[nodiscard]]
+        bool isRunning() const noexcept;
 
 #pragma endregion Accessors/Mutators
     };

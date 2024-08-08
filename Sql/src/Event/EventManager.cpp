@@ -1,5 +1,7 @@
 #include "Event/EventManager.hpp"
 
+#include <algorithm>
+
 using namespace Wor::Sql::Event;
 
 EventManager::EventManager() noexcept
