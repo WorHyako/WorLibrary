@@ -1,14 +1,13 @@
 #include "TcpSession.hpp"
 
 #include <cstdio>
-#include <utility>
 
 using namespace Wor::Network;
 
 using namespace boost::asio::ip;
 using namespace boost;
 
-TcpSession::TcpSession(boost::asio::io_service &ioService) noexcept
+TcpSession::TcpSession(asio::io_service &ioService) noexcept
         : _socket(ioService),
           _isActive(false) {
 }
@@ -30,7 +29,7 @@ void TcpSession::send(const std::string &message) noexcept {
                                          self->endpoint().address().to_string().c_str(), self->endpoint().port(),
                                          message.c_str(), bytesTransferred);
                                  if (ec || bytesTransferred == 0) {
-                                     self->close();
+                                     // self->close();
                                  }
                              });
 }
@@ -39,12 +38,11 @@ void TcpSession::send(const std::string &message) noexcept {
 #pragma ide diagnostic ignored "misc-no-recursion"
 
 void TcpSession::startReading() noexcept {
-    asio::async_read(_socket, _buffer,
+    async_read(_socket, _buffer,
                      asio::transfer_at_least(1),
                      [self = shared_from_this()]
                              (const system::error_code &ec, std::size_t bytesTransferred) {
                          if (!ec) {
-                             tcp::endpoint endPoint = self->_socket.remote_endpoint();
                              self->startReading();
                              self->parseBuffer();
                          } else {
@@ -57,22 +55,25 @@ void TcpSession::startReading() noexcept {
 #pragma clang diagnostic pop
 
 void TcpSession::parseBuffer() noexcept {
-    tcp::endpoint endPoint = _socket.remote_endpoint();
+    const tcp::endpoint endPoint = _socket.remote_endpoint();
 
     std::printf("TcpSession::parseBuffer:\n\tsender: %s:%i",
                 endPoint.address().to_string().c_str(), endPoint.port());
-    std::string strBuffer = { asio::buffers_begin(_buffer.data()),
-                              asio::buffers_end(_buffer.data()) };
+    const std::size_t size = std::distance(buffers_begin(_buffer.data()),
+                                        buffers_end(_buffer.data()));
+    if(size == 0) {
+        return;
+    }
+    std::string strBuffer = { buffers_begin(_buffer.data()),
+                              buffers_end(_buffer.data()) };
 
-    std::size_t size = std::distance(asio::buffers_begin(_buffer.data()),
-                                     asio::buffers_end(_buffer.data()));
     _buffer.consume(size);
 
     std::vector<std::string> messages;
     std::size_t begin = 0;
     while (begin < size) {
-        std::size_t end = strBuffer.find('\0', begin);
-        if (end == std::size_t(-1)) {
+        const std::size_t end = strBuffer.find('\0', begin);
+        if (end == static_cast<std::size_t>(-1)) {
             messages.emplace_back(strBuffer);
             break;
         }
@@ -80,7 +81,7 @@ void TcpSession::parseBuffer() noexcept {
         begin = end + 1;
     }
 
-    std::for_each(std::begin(messages), std::end(messages), [](const std::string &message) {
+    std::ranges::for_each(messages, [](const std::string &message) {
         std::printf("\n\tmessage: %s\n", message.c_str());
     });
 }
@@ -117,7 +118,7 @@ std::string TcpSession::name() noexcept {
     return _name;
 }
 
-boost::asio::ip::tcp::endpoint TcpSession::endpoint() const noexcept {
+tcp::endpoint TcpSession::endpoint() const noexcept {
     return _socket.is_open() ? _socket.remote_endpoint() : boost::asio::ip::tcp::endpoint();
 }
 

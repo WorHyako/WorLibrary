@@ -20,7 +20,7 @@ set(Boost_NO_WARN_NEW_VERSIONS ON)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_NO_BOOST_CMAKE ON)
-find_package(Boost 1.79...1.85 REQUIRED GLOBAL COMPONENTS
+find_package(Boost 1.85 REQUIRED GLOBAL COMPONENTS
         date_time
         thread)
 

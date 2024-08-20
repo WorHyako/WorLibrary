@@ -28,13 +28,6 @@ namespace Wor::Network {
         /**
          * @brief
          *
-         * @param ioService
-         */
-        void init(boost::asio::io_service &ioService) noexcept;
-
-        /**
-         * @brief
-         *
          * @param endPoint
          */
         [[nodiscard]]
@@ -74,7 +67,7 @@ namespace Wor::Network {
          *
          * @param session   Session ptr to close.
          */
-        void closeSession(TcpSession::ptr session) noexcept;
+        void closeSession(const TcpSession::ptr& session) noexcept;
 
         /**
          * @brief
