@@ -106,15 +106,12 @@ void TcpServer::sendToAll(const std::string &message) const noexcept {
 }
 
 bool TcpServer::bindTo(const tcp::endpoint &endPoint) noexcept {
-    if (!_acceptor) {
-        auto &ioService = Utils::IoService::get();
-        _acceptor = std::make_unique<tcp::acceptor>(ioService);
-    }
+    stop();
+    auto &ioService = Utils::IoService::get();
+    _acceptor.reset(new tcp::acceptor(ioService));
     std::printf("TcpServer::bindTo:\n\tStart binding.\n\tAddress: %s:%i\n",
                 endPoint.address().to_string().c_str(), endPoint.port());
-    if (_acceptor->is_open()) {
-        stop();
-    }
+
     system::error_code ec;
     ec = _acceptor->open(endPoint.protocol(), ec);
     if (ec) {
