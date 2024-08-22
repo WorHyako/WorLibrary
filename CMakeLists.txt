@@ -15,7 +15,11 @@ option(WORLIBRARY_MATH "" OFF)
 option(WORLIBRARY_CURRENCY "" OFF)
 option(WORLIBRARY_TEMPLATEWRAPPERS "" OFF)
 option(WORLIBRARY_DEFINEUTILS "" OFF)
+option(WORLIBRARY_MIDI "" OFF)
 
+#############
+#   Boost   #
+#############
 set(Boost_NO_WARN_NEW_VERSIONS ON)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_LIBS ON)
@@ -54,4 +58,8 @@ endif ()
 
 if (WORLIBRARY_TEMPLATE)
     add_subdirectory(TemplateWrappers)
+endif ()
+
+if (WORLIBRARY_MIDI)
+    add_subdirectory(Midi)
 endif ()

@@ -60,14 +60,7 @@ namespace Wor::Network {
 		 */
 		void handleConnect(const boost::asio::ip::tcp::resolver::iterator& endPoint) noexcept;
 
-		/**
-		 * @brief
-		 */
-		void handleDeadline() noexcept;
-
 		boost::asio::ip::tcp::socket _socket;
-
-		boost::asio::deadline_timer _acceptDeadline;
 
 		boost::asio::streambuf _readBuffer;
 

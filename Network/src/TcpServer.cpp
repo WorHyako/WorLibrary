@@ -108,7 +108,7 @@ void TcpServer::sendToAll(const std::string &message) const noexcept {
 bool TcpServer::bindTo(const tcp::endpoint &endPoint) noexcept {
     stop();
     auto &ioService = Utils::IoService::get();
-    _acceptor.reset(new tcp::acceptor(ioService));
+    _acceptor = std::make_unique<tcp::acceptor>(ioService);
     std::printf("TcpServer::bindTo:\n\tStart binding.\n\tAddress: %s:%i\n",
                 endPoint.address().to_string().c_str(), endPoint.port());
 
