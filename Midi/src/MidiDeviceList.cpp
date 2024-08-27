@@ -22,7 +22,6 @@ std::vector<std::string> MidiDeviceList::getOut() noexcept {
 
 	std::vector<std::string> deviceList;
 	deviceList.reserve(portCount);
-	deviceList.resize(portCount);
 	for (int i = 0; i < portCount; i++) {
 		deviceList.emplace_back(midiOut.getPortName(i));
 	}
@@ -33,10 +32,16 @@ std::vector<std::string> MidiDeviceList::getKeyboards() noexcept {
 	std::vector<std::string> deviceList;
 	auto inDevices = getIn();
 	auto outDevices = getOut();
-	for (auto& in : inDevices) {
-		if(std::find(std::begin(outDevices), std::begin(outDevices), in) != std::end(outDevices)) {
-			deviceList.emplace_back(in);
-		}
-	}
+	deviceList.reserve(outDevices.size() + inDevices.size());
+	std::ranges::for_each(
+			inDevices,
+			[&outDevices, &deviceList](const auto &in) {
+				if (std::find(std::begin(outDevices),
+							  std::end(outDevices),
+							  in) != std::end(
+						outDevices)) {
+					deviceList.emplace_back(in);
+				}
+			});
 	return deviceList;
 }

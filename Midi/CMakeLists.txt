@@ -20,5 +20,4 @@ target_include_directories(WorLib_Midi
         ${RtMidi_INCLUDEDIR})
 
 target_link_libraries(WorLib_Midi
-        PUBLIC
-        PkgConfig::RtMidi)
+        PUBLIC PkgConfig::RtMidi)

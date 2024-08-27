@@ -1,7 +1,5 @@
 #include "MidiKeyboard.hpp"
 
-#include <future>
-
 using namespace Wor::Midi;
 
 MidiKeyboard::MidiKeyboard() noexcept
@@ -18,32 +16,9 @@ void MidiKeyboard::open(std::uint16_t port, const std::string &portName) noexcep
 					port,
 					e.what());
 	}
-	_inDevice.setCallback([](double timeStamp, std::vector<unsigned char> *message, void *user) {
-							  auto userClass = static_cast<MidiKeyboard *>(user);
-							  if (userClass == nullptr
-								  || message == nullptr
-								  || message->size() != 3
-								  || userClass->_callback == nullptr) {
-								  return;
-							  }
-							  CallbackInfo::AkaiApcInCallbackInfo callbackInfo(
-									  static_cast<std::byte>(message->at(1)),
-									  static_cast<CallbackInfo::KeyEventType>(message->at(0)),
-									  static_cast<std::byte>(message->at(2)));
-							  /**
-							   * TODO: make async
-							   */
-							  userClass->_callback(callbackInfo);
-						  },
-						  this);
-	_inDevice.setErrorCallback([](RtMidiError::Type error, const std::string &errorText, void *user) {
-								   auto userClass = static_cast<MidiKeyboard *>(user);
-								   if (userClass == nullptr || errorText.empty()) {
-									   return;
-								   }
-								   std::printf("\n\tError text: %s\n\tError: %i\n", errorText.c_str(), error);
-							   },
-							   this);
+	_inDevice.setCallback(&MidiKeyboard::nativeInCallback, this);
+	_inDevice.setErrorCallback(&MidiKeyboard::errorInCallback, this);
+	_outDevice.setErrorCallback(&MidiKeyboard::errorOutCallback, this);
 }
 
 void MidiKeyboard::close() noexcept {
@@ -53,14 +28,44 @@ void MidiKeyboard::close() noexcept {
 	}
 }
 
-void MidiKeyboard::send(int buttonId, int value) noexcept {
+void MidiKeyboard::send(const CallbackInfo::BaseCallbackInfo &callbackInfo) noexcept {
 	if (!isOpen()) {
 		return;
 	}
-	std::vector<unsigned char> message = {0x90,
-										  static_cast<unsigned char>(buttonId),
-										  static_cast<unsigned char>(value)};
+
+	const auto &message = callbackInfo.vector();
 	_outDevice.sendMessage(&message);
+}
+
+void MidiKeyboard::nativeInCallback(double timeStamp, std::vector<unsigned char> *message, void *user) noexcept {
+	auto userClass = static_cast<MidiKeyboard *>(user);
+	if (userClass == nullptr
+		|| message == nullptr
+		|| message->size() != 3
+		|| userClass->_callback == nullptr) {
+		return;
+	}
+	std::vector<std::byte> byteMessage;
+	std::ranges::for_each(*message,
+						  [&byteMessage](unsigned char each) {
+							  byteMessage.emplace_back(static_cast<std::byte>(each));
+						  });
+	CallbackInfo::BaseCallbackInfo callbackInfo(byteMessage);
+	/**
+	 * TODO: make async
+	 */
+	userClass->_callback(callbackInfo);
+}
+
+void MidiKeyboard::errorInCallback(RtMidiError::Type error, const std::string &errorText, void *user) noexcept {
+	auto userClass = static_cast<MidiKeyboard *>(user);
+	if (userClass == nullptr || errorText.empty()) {
+		return;
+	}
+	std::printf("\n\tError text: %s\n\tError: %i\n", errorText.c_str(), error);
+}
+
+void MidiKeyboard::errorOutCallback(RtMidiError::Type error, const std::string &errorText, void *user) noexcept {
 }
 
 #pragma region Accessors/Mutators
@@ -69,7 +74,7 @@ bool MidiKeyboard::isOpen() const noexcept {
 	return _inDevice.isPortOpen() && _outDevice.isPortOpen();
 }
 
-void MidiKeyboard::callback(std::function<void(const CallbackInfo::AkaiApcInCallbackInfo &)> callback) noexcept {
+void MidiKeyboard::inCallback(std::function<void(const CallbackInfo::BaseCallbackInfo &)> callback) noexcept {
 	_callback = std::move(callback);
 }
 

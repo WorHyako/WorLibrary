@@ -2,7 +2,7 @@
 
 #include <functional>
 
-#include <Midi/CallbackInfo/AkaiApcInCallbackInfo.hpp>
+#include "CallbackInfo/BaseCallbackInfo.hpp"
 
 #include "RtMidi.h"
 
@@ -39,20 +39,47 @@ namespace Wor::Midi {
 		 *
 		 * @param
 		 */
-		void send(int buttonId, int value) noexcept;
+		void send(const CallbackInfo::BaseCallbackInfo& callbackInfo) noexcept;
 
 	private:
-		enum class Direction
-				: bool {
-			Input,
-			Output
-		};
+		/**
+		 * @brief
+		 *
+		 * @param timeStamp
+		 *
+		 * @param message
+		 *
+		 * @param user
+		 */
+		static void nativeInCallback(double timeStamp, std::vector<unsigned char>* message, void* user) noexcept;
+
+		/**
+		 * @brief
+		 *
+		 * @param error
+		 *
+		 * @param errorText
+		 *
+		 * @param user
+		 */
+		static void errorInCallback(RtMidiError::Type error, const std::string &errorText, void *user) noexcept;
+
+		/**
+		 * @brief
+		 *
+		 * @param error
+		 *
+		 * @param errorText
+		 *
+		 * @param user
+		 */
+		static void errorOutCallback(RtMidiError::Type error, const std::string &errorText, void *user) noexcept;
 
 		RtMidiIn _inDevice;
 
 		RtMidiOut _outDevice;
 
-		std::function<void(const CallbackInfo::AkaiApcInCallbackInfo&)> _callback;
+		std::function<void(const CallbackInfo::BaseCallbackInfo&)> _callback;
 
 #pragma region Accessors/Mutators
 
@@ -62,7 +89,7 @@ namespace Wor::Midi {
 		 *
 		 * @param callback
 		 */
-		void callback(std::function<void(const CallbackInfo::AkaiApcInCallbackInfo&)> callback) noexcept;
+		void inCallback(std::function<void(const CallbackInfo::BaseCallbackInfo&)> callback) noexcept;
 
 		/**
 		 * @brief
