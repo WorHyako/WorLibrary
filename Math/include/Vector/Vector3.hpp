@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Wor::Vector {
+namespace Wor::Math::Vector {
 
     /**
      * @brief   Struct to store data via XYZ

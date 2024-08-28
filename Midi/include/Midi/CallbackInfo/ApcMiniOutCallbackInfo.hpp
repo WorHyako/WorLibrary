@@ -17,13 +17,9 @@ namespace Wor::Midi::CallbackInfo {
 		 *
 		 * @param buttonId
 		 *
-		 * @param color
-		 *
-		 * @param colorMode
+		 * @param led
 		 */
-		explicit ApcMiniOutCallbackInfo(std::uint8_t buttonId,
-										ApcMini::Color color,
-										ApcMini::ColorMode colorMode = ApcMini::ColorMode::Solid) noexcept;
+		explicit ApcMiniOutCallbackInfo(std::uint8_t buttonId, ApcMini::ApcMiniLed led) noexcept;
 
 #pragma region Accessors/Mutators
 
