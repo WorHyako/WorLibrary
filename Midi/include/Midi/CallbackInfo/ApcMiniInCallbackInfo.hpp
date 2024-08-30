@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ApcMiniInfo.hpp"
+#include "ApcMiniLed.hpp"
 #include "BaseCallbackInfo.hpp"
 
 namespace Wor::Midi::CallbackInfo {
@@ -37,14 +37,6 @@ namespace Wor::Midi::CallbackInfo {
 		 */
 		[[nodiscard]]
 		std::uint8_t value() const noexcept;
-
-		/**
-		 * @brief
-		 *
-		 * @return
-		 */
-		[[nodiscard]]
-		std::uint8_t buttonId() const noexcept;
 
 		/**
 		 * @brief

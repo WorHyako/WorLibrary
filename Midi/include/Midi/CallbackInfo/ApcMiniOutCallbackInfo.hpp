@@ -1,7 +1,7 @@
 #pragma once
 
 #include "BaseCallbackInfo.hpp"
-#include "ApcMiniInfo.hpp"
+#include "ApcMiniLed.hpp"
 
 namespace Wor::Midi::CallbackInfo {
 	/**
@@ -19,7 +19,16 @@ namespace Wor::Midi::CallbackInfo {
 		 *
 		 * @param led
 		 */
-		explicit ApcMiniOutCallbackInfo(std::uint8_t buttonId, ApcMini::ApcMiniLed led) noexcept;
+		// ApcMiniOutCallbackInfo(std::uint8_t buttonId, ApcMini::ApcMiniLed led) noexcept;
+
+		/**
+		 * @brief Ctor.
+		 *
+		 * @param buttonId
+		 *
+		 * @param led
+		 */
+		ApcMiniOutCallbackInfo(uint8_t buttonId, const MidiLed& led) noexcept;
 
 #pragma region Accessors/Mutators
 

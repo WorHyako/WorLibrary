@@ -2,7 +2,7 @@
 
 #include <map>
 
-#include "MidiInfo.hpp"
+#include "MidiLed.hpp"
 
 namespace Wor::Midi::CallbackInfo::ApcMini {
 	/**

@@ -26,6 +26,8 @@ namespace Wor::Midi::CallbackInfo {
 	protected:
 		std::vector<std::byte> _message;
 
+		std::uint8_t _buttonIdIdx;
+
 #pragma region Accessors/Mutators
 
 	public:
@@ -43,6 +45,14 @@ namespace Wor::Midi::CallbackInfo {
 		 */
 		[[nodiscard]]
 		virtual bool valid() const noexcept;
+
+		/**
+		 * @brief
+		 *
+		 * @return
+		 */
+		[[nodiscard]]
+		std::uint8_t buttonId() const noexcept;
 
 #pragma endregion Accessors/Mutators
 	};
