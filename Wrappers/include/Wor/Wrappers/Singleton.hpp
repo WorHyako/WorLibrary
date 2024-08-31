@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Wor::TemplateWrapper {
+namespace Wor::Wrappers {
 
     /**
      * @brief   Just casual singleton wrapper.
