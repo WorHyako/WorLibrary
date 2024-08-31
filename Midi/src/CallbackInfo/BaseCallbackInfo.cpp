@@ -1,4 +1,4 @@
-#include "CallbackInfo/BaseCallbackInfo.hpp"
+#include "Midi/CallbackInfo/BaseCallbackInfo.hpp"
 
 using namespace Wor::Midi::CallbackInfo;
 

@@ -1,4 +1,4 @@
-#include "MidiTimecode.hpp"
+#include "Midi/MidiTimecode.hpp"
 
 using namespace Wor::Midi;
 

@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "Vector/Vector3.hpp"
+#include "Wor/Vector/Vector3.hpp"
 
 namespace Wor::Midi::CallbackInfo {
 	/**

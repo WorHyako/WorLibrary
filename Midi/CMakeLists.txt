@@ -16,7 +16,7 @@ target_sources(WorLib_Midi
 target_include_directories(WorLib_Midi
         PUBLIC include
         PRIVATE
-        include/Midi
+        include/Wor
         ${RtMidi_INCLUDEDIR})
 
 target_link_libraries(WorLib_Midi

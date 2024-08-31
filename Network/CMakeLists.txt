@@ -13,8 +13,7 @@ target_include_directories(WorLib_Network
         include
         ${Boost_INCLUDE_DIR}
         PRIVATE
-        include/Network
-        include/Network/Utils)
+        include/Wor)
 
 target_link_libraries(WorLib_Network
         PUBLIC ${Boost_LIBRARIES})

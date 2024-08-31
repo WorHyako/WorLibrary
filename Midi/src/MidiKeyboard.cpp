@@ -1,4 +1,4 @@
-#include "MidiKeyboard.hpp"
+#include "Midi/MidiKeyboard.hpp"
 
 using namespace Wor::Midi;
 

@@ -1,6 +1,6 @@
-#include "CallbackInfo/ApcMiniInCallbackInfo.hpp"
+#include "Midi/CallbackInfo/ApcMiniInCallbackInfo.hpp"
 
-#include <CallbackInfo/ApcMiniLed.hpp>
+#include "Midi/CallbackInfo/ApcMiniLed.hpp"
 
 using namespace Wor::Midi::CallbackInfo;
 

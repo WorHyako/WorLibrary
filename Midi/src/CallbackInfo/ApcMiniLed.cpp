@@ -1,4 +1,4 @@
-#include "CallbackInfo/ApcMiniLed.hpp"
+#include "Midi/CallbackInfo/ApcMiniLed.hpp"
 
 using namespace Wor::Midi::CallbackInfo::ApcMini;
 using namespace Wor::Midi::CallbackInfo;
@@ -67,6 +67,7 @@ Wor::Math::Vector::Vector3<int> ApcMiniLed::rgb() const noexcept {
 			rgb = Math::Vector::Vector3<int>(255, 79, 0);
 			break;
 		default:
+			break;
 	}
 	return rgb;
 }
