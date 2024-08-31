@@ -9,7 +9,7 @@ target_sources(WorLib_Sql
 
 target_include_directories(WorLib_Sql
         PUBLIC include
-        PRIVATE include/Sql)
+        PRIVATE include/Wor)
 
 target_link_libraries(WorLib_Sql
         PUBLIC

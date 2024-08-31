@@ -4,7 +4,7 @@
 #include <string>
 #include <any>
 
-#ifdef SOCI_H_INCLUDED
+#ifndef SOCI_H_INCLUDED
 
 #include "soci/soci.h"
 
