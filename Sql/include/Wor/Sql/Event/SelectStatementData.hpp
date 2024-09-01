@@ -5,7 +5,9 @@
 
 namespace Wor::Sql::Event {
 	/**
+	 * @brief
 	 *
+	 * @author WorHyako
 	 */
 	struct SelectStatementData {
 		/**

@@ -6,7 +6,9 @@
 
 namespace Wor::Sql::Event {
 	/**
+	 * @brief
 	 *
+	 * @author WorHYako
 	 */
 	struct EventType {
 		friend bool operator==(const EventType& lhs, const EventType& rhs) {
@@ -34,7 +36,9 @@ namespace Wor::Sql::Event {
 	using EventList = std::vector<EventType>;
 
 	/**
+	 * @brief
 	 *
+	 * @author WorHyako
 	 */
 	struct UpdateEventType {
 		/**

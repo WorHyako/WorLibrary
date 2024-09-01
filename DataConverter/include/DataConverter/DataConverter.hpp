@@ -15,20 +15,31 @@ namespace Wor::DataConverter {
 #ifdef SOCI_H_INCLUDED
 
     /**
+     * @brief
      *
      * @param row
+     *
      * @param cellIndex
+     *
      * @return
+     *
+     * @author WorHyako
      */
     [[nodiscard]]
     std::string sociToString(const soci::row &row, std::int64_t cellIndex) noexcept;
 
     /**
+     * @brief
      *
      * @tparam Type
+     *
      * @param row
+     *
      * @param cellIndex
+     *
      * @return
+     *
+     * @author WorHyako
      */
     template<typename Type>
     [[nodiscard]]

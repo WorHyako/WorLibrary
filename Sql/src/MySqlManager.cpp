@@ -52,7 +52,7 @@ DbTableView MySqlManager::select(const Event::SelectStatementData &statementData
 			tableRow.add({statementData.selectValues[i], strValue});
 		}
 
-		tableMap.AddRow(tableRow, true);
+		tableMap.addRow(tableRow, true);
 	}
 	return tableMap;
 }

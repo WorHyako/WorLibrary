@@ -65,7 +65,7 @@ namespace Wor::Sql {
 		 * @return
 		 */
 		[[nodiscard]]
-		std::optional<DbRowView> getRow(std::int64_t eventId) const noexcept;
+		std::optional<DbRowView> row(std::int64_t eventId) const noexcept;
 
 		/**
 		 * @brief
@@ -90,7 +90,7 @@ namespace Wor::Sql {
 		 *
 		 * @param overwrite
 		 */
-		void AddRow(DbRowView row, bool overwrite = false) noexcept;
+		void addRow(DbRowView row, bool overwrite = false) noexcept;
 
 #pragma endregion Accessors/Mutators
 

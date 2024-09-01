@@ -24,7 +24,7 @@ void DbTableView::sort(const std::string &property) noexcept {
 
 #pragma region Accessors/Mutators
 
-std::optional<DbRowView> DbTableView::getRow(std::int64_t eventId) const noexcept {
+std::optional<DbRowView> DbTableView::row(std::int64_t eventId) const noexcept {
 	auto event = find(eventId);
 	return event != std::end(_tableView)
 			? *event
@@ -39,7 +39,7 @@ const DbRowView &DbTableView::back() const noexcept {
 	return _tableView.back();
 }
 
-void DbTableView::AddRow(DbRowView row, bool overwrite) noexcept {
+void DbTableView::addRow(DbRowView row, bool overwrite) noexcept {
 	const auto rowExist = find(row) != std::end(_tableView);
 	if ((rowExist && overwrite) || !rowExist) {
 		_tableView.emplace_back(std::move(row));

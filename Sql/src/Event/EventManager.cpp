@@ -5,11 +5,10 @@
 using namespace Wor::Sql::Event;
 
 EventManager::EventManager() noexcept
-	: _empty(true),
-	  _eventList{},
+	: _lastEventId(0),
+	  _empty(true),
 	  _updatingActivity(false),
-	  _updatingTimeBreak(10),
-	  _lastEventId(0) {
+	  _updatingTimeBreak(10) {
 }
 
 EventManager::~EventManager() noexcept {

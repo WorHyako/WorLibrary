@@ -7,44 +7,50 @@
 
 namespace Wor::Sql::Event {
 	/**
+	 * @brief
 	 *
+	 * @author WorHYako
 	 */
 	class EventManager {
 	public:
 		/**
-		 * Ctor
+		 * @brief Ctor.
 		 */
 		EventManager() noexcept;
 
 		/**
-		 * Dtor
+		 * @brief Dtor.
 		 */
 		~EventManager() noexcept;
 
 		/**
+		 * @brief
 		 *
+		 * @param answerList
 		 */
 		void executeEvents(const DbTableView& answerList) noexcept;
 
 		/**
+		 * @brief
 		 *
 		 * @param updateType
 		 */
 		void setUpdateEvent(UpdateEventType updateType) noexcept;
 
 		/**
+		 * @brief
 		 *
 		 * @param eventList
 		 */
 		void setEventList(EventList eventList) noexcept;
 
 		/**
-		 *
+		 * @brief
 		 */
 		void startUpdatingThread() noexcept;
 
 		/**
-		 *
+		 * @brief
 		 */
 		void stopUpdatingThread() noexcept;
 
@@ -85,24 +91,27 @@ namespace Wor::Sql::Event {
 		std::chrono::milliseconds _updatingTimeBreak;
 
 		/**
-		 *
-		 */
-		std::mutex _mutex;
-
-		/**
+		 * @brief
 		 *
 		 * @param executeNewEvents
 		 */
 		void updateEventList(bool executeNewEvents = true) noexcept;
 
 		/**
+		 * @brief
 		 *
+		 * @param executeNewEvents
 		 */
 		void updateEventListOnOtherThread(bool executeNewEvents = true) noexcept;
 
 	public:
 #pragma region Accessors/Mutators
 
+		/**
+		 * @brief
+		 *
+		 * @return
+		 */
 		[[nodiscard]]
 		inline bool isEmpty() const noexcept;
 

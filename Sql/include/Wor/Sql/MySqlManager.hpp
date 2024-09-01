@@ -95,21 +95,34 @@ namespace Wor::Sql {
 		DataBaseParameters _dbParameters;
 
 	public:
-#pragma region Accessors
+#pragma region Accessors/Mutators
 
+		/**
+		 * @brief
+		 *
+		 * @return
+		 */
 		[[nodiscard]]
 		ConnectionStatus status() const noexcept;
 
+		/**
+		 * @brief
+		 *
+		 * @return
+		 */
 		[[nodiscard]]
 		const DataBaseParameters& dpParameters() const noexcept;
 
-#pragma endregion Accessors
-
-#pragma region Mutators
-
+		/**
+		 * @brief
+		 *
+		 * @param dpParameters
+		 *
+		 * @return
+		 */
 		[[nodiscard]]
 		bool dpParameters(DataBaseParameters dpParameters) noexcept;
 
-#pragma endregion Mutators
+#pragma endregion Accessors/Mutators
 	};
 }
