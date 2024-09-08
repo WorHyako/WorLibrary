@@ -22,4 +22,5 @@ target_include_directories(WorLib_Midi
 target_link_libraries(WorLib_Midi
         PUBLIC
         PkgConfig::RtMidi
+        spdlog::spdlog
         Wor::Math)

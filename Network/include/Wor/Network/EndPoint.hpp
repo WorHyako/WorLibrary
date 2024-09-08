@@ -11,7 +11,6 @@ namespace Wor::Network {
      * @author WorHyako
      */
     struct EndPoint {
-    public:
         /**
          * @brief
          *

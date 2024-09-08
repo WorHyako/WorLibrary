@@ -1,5 +1,7 @@
 #include "Midi/MidiKeyboard.hpp"
 
+#include <spdlog/spdlog.h>
+
 using namespace Wor::Midi;
 
 MidiKeyboard::MidiKeyboard() noexcept
@@ -11,11 +13,22 @@ void MidiKeyboard::open(std::uint16_t port, const std::string &portName) noexcep
 		_inDevice.openPort(port, portName);
 		_outDevice.openPort(port, portName);
 	} catch (const RtMidiError &e) {
-		std::printf("MidiKeyboard::open:\n\tName:port: %s%i\n\tError: %s\n",
-					portName.c_str(),
-					port,
-					e.what());
+		std::stringstream ss;
+		ss << "MidiKeyboard: Error opening port: "
+				<< portName
+				<< "-"
+				<< port
+				<< "\nError: "
+				<< e.what();
+		spdlog::error(ss.str());
 	}
+	std::stringstream ss;
+	ss << "MidiKeyboard: Port was opened: "
+			<< portName
+			<< "-"
+			<< port;
+	spdlog::info(ss.str());
+
 	_inDevice.setCallback(&MidiKeyboard::nativeInCallback, this);
 	_inDevice.setErrorCallback(&MidiKeyboard::errorInCallback, this);
 	_outDevice.setErrorCallback(&MidiKeyboard::errorOutCallback, this);
@@ -62,7 +75,12 @@ void MidiKeyboard::errorInCallback(RtMidiError::Type error, const std::string &e
 	if (userClass == nullptr || errorText.empty()) {
 		return;
 	}
-	std::printf("\n\tError text: %s\n\tError: %i\n", errorText.c_str(), error);
+
+	std::stringstream ss;
+	ss << "MidiKeyboard. Error callback received.\n"
+			<< "Error: "
+			<< errorText;
+	spdlog::error(ss.str());
 }
 
 void MidiKeyboard::errorOutCallback(RtMidiError::Type error, const std::string &errorText, void *user) noexcept {

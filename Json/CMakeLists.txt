@@ -9,7 +9,9 @@ target_sources(WorLib_Json
 
 target_include_directories(WorLib_Json
         PUBLIC include
-        PRIVATE include/Json)
+        PRIVATE include/Wor)
 
 target_link_libraries(WorLib_Json
-        PUBLIC nlohmann_json::nlohmann_json)
+        PUBLIC
+        nlohmann_json::nlohmann_json
+        spdlog::spdlog)

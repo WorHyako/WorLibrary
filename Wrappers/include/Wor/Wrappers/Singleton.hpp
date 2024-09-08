@@ -22,7 +22,7 @@ namespace Wor::Wrappers {
         Singleton() noexcept = delete;
 
         /**
-         * @brief Ctor.
+         * @brief Copy ctor.
          */
         Singleton(const Singleton &) = delete;
 

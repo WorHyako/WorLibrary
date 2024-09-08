@@ -1,6 +1,9 @@
-#include "JsonManager.hpp"
+#include "Json/JsonManager.hpp"
 
 #include <fstream>
+#include <sstream>
+
+#include <spdlog/spdlog.h>
 
 using namespace Wor;
 
@@ -21,7 +24,12 @@ namespace {
 			file.open(filePath, std::ios::app | std::ios::in);
 			file.close();
 		} catch (const std::ofstream::failure &e) {
-			std::printf("Exception opening/reading file\n");
+			std::stringstream ss;
+			ss << "Error opening file "
+					<< filePath
+					<< ": "
+					<< e.what();
+			spdlog::error(ss.str());
 			return false;
 		}
 		return true;
@@ -40,7 +48,12 @@ bool Json::tryToSaveFile(const std::string &filePath, const std::string &jsonStr
 			try {
 				fileContent = nlohmann::json::parse(file);
 			} catch (const nlohmann::json::exception &e) {
-				std::printf("Fail to parse %s file\n Error: %s", filePath.c_str(), e.what());
+				std::stringstream ss;
+				ss << "Failed to parse "
+						<< filePath
+						<< " file: "
+						<< e.what();
+				spdlog::error(ss.str());
 			}
 			if (!fileContent.is_object()) {
 				fileContent.clear();
@@ -70,8 +83,13 @@ nlohmann::json Json::tryToLoadFile(const std::string &filePath) noexcept {
 	}
 	try {
 		fileContent = nlohmann::json::parse(file);
-	} catch (...) {
-		std::printf("Fail to parse %s file\n", filePath.c_str());
+	} catch (const nlohmann::json::exception &e) {
+		std::stringstream ss;
+		ss << "Failed to parse "
+				<< filePath
+				<< " file\nError info:"
+				<< e.what();
+		spdlog::error(ss.str());
 	}
 
 	file.close();

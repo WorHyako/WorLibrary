@@ -3,7 +3,7 @@
 #include "Network/TcpSession.hpp"
 #include "Network/Utils/IoService.hpp"
 
-#include <cstdio>
+#include <spdlog/spdlog.h>
 
 using namespace Wor::Network;
 
@@ -67,7 +67,8 @@ void TcpServer::closeSession(const TcpSession::ptr &session) noexcept {
 	}
 	const auto t = _sessionsList.erase(position);
 
-	std::printf("TcpServer::closeSession:\n\tsession: %s", session->name().c_str());
+	std::stringstream ss;
+	spdlog::info("TcpServer: Closing session: {}", session->name().c_str());
 	t->reset();
 }
 
@@ -85,15 +86,25 @@ void TcpServer::closeSession(const std::string &name) noexcept {
 }
 
 void TcpServer::handleAccept(const TcpSession::ptr &sessionPtr, system::error_code ec) noexcept {
+	const tcp::endpoint remoteEndpoint = sessionPtr->socket().remote_endpoint();
 	if (!ec) {
-		const tcp::endpoint remoteEndpoint = sessionPtr->socket().remote_endpoint();
-		std::printf("New session accepted.\n \tRemote endpoint address: %s:%s\n",
-					remoteEndpoint.address().to_string().c_str(),
-					std::to_string(remoteEndpoint.port()).c_str());
+		std::stringstream ss;
+		ss << "TcpServer: New session was accepted.\nRemote endpoint: "
+				<< remoteEndpoint.address().to_string().c_str()
+				<< ":"
+				<< remoteEndpoint.port();
+		spdlog::info(ss.str());
 		sessionPtr->run();
 		_sessionsList.emplace_back(sessionPtr);
 	} else {
-		std::printf("Error in connection accepting.\n\tError: %s", ec.what().c_str());
+		std::stringstream ss;
+		ss << "TcpServer: Error in connection accepting.\nRemote endpoint: "
+				<< remoteEndpoint.address().to_string().c_str()
+				<< ":"
+				<< remoteEndpoint.port()
+				<< "\nError: "
+				<< ec.what().c_str();
+		spdlog::error(ss.str());
 	}
 
 	start();
@@ -110,28 +121,31 @@ bool TcpServer::bindTo(const tcp::endpoint &endPoint) noexcept {
 	stop();
 	auto &ioService = Utils::IoService::get();
 	_acceptor = std::make_unique<tcp::acceptor>(ioService);
-	std::printf("TcpServer::bindTo:\n\tStart binding.\n\tAddress: %s:%i\n",
-				endPoint.address().to_string().c_str(),
-				endPoint.port());
+	std::stringstream ss;
+	ss << "TcpServer: Start binding to: "
+			<< endPoint.address().to_string().c_str()
+			<< ":"
+			<< endPoint.port();
+	spdlog::info(ss.str());
 
 	system::error_code ec;
 	ec = _acceptor->open(endPoint.protocol(), ec);
 	if (ec) {
-		std::printf("TcpServer::bindTo:\n\topen: %s\n", ec.what().c_str());
+		spdlog::error("TcpServer. Open port error: {}", ec.what().c_str());
 		return false;
 	}
 	_acceptor->set_option(tcp::acceptor::reuse_address(true));
 	ec = _acceptor->bind(endPoint, ec);
 	if (ec) {
-		std::printf("TcpServer::bindTo:\n\tbindTo: %s\n", ec.what().c_str());
+		spdlog::error("TcpServer. Binding error: {}", ec.what().c_str());
 		return false;
 	}
 	ec = _acceptor->listen(asio::socket_base::max_listen_connections, ec);
 	if (ec) {
-		std::printf("TcpServer::bindTo:\n\tlisten: %s\n", ec.what().c_str());
+		spdlog::error("TcpServer. Listening error: {}", ec.what().c_str());
 		return false;
 	}
-	std::printf("TcpServer::bindTo:\n\tSuccessful binding.\n");
+	spdlog::info("TcpServer. Successful binding");
 	return true;
 }
 

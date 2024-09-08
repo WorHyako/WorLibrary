@@ -1,6 +1,6 @@
 #include "Network/TcpSession.hpp"
 
-#include <cstdio>
+#include <spdlog/spdlog.h>
 
 using namespace Wor::Network;
 
@@ -24,13 +24,16 @@ void TcpSession::send(const std::string &message) noexcept {
 	_socket.async_write_some(asio::buffer(message + endSymbol.data()),
 							 [self = shared_from_this(), message](const system::error_code &ec,
 																  std::size_t bytesTransferred) {
-								 std::printf(
-										 "TcpSession::send:\n\tremote client: %s%i\n\tmessage:%s\n\tbytes count: %zu\n",
-										 self->endpoint().address().to_string().c_str(),
-										 self->endpoint().port(),
-										 message.c_str(),
-										 bytesTransferred);
+								 std::stringstream ss;
+								 ss << "TcpSession. Sending packet.\n Endpoint: "
+										 << self->endpoint().address().to_string().c_str()
+										 << ":"
+										 << self->endpoint().port()
+										 << "\nMessage: "
+										 << message.c_str();
+								 spdlog::info(ss.str());
 								 if (ec || bytesTransferred == 0) {
+									 spdlog::error("TcpSession. Error in sending packet");
 									 // self->close();
 								 }
 							 });
@@ -48,7 +51,14 @@ void TcpSession::startReading() noexcept {
 					   self->startReading();
 					   self->parseBuffer();
 				   } else {
-					   std::printf("TcpSession::startReading::async_read:\n\tError: %s\n", ec.what().c_str());
+					   std::stringstream ss;
+					   ss << "TcpSession. Error on reading packet.\nEndpoint: "
+							   << self->endpoint().address().to_string().c_str()
+							   << ":"
+							   << self->endpoint().port()
+							   << "\nError: "
+							   << ec.what().c_str();
+					   spdlog::error(ss.str());
 					   self->close();
 				   }
 			   });
@@ -57,11 +67,6 @@ void TcpSession::startReading() noexcept {
 #pragma clang diagnostic pop
 
 void TcpSession::parseBuffer() noexcept {
-	const tcp::endpoint endPoint = _socket.remote_endpoint();
-
-	std::printf("TcpSession::parseBuffer:\n\tsender: %s:%i",
-				endPoint.address().to_string().c_str(),
-				endPoint.port());
 	const std::size_t size = std::distance(buffers_begin(_buffer.data()),
 										   buffers_end(_buffer.data()));
 	if (size == 0) {
@@ -84,19 +89,32 @@ void TcpSession::parseBuffer() noexcept {
 		begin = end + 1;
 	}
 
+	const tcp::endpoint endPoint = _socket.remote_endpoint();
+
+	std::stringstream ss;
+	ss << "TcpSession: Parse message from "
+			<< endPoint.address().to_string()
+			<< ":"
+			<< endPoint.port()
+			<< "\nMessages:\n";
+
 	std::ranges::for_each(messages,
-						  [](const std::string &message) {
-							  std::printf("\n\tmessage: %s\n", message.c_str());
+						  [&ss](const std::string &message) {
+							  ss << message.c_str() << "\n";
 						  });
+	spdlog::info(ss.str());
 }
 
 void TcpSession::close() {
 	if (!_isActive) {
 		return;
 	}
-	std::printf("TcpSession:\n\tConnection was closed.\n\tEndpoint: %s:%i\n",
-				_socket.remote_endpoint().address().to_string().c_str(),
-				_socket.remote_endpoint().port());
+	std::stringstream ss;
+	ss << "TcpSession. Connection was closed.\nEndpoint: "
+			<< _socket.remote_endpoint().address().to_string().c_str()
+			<< ":"
+			<< _socket.remote_endpoint().port();
+	spdlog::info(ss.str());
 	_isActive = false;
 	_socket.close();
 	if (_closeCallback) {
@@ -123,7 +141,7 @@ std::string TcpSession::name() noexcept {
 }
 
 tcp::endpoint TcpSession::endpoint() const noexcept {
-	return _socket.is_open() ? _socket.remote_endpoint() : boost::asio::ip::tcp::endpoint();
+	return _socket.is_open() ? _socket.remote_endpoint() : tcp::endpoint();
 }
 
 void TcpSession::closeCallback(std::function<void(TcpSession::ptr)> callback) noexcept {

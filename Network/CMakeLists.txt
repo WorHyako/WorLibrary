@@ -15,4 +15,6 @@ target_include_directories(WorLib_Network
         PRIVATE include/Wor)
 
 target_link_libraries(WorLib_Network
-        PUBLIC ${Boost_LIBRARIES})
+        PUBLIC
+        ${Boost_LIBRARIES}
+        spdlog::spdlog)

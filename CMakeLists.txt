@@ -28,6 +28,11 @@ find_package(Boost 1.85 REQUIRED GLOBAL COMPONENTS
         date_time
         thread)
 
+##############
+#   spdlog   #
+##############
+find_package(spdlog GLOBAL REQUIRED)
+
 if (WORLIBRARY_DEFINEUTILS)
     add_subdirectory(DefineUtils)
 endif ()

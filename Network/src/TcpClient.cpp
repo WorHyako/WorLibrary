@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include "spdlog/spdlog.h"
+
 using namespace Wor::Network;
 
 using namespace boost;
@@ -12,15 +14,18 @@ TcpClient::TcpClient(asio::io_service &ctx) noexcept
 	  _stopped(false) {
 }
 
-void TcpClient::start(const tcp::resolver::iterator& endPointIt) noexcept {
+void TcpClient::start(const tcp::resolver::iterator &endPointIt) noexcept {
 	_socket.async_connect(endPointIt->endpoint(),
 						  [this, endPointIt](const system::error_code &ec) {
 							  if (!ec) {
 								  handleConnect(endPointIt);
 								  return;
 							  }
-							  std::printf("TcpClient::start::async:\n\tError in connection.\n\tError: %s\n",
-										  ec.what().c_str());
+							  std::stringstream ss;
+							  ss << "TcpClient: Error in connection.\n"
+									  << "Error:"
+									  << ec.message();
+							  spdlog::error(ss.str());
 						  });
 }
 
@@ -29,9 +34,12 @@ void TcpClient::handleConnect(const tcp::resolver::iterator &endPoint) noexcept 
 		return;
 	}
 	if (_socket.is_open()) {
-		std::printf("TcpClient::handleConnect:\n\tConnected to:%s:%i\n",
-					endPoint->endpoint().address().to_string().c_str(),
-					endPoint->endpoint().port());
+		std::stringstream ss;
+		ss << "TcpClient: Connected to:"
+				<< endPoint->endpoint().address().to_string().c_str()
+				<< ":"
+				<< endPoint->endpoint().port();
+		spdlog::info(ss.str());
 		startRead();
 	}
 }
@@ -50,7 +58,10 @@ void TcpClient::startRead() noexcept {
 					 '\n',
 					 [this](const system::error_code &ec, std::size_t) {
 						 if (ec) {
-							 std::printf("TcpClient::startRead::async_read:\n\tError: %s\n", ec.what().c_str());
+							 std::stringstream ss;
+							 ss << "TcpClient: Reading error:"
+									 << ec.what().c_str();
+							 spdlog::error(ss.str());
 							 return;
 						 }
 						 handleRead();
@@ -67,14 +78,17 @@ void TcpClient::handleRead() noexcept {
 	if (size == 0) {
 		return;
 	}
-	std::string message = {buffers_begin(_readBuffer.data()),
-						   buffers_end(_readBuffer.data())};
+	const std::string message = {buffers_begin(_readBuffer.data()),
+								 buffers_end(_readBuffer.data())};
 	_readBuffer.consume(_readBuffer.size());
 
 	if (message.empty()) {
-		std::printf("TcpClient::handleRead:\n\tError: Empty string received\n");
+		spdlog::error("TcpClient: Error: Empty string received");
 	} else {
-		std::printf("TcpClient::handleRead:\n\tMessage: %s\n", message.c_str());
+		std::stringstream ss;
+		ss << "TcpClient: Message received: "
+				<< message.c_str();
+		spdlog::info(ss.str());
 	}
 	if (_readCallback) {
 		_readCallback(message);
@@ -90,7 +104,10 @@ void TcpClient::send(const std::string &message) noexcept {
 				asio::buffer(message),
 				[this](const system::error_code &ec, std::size_t bytes) {
 					if (ec) {
-						std::printf("TcpClient::startWrote:\n\tError: %s\n", ec.what().c_str());
+						std::stringstream ss;
+						ss << "TcpClient: Error in writing.\nError: "
+								<< ec.what().c_str();
+						spdlog::info(ss.str());
 						return;
 					}
 					handleWrite();
