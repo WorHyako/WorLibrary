@@ -7,7 +7,7 @@ using namespace Wor::Network;
 using namespace boost::asio::ip;
 using namespace boost;
 
-TcpSession::TcpSession(asio::io_service &ioService) noexcept
+TcpSession::TcpSession(asio::io_service& ioService) noexcept
 	: _socket(ioService),
 	  _isActive(false) {
 }
@@ -19,10 +19,10 @@ void TcpSession::run() noexcept {
 	}
 }
 
-void TcpSession::send(const std::string &message) noexcept {
+void TcpSession::send(const std::string& message) noexcept {
 	constexpr std::string_view endSymbol = "\r\n";
 	_socket.async_write_some(asio::buffer(message + endSymbol.data()),
-							 [self = shared_from_this(), message](const system::error_code &ec,
+							 [self = shared_from_this(), message](const system::error_code& ec,
 																  std::size_t bytesTransferred) {
 								 std::stringstream ss;
 								 ss << "TcpSession. Sending packet.\n Endpoint: "
@@ -46,7 +46,7 @@ void TcpSession::startReading() noexcept {
 	async_read(_socket,
 			   _buffer,
 			   asio::transfer_at_least(1),
-			   [self = shared_from_this()](const system::error_code &ec, std::size_t bytesTransferred) {
+			   [self = shared_from_this()](const system::error_code& ec, std::size_t bytesTransferred) {
 				   if (!ec) {
 					   self->startReading();
 					   self->parseBuffer();
@@ -72,8 +72,10 @@ void TcpSession::parseBuffer() noexcept {
 	if (size == 0) {
 		return;
 	}
-	std::string strBuffer = {buffers_begin(_buffer.data()),
-							 buffers_end(_buffer.data())};
+	std::string strBuffer = {
+				buffers_begin(_buffer.data()),
+				buffers_end(_buffer.data())
+			};
 
 	_buffer.consume(size);
 
@@ -99,8 +101,11 @@ void TcpSession::parseBuffer() noexcept {
 			<< "\nMessages:\n";
 
 	std::ranges::for_each(messages,
-						  [&ss](const std::string &message) {
+						  [&ss, &callback = _receiveCallback](const std::string& message) {
 							  ss << message.c_str() << "\n";
+							  if (callback) {
+								  callback(message);
+							  }
 						  });
 	spdlog::info(ss.str());
 }
@@ -122,15 +127,15 @@ void TcpSession::close() {
 	}
 }
 
-tcp::socket &TcpSession::socket() noexcept {
-	return _socket;
-}
-
-TcpSession::ptr TcpSession::create(asio::io_service &ioService) noexcept {
-	return ptr(new TcpSession(ioService));
+TcpSession::ptr TcpSession::create(asio::io_service& ioService) noexcept {
+	return TcpSession::ptr(new TcpSession(ioService));
 }
 
 #pragma region Accessors/Mutators
+
+tcp::socket& TcpSession::socket() noexcept {
+	return _socket;
+}
 
 void TcpSession::name(std::string name) noexcept {
 	_name = std::move(name);
@@ -141,11 +146,17 @@ std::string TcpSession::name() noexcept {
 }
 
 tcp::endpoint TcpSession::endpoint() const noexcept {
-	return _socket.is_open() ? _socket.remote_endpoint() : tcp::endpoint();
+	return _socket.is_open()
+			   ? _socket.remote_endpoint()
+			   : tcp::endpoint();
 }
 
 void TcpSession::closeCallback(std::function<void(TcpSession::ptr)> callback) noexcept {
 	_closeCallback = std::move(callback);
+}
+
+void TcpSession::receiveCallback(std::function<void(const std::string& message)> callback) noexcept {
+	_receiveCallback = std::move(callback);
 }
 
 #pragma endregion Accessors/Mutators

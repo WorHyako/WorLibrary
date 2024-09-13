@@ -2,118 +2,134 @@
 
 #include "boost/asio.hpp"
 
-#include <memory>
 #include <functional>
 
 namespace Wor::Network {
+	/**
+	 * @brief
+	 *
+	 * @usage
+	 * @code
+	 *
+	 * @endcode
+	 *
+	 * @author	WorHyako
+	 *
+	 * @see		@code TcpServer @endcode
+	 */
+	class TcpSession final
+			: public std::enable_shared_from_this<TcpSession>,
+			  public boost::asio::noncopyable {
+	public:
+		using ptr = std::shared_ptr<TcpSession>;
 
-    /**
-     * @brief
-     *
-     * @author WorHyako
-     */
-    class TcpSession final
-            : public std::enable_shared_from_this<TcpSession>,
-              public boost::asio::noncopyable {
-    public:
-        typedef std::shared_ptr<TcpSession> ptr;
+		/**
+		 * @brief
+		 */
+		void run() noexcept;
 
-        /**
-         * @brief
-         */
-        void run() noexcept;
+		/**
+		 * @brief
+		 *
+		 * @param ioService
+		 *
+		 * @return
+		 */
+		[[nodiscard]]
+		static TcpSession::ptr create(boost::asio::io_service& ioService) noexcept;
 
-        /**
-         * @brief
-         *
-         * @param ioCtx
-         *
-         * @return
-         */
-        [[nodiscard]]
-        static TcpSession::ptr create(boost::asio::io_service& ioService) noexcept;
+		/**
+		 * @brief
+		 */
+		void close();
 
-        /**
-         * @brief
-         *
-         * @return
-         */
-        [[nodiscard]]
-        boost::asio::ip::tcp::socket &socket() noexcept;
+		/**
+		 * @brief
+		 *
+		 * @param	message
+		 */
+		void send(const std::string& message) noexcept;
 
-        /**
-         * @brief
-         */
-        void close();
+	private:
+		/**
+		 * @brief	Ctor.
+		 *
+		 * @param	ioContext
+		 */
+		explicit TcpSession(boost::asio::io_service& ioContext) noexcept;
 
-        /**
-         * @brief
-         *
-         * @param message
-         */
-        void send(const std::string& message) noexcept;
+		/**
+		 * @brief
+		 */
+		void startReading() noexcept;
 
-    private:
-        /**
-         * @brief Ctor.
-         *
-         * @param ioContext
-         */
-        explicit TcpSession(boost::asio::io_service& ioContext) noexcept;
+		/**
+		 * @brief
+		 */
+		void parseBuffer() noexcept;
 
-        /**
-         * @brief
-         */
-        void startReading() noexcept;
+		boost::asio::ip::tcp::socket _socket;
 
-        /**
-         * @brief
-         */
-        void parseBuffer() noexcept;
+		boost::asio::streambuf _buffer;
 
-        boost::asio::ip::tcp::socket _socket;
+		std::string _name;
 
-        boost::asio::streambuf _buffer;
+		std::function<void(TcpSession::ptr)> _closeCallback;
 
-        std::string _name;
+		std::function<void(const std::string& message)> _receiveCallback;
 
-        std::function<void(TcpSession::ptr)> _closeCallback;
+		bool _isActive;
 
-        bool _isActive;
-
-    public:
+	public:
 #pragma region Accessors/Mutators
 
-        /**
-         * @brief
-         *
-         * @param name
-         */
-        void name(std::string name) noexcept;
+		/**
+		 * @brief	Socket accessor.
+		 *
+		 * @return	Socket reference.
+		 */
+		[[nodiscard]]
+		boost::asio::ip::tcp::socket& socket() noexcept;
 
-        /**
-         * @brief
-         *
-         * @return
-         */
-        [[nodiscard]]
-        std::string name() noexcept;
+		/**
+		 * @brief
+		 *
+		 * @param name
+		 */
+		void name(std::string name) noexcept;
 
-        /**
-         * @brief
-         *
-         * @return
-         */
-        [[nodiscard]]
-        boost::asio::ip::tcp::endpoint endpoint() const noexcept;
+		/**
+		 * @brief
+		 *
+		 * @return
+		 */
+		[[nodiscard]]
+		std::string name() noexcept;
 
-        /**
-         * @brief
-         *
-         * @param callback
-         */
-        void closeCallback(std::function<void(TcpSession::ptr)> callback) noexcept;
+		/**
+		 * @brief
+		 *
+		 * @return
+		 */
+		[[nodiscard]]
+		boost::asio::ip::tcp::endpoint endpoint() const noexcept;
+
+		/**
+		 * @brief
+		 *
+		 * @param callback
+		 */
+		void closeCallback(std::function<void(TcpSession::ptr)> callback) noexcept;
+
+		/**
+		 * @brief	Receive callback accessor.
+		 *			<p>
+		 *			It will be called on receive message event from remote device.
+		 *
+		 * @param	callback Receive callback.
+		 */
+		void receiveCallback(std::function<void(const std::string& message)> callback) noexcept;
 
 #pragma endregion Accessors/Mutators
-    };
+	};
 }

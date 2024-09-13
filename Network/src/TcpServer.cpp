@@ -19,23 +19,23 @@ void TcpServer::start() noexcept {
 		return;
 	}
 
-	auto &ioService = Utils::IoService::get();
+	auto& ioService = Utils::IoService::get();
 	auto newSession = TcpSession::create(ioService);
-	newSession->closeCallback([this](const TcpSession::ptr &session) {
+	newSession->closeCallback([this](const TcpSession::ptr& session) {
 		closeSession(session);
 	});
 	newSession->name("session_" + std::to_string(_sessionsList.size()));
 
 	_acceptor->async_accept(newSession->socket(),
-							[this, newSession](const system::error_code &ec) {
+							[this, newSession](const system::error_code& ec) {
 								if (!ec) {
 									handleAccept(newSession, ec);
 								} else {
 									closeSession(newSession);
-									//                                   auto it = std::find(_sessionsList.begin(), _sessionsList.end(), newSession);
-									//                                   std::ignore = _sessionsList.erase(it);
-									//                                   auto it = std::remove(_sessionsList.begin(), _sessionsList.end(), newSession);
-									//                                   it->reset();
+									// auto it = std::find(_sessionsList.begin(), _sessionsList.end(), newSession);
+									// std::ignore = _sessionsList.erase(it);
+									// auto it = std::remove(_sessionsList.begin(), _sessionsList.end(), newSession);
+									// it->reset();
 								}
 							});
 }
@@ -51,42 +51,39 @@ void TcpServer::stop() noexcept {
 							  session.reset();
 						  });
 	_sessionsList.clear();
+	_receiveCallbacks.clear();
 	_acceptor->close();
 
 	_acceptor.reset();
 }
 
-void TcpServer::closeSession(const TcpSession::ptr &session) noexcept {
+void TcpServer::closeSession(const TcpSession::ptr& session) noexcept {
 	if (!session.get()) {
 		return;
 	}
+	spdlog::info("TcpServer: Closing session: {}", session->name().c_str());
+
 	session->close();
 	const auto position = std::ranges::remove(_sessionsList, session).begin();
 	if (position == _sessionsList.end()) {
 		return;
 	}
-	const auto t = _sessionsList.erase(position);
-
-	std::stringstream ss;
-	spdlog::info("TcpServer: Closing session: {}", session->name().c_str());
-	t->reset();
+	const auto trash = _sessionsList.erase(position);
+	trash->reset();
 }
 
-void TcpServer::closeSession(const std::string &name) noexcept {
+void TcpServer::closeSession(const std::string& name) noexcept {
 	const TcpSession::ptr session = TcpServer::session(name);
-	if (session == nullptr) {
-		return;
-	}
-	session->close();
-	const auto it = _sessionsList.erase(std::ranges::remove(_sessionsList, session).begin());
-	if (it == std::end(_sessionsList)) {
-		return;
-	}
-	it->reset();
+	closeSession(session);
 }
 
-void TcpServer::handleAccept(const TcpSession::ptr &sessionPtr, system::error_code ec) noexcept {
-	const tcp::endpoint remoteEndpoint = sessionPtr->socket().remote_endpoint();
+void TcpServer::closeSession(const tcp::endpoint& endpoint) noexcept {
+	const TcpSession::ptr session = TcpServer::session(endpoint);
+	closeSession(session);
+}
+
+void TcpServer::handleAccept(const TcpSession::ptr& sessionPtr, system::error_code ec) noexcept {
+	tcp::endpoint remoteEndpoint = sessionPtr->socket().remote_endpoint();
 	if (!ec) {
 		std::stringstream ss;
 		ss << "TcpServer: New session was accepted.\nRemote endpoint: "
@@ -96,6 +93,15 @@ void TcpServer::handleAccept(const TcpSession::ptr &sessionPtr, system::error_co
 		spdlog::info(ss.str());
 		sessionPtr->run();
 		_sessionsList.emplace_back(sessionPtr);
+		auto callbackPair =
+				std::ranges::find_if(_receiveCallbacks,
+									 [&remoteEndpoint](const std::pair<tcp::endpoint,
+																	   std::function<void(const std::string&)>>& each) {
+										 return each.first == remoteEndpoint;
+									 });
+		if (callbackPair != std::end(_receiveCallbacks)) {
+			sessionPtr->receiveCallback(callbackPair->second);
+		}
 	} else {
 		std::stringstream ss;
 		ss << "TcpServer: Error in connection accepting.\nRemote endpoint: "
@@ -110,16 +116,16 @@ void TcpServer::handleAccept(const TcpSession::ptr &sessionPtr, system::error_co
 	start();
 }
 
-void TcpServer::sendToAll(const std::string &message) const noexcept {
+void TcpServer::sendToAll(const std::string& message) const noexcept {
 	std::ranges::for_each(_sessionsList,
-						  [&message](const TcpSession::ptr &session) {
+						  [&message](const TcpSession::ptr& session) {
 							  session->send(message);
 						  });
 }
 
-bool TcpServer::bindTo(const tcp::endpoint &endPoint) noexcept {
+bool TcpServer::bindTo(const tcp::endpoint& endPoint) noexcept {
 	stop();
-	auto &ioService = Utils::IoService::get();
+	auto& ioService = Utils::IoService::get();
 	_acceptor = std::make_unique<tcp::acceptor>(ioService);
 	std::stringstream ss;
 	ss << "TcpServer: Start binding to: "
@@ -151,10 +157,18 @@ bool TcpServer::bindTo(const tcp::endpoint &endPoint) noexcept {
 
 #pragma region Accessors/Mutators
 
-TcpSession::ptr TcpServer::session(const std::string &name) noexcept {
+TcpSession::ptr TcpServer::session(const std::string& name) noexcept {
 	const auto session = std::ranges::find_if(_sessionsList,
-											  [&name](const TcpSession::ptr &each) {
+											  [&name](const TcpSession::ptr& each) {
 												  return each->name() == name;
+											  });
+	return session == std::end(_sessionsList) ? nullptr : *session;
+}
+
+TcpSession::ptr TcpServer::session(const tcp::endpoint& endpoint) noexcept {
+	const auto session = std::ranges::find_if(_sessionsList,
+											  [&endpoint](const TcpSession::ptr& each) {
+												  return each->endpoint() == endpoint;
 											  });
 	return session == std::end(_sessionsList) ? nullptr : *session;
 }
@@ -165,6 +179,19 @@ std::vector<TcpSession::ptr> TcpServer::sessionList() const noexcept {
 
 bool TcpServer::isRunning() const noexcept {
 	return _acceptor->is_open();
+}
+
+void TcpServer::receiveCallback(tcp::endpoint endpoint, std::function<void(const std::string&)> callback) noexcept {
+	_receiveCallbacks.emplace(endpoint, std::move(callback));
+
+	auto session = std::ranges::find_if(_sessionsList,
+										[&endpoint](const TcpSession::ptr& each) {
+											return each->endpoint() == endpoint;
+										});
+	if (session == std::end(_sessionsList)) {
+		return;
+	}
+	(*session)->receiveCallback(callback);
 }
 
 #pragma endregion Accessors/Mutators
