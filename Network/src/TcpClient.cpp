@@ -116,7 +116,7 @@ void TcpClient::send(const std::string &message) noexcept {
 							remoteEndpoint().port(),
 							message);
 					if (ec) {
-						worError("Error sending message {}.", ec);
+						worError("Error sending message {}.", ec.message());
 					} else if (bytesTransferred < 1) {
 						worError("Error to send zero packet.");
 					} else {
