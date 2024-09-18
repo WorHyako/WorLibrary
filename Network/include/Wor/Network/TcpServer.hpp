@@ -25,6 +25,10 @@ namespace Wor::Network {
 	 */
 	class TcpServer {
 	public:
+		using Endpoint = boost::asio::ip::tcp::endpoint;
+		using Acceptor = boost::asio::ip::tcp::acceptor;
+		using Callback = std::function<void(const std::string&)>;
+
 		/**
 		 * @brief	Ctor.
 		 *			<p>
@@ -51,7 +55,7 @@ namespace Wor::Network {
 		 *			@code false @endcode	Error in port linking.
 		 */
 		[[nodiscard]]
-		bool bindTo(const boost::asio::ip::tcp::endpoint& endPoint) noexcept;
+		bool bindTo(const Endpoint& endPoint) noexcept;
 
 		/**
 		 * @brief	Listens local port for a new session to make new sessions.
@@ -77,9 +81,9 @@ namespace Wor::Network {
 		/**
 		 * @brief	Closes session with selected endpoint.
 		 *
-		 * @param	endpoint Session's endpoint.
+		 * @param	remoteEndpoint Session's endpoint.
 		 */
-		void closeSession(const boost::asio::ip::tcp::endpoint& endpoint) noexcept;
+		void closeSession(const Endpoint& remoteEndpoint) noexcept;
 
 		/**
 		 * @brief	Sends selected message to all available endpoints.
@@ -115,7 +119,7 @@ namespace Wor::Network {
 		/**
 		 * @brief	Boost acceptor to listen local port and accept new connections.
 		 */
-		std::unique_ptr<boost::asio::ip::tcp::acceptor> _acceptor;
+		std::unique_ptr<Acceptor> _acceptor;
 
 		/**
 		 * @brief	Storage for sessions pointers.
@@ -127,8 +131,7 @@ namespace Wor::Network {
 		/**
 		 * @brief	Storage for receive callbacks.
 		 */
-		std::unordered_map<boost::asio::ip::tcp::endpoint,
-						   std::function<void(const std::string&)>> _receiveCallbacks;
+		std::unordered_map<Endpoint, Callback> _receiveCallbacks;
 
 	public:
 #pragma region Accessors/Mutators
@@ -155,7 +158,7 @@ namespace Wor::Network {
 		 *			@code nullptr @endcode If session doesn't exist.
 		 */
 		[[nodiscard]]
-		TcpSession::ptr session(const boost::asio::ip::tcp::endpoint& endpoint) noexcept;
+		TcpSession::ptr session(const Endpoint& endpoint) noexcept;
 
 		/**
 		 * @brief	Session storage accessor.
@@ -174,7 +177,7 @@ namespace Wor::Network {
 		 *			@code false @endcode	Server listens port.
 		 */
 		[[nodiscard]]
-		bool isRunning() const noexcept;
+		bool bound() const noexcept;
 
 		/**
 		 * @brief	Receive callback accessor for selected session.
@@ -185,8 +188,7 @@ namespace Wor::Network {
 		 *
 		 * @param	callback Callback.
 		 */
-		void receiveCallback(boost::asio::ip::tcp::endpoint endpoint,
-							 std::function<void(const std::string&)> callback) noexcept;
+		void receiveCallback(Endpoint endpoint, Callback callback) noexcept;
 
 #pragma endregion Accessors/Mutators
 	};

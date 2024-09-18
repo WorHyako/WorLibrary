@@ -17,6 +17,10 @@ namespace Wor::Network {
 	 */
 	class TcpClient final {
 	public:
+		using Callback = std::function<void(const std::string&)>;
+		using Socket = boost::asio::ip::tcp::socket;
+		using Endpoint = boost::asio::ip::tcp::endpoint;
+
 		/**
 		 * @brief	Ctor.
 		 *
@@ -52,12 +56,7 @@ namespace Wor::Network {
 		/**
 		 * @brief
 		 */
-		void handleRead() noexcept;
-
-		/**
-		 * @brief
-		 */
-		void handleWrite() noexcept;
+		void parseBuffer() noexcept;
 
 		/**
 		 * @brief
@@ -69,22 +68,17 @@ namespace Wor::Network {
 		/**
 		 * @brief
 		 */
-		boost::asio::ip::tcp::socket _socket;
+		Socket _socket;
 
 		/**
 		 * @brief
 		 */
-		boost::asio::streambuf _readBuffer;
+		boost::asio::streambuf _buffer;
 
 		/**
 		 * @brief
 		 */
-		bool _stopped;
-
-		/**
-		 * @brief
-		 */
-		std::function<void(std::string)> _readCallback;
+		Callback _receiveCallback;
 
 #pragma region Accessors/Methods;
 
@@ -97,14 +91,22 @@ namespace Wor::Network {
 		 *			@code false @endcode
 		 */
 		[[nodiscard]]
-		bool isRunning() const noexcept;
+		bool bound() const noexcept;
 
 		/**
 		 * @brief
 		 *
 		 * @param callback
 		 */
-		void readCallback(std::function<void(std::string)> callback) noexcept;
+		void receiveCallback(Callback callback) noexcept;
+
+		/**
+		 * @brief
+		 *
+		 * @return
+		 */
+		[[nodiscard]]
+		Endpoint remoteEndpoint() const noexcept;
 
 #pragma endregion Accessors/Methods;
 	};

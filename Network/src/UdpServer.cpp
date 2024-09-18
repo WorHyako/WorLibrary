@@ -13,9 +13,9 @@ UdpServer::~UdpServer() noexcept {
 	stop();
 }
 
-void UdpServer::start(const Endpoint& endpoint) noexcept {
+void UdpServer::start(const Endpoint &endpoint) noexcept {
 	stop();
-	auto& ioService = Utils::IoService::get();
+	auto &ioService = Utils::IoService::get();
 	_socket = std::make_unique<Socket>(ioService);
 
 	worInfo("Binding to {}:{}", endpoint.address().to_string(), endpoint.port());
@@ -44,7 +44,7 @@ void UdpServer::startReading() noexcept {
 	asio::mutable_buffer mBuffer{_buffer.prepare(64)};
 	_socket->async_receive_from(buffer(mBuffer),
 								remoteEndpoint,
-								[this](const system::error_code& ec, std::size_t bytesTransferred) {
+								[this](const system::error_code &ec, std::size_t bytesTransferred) {
 									worInfo("Message was received from {}:{}",
 											remoteEndpoint.address().to_string(),
 											remoteEndpoint.port());
@@ -73,16 +73,15 @@ void UdpServer::stop() noexcept {
 	worInfo("Stopped.");
 }
 
-void UdpServer::parseBuffer(const Endpoint& remoteEndpoint) noexcept {
+void UdpServer::parseBuffer(const Endpoint &remoteEndpoint) noexcept {
 	const std::size_t size = std::distance(buffers_begin(_buffer.data()),
 										   buffers_end(_buffer.data()));
 	if (size == 0) {
 		return;
 	}
 	std::string strBuffer = {
-				buffers_begin(_buffer.data()),
-				buffers_end(_buffer.data())
-			};
+			buffers_begin(_buffer.data()),
+			buffers_end(_buffer.data())};
 
 	_buffer.consume(size);
 
@@ -101,11 +100,11 @@ void UdpServer::parseBuffer(const Endpoint& remoteEndpoint) noexcept {
 	std::stringstream ss;
 	ss << "\tMessages:";
 	std::ranges::for_each(messages,
-						  [&ss, &callbacks = _receiveCallbacks, &remoteEndpoint](const std::string& message) {
+						  [&ss, &callbacks = _receiveCallbacks, &remoteEndpoint](const std::string &message) {
 							  ss << "\n\t\t" << message.c_str();
 							  auto callback = std::ranges::find_if(callbacks,
 																   [&remoteEndpoint](
-															   const std::pair<Endpoint, Callback>& pair) {
+																   const std::pair<Endpoint, Callback> &pair) {
 																	   return pair.first == remoteEndpoint;
 																   });
 							  if (callback != std::end(callbacks) && callback->second) {
@@ -115,13 +114,13 @@ void UdpServer::parseBuffer(const Endpoint& remoteEndpoint) noexcept {
 	worTrace(ss.str());
 }
 
-void UdpServer::sendTo(const Endpoint& endpoint, const std::string& message) noexcept {
+void UdpServer::sendTo(const Endpoint &endpoint, const std::string &message) noexcept {
 	if (!bound()) {
 		return;
 	}
 	_socket->async_send_to(asio::buffer(message),
 						   endpoint,
-						   [&endpoint, &message](const system::error_code& ec, std::size_t) {
+						   [&endpoint, &message](const system::error_code &ec, std::size_t) {
 							   std::stringstream ss;
 							   ss << "Sending message."
 									   << "\n\tEndpoint: "

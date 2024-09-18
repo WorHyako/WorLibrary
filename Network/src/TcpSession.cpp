@@ -1,40 +1,37 @@
 #include "Network/TcpSession.hpp"
 
-#include <spdlog/spdlog.h>
+#include "Wor/Log/Log.hpp"
 
 using namespace Wor::Network;
 
 using namespace boost::asio::ip;
 using namespace boost;
 
-TcpSession::TcpSession(asio::io_service& ioService) noexcept
-	: _socket(ioService),
-	  _isActive(false) {
+TcpSession::TcpSession(asio::io_service &ioService) noexcept
+	: _socket(ioService) {
 }
 
 void TcpSession::run() noexcept {
-	if (!_isActive) {
+	if (!bound()) {
 		startReading();
-		_isActive = true;
 	}
 }
 
-void TcpSession::send(const std::string& message) noexcept {
+void TcpSession::send(const std::string &message) noexcept {
 	constexpr std::string_view endSymbol = "\r\n";
 	_socket.async_write_some(asio::buffer(message + endSymbol.data()),
-							 [self = shared_from_this(), message](const system::error_code& ec,
-																  std::size_t bytesTransferred) {
-								 std::stringstream ss;
-								 ss << "TcpSession. Sending packet.\n Endpoint: "
-										 << self->endpoint().address().to_string().c_str()
-										 << ":"
-										 << self->endpoint().port()
-										 << "\nMessage: "
-										 << message.c_str();
-								 spdlog::info(ss.str());
-								 if (ec || bytesTransferred == 0) {
-									 spdlog::error("TcpSession. Error in sending packet");
-									 // self->close();
+							 [self = shared_from_this(), &message](const system::error_code &ec,
+																   std::size_t bytesTransferred) {
+								 worInfo("Sending packet to {}:{}\n\tPacket: {}.",
+										 self->endpoint().address().to_string(),
+										 self->endpoint().port(),
+										 message);
+								 if (ec) {
+									 worError("Error sending message {}.", ec);
+								 } else if (bytesTransferred < 1) {
+									 worError("Error to send zero packet.");
+								 } else {
+									 worTrace("Success.");
 								 }
 							 });
 }
@@ -46,21 +43,19 @@ void TcpSession::startReading() noexcept {
 	async_read(_socket,
 			   _buffer,
 			   asio::transfer_at_least(1),
-			   [self = shared_from_this()](const system::error_code& ec, std::size_t bytesTransferred) {
-				   if (!ec) {
-					   self->startReading();
-					   self->parseBuffer();
-				   } else {
-					   std::stringstream ss;
-					   ss << "TcpSession. Error on reading packet.\nEndpoint: "
-							   << self->endpoint().address().to_string().c_str()
-							   << ":"
-							   << self->endpoint().port()
-							   << "\nError: "
-							   << ec.what().c_str();
-					   spdlog::error(ss.str());
+			   [self = shared_from_this()](const system::error_code &ec, std::size_t bytesTransferred) {
+				   worInfo("Receive packet from {}:{}",
+						   self->endpoint().address().to_string(),
+						   self->endpoint().port());
+				   if (ec) {
+					   worError("Reading packet error: {}", ec.message());
 					   self->close();
+				   } else if (bytesTransferred < 1) {
+					   worError("Received zero packet.");
+				   } else {
+					   self->parseBuffer();
 				   }
+				   self->startReading();
 			   });
 }
 
@@ -73,9 +68,8 @@ void TcpSession::parseBuffer() noexcept {
 		return;
 	}
 	std::string strBuffer = {
-				buffers_begin(_buffer.data()),
-				buffers_end(_buffer.data())
-			};
+			buffers_begin(_buffer.data()),
+			buffers_end(_buffer.data())};
 
 	_buffer.consume(size);
 
@@ -91,71 +85,70 @@ void TcpSession::parseBuffer() noexcept {
 		begin = end + 1;
 	}
 
-	const tcp::endpoint endPoint = _socket.remote_endpoint();
-
 	std::stringstream ss;
-	ss << "TcpSession: Parse message from "
-			<< endPoint.address().to_string()
-			<< ":"
-			<< endPoint.port()
-			<< "\nMessages:\n";
+	ss << "\tMessages:";
 
 	std::ranges::for_each(messages,
-						  [&ss, &callback = _receiveCallback](const std::string& message) {
-							  ss << message.c_str() << "\n";
+						  [&ss, &callback = _receiveCallback](const std::string &message) {
+							  ss << "\n\t\t" << message.c_str();
 							  if (callback) {
 								  callback(message);
 							  }
 						  });
-	spdlog::info(ss.str());
+	worTrace(ss.str());
 }
 
 void TcpSession::close() noexcept {
-	if (!_isActive) {
+	if (!bound()) {
 		return;
 	}
-	std::stringstream ss;
-	ss << "TcpSession. Connection was closed.\nEndpoint: "
-			<< _socket.remote_endpoint().address().to_string().c_str()
-			<< ":"
-			<< _socket.remote_endpoint().port();
-	spdlog::info(ss.str());
-	_isActive = false;
-	_socket.close();
+	worInfo("Session was closed.\nAlias: {}\nEndPoint: {}",
+			alias(),
+			_socket.remote_endpoint().address().to_string(),
+			_socket.remote_endpoint().port());
+	try {
+		_socket.close();
+	} catch (const system::system_error &e) {
+		worError("Error in socket closing: {}. Descriptor was closed.", e.what());
+	}
 	if (_closeCallback) {
 		_closeCallback(shared_from_this());
 	}
 }
 
-TcpSession::ptr TcpSession::create(asio::io_service& ioService) noexcept {
+TcpSession::ptr TcpSession::create(asio::io_service &ioService) noexcept {
 	return TcpSession::ptr(new TcpSession(ioService));
 }
 
 #pragma region Accessors/Mutators
 
-tcp::socket& TcpSession::socket() noexcept {
+bool TcpSession::bound() const noexcept {
+	return _socket.is_open();
+}
+
+tcp::socket &TcpSession::socket() noexcept {
 	return _socket;
 }
 
-void TcpSession::name(std::string name) noexcept {
-	_name = std::move(name);
+void TcpSession::alias(std::string alias) noexcept {
+	_alias = std::move(alias);
 }
 
-const std::string& TcpSession::name() noexcept {
-	return _name;
+const std::string &TcpSession::alias() noexcept {
+	return _alias;
 }
 
-tcp::endpoint TcpSession::endpoint() const noexcept {
+TcpSession::EndPoint TcpSession::endpoint() const noexcept {
 	return _socket.is_open()
-			   ? _socket.remote_endpoint()
-			   : tcp::endpoint();
+			? _socket.remote_endpoint()
+			: EndPoint{};
 }
 
 void TcpSession::closeCallback(std::function<void(TcpSession::ptr)> callback) noexcept {
 	_closeCallback = std::move(callback);
 }
 
-void TcpSession::receiveCallback(std::function<void(const std::string& message)> callback) noexcept {
+void TcpSession::receiveCallback(Callback callback) noexcept {
 	_receiveCallback = std::move(callback);
 }
 

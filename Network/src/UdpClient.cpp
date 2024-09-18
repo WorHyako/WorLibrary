@@ -12,9 +12,9 @@ UdpClient::~UdpClient() noexcept {
 	stop();
 }
 
-void UdpClient::start(const Endpoint& localEndpoint) noexcept {
+void UdpClient::start(const Endpoint &localEndpoint) noexcept {
 	stop();
-	auto& ctx = Utils::IoService::get();
+	auto &ctx = Utils::IoService::get();
 	_socket = std::make_unique<Socket>(ctx);
 
 	worInfo("Binding to {}:{}", localEndpoint.address().to_string(), localEndpoint.port());
@@ -45,13 +45,13 @@ void UdpClient::stop() noexcept {
 	worInfo("Stopped.");
 }
 
-void UdpClient::send(const std::string& message) noexcept {
+void UdpClient::send(const std::string &message) noexcept {
 	if (!bound()) {
 		return;
 	}
 	_socket->async_send_to(asio::buffer(message),
 						   _remoteEndpoint,
-						   [&message, &endpoint = _remoteEndpoint](const system::error_code& ec, std::size_t) {
+						   [&message, &endpoint = _remoteEndpoint](const system::error_code &ec, std::size_t) {
 							   std::stringstream ss;
 							   ss << "Sending message."
 									   << "\n\tEndpoint: "
@@ -77,7 +77,7 @@ void UdpClient::startRead() noexcept {
 	asio::mutable_buffer buffer{_buffer.prepare(64)};
 	_socket->async_receive_from(buffer,
 								remoteEndpoint,
-								[this](const system::error_code& ec, std::size_t bytesTransferred) {
+								[this](const system::error_code &ec, std::size_t bytesTransferred) {
 									worInfo("Message was received from {}:{}",
 											remoteEndpoint.address().to_string(),
 											remoteEndpoint.port());
@@ -101,9 +101,8 @@ void UdpClient::parseBuffer() noexcept {
 		return;
 	}
 	std::string strBuffer = {
-				buffers_begin(_buffer.data()),
-				buffers_end(_buffer.data())
-			};
+			buffers_begin(_buffer.data()),
+			buffers_end(_buffer.data())};
 
 	_buffer.consume(size);
 
@@ -122,7 +121,7 @@ void UdpClient::parseBuffer() noexcept {
 	std::stringstream ss;
 	ss << "\tMessages:";
 	std::ranges::for_each(messages,
-						  [&ss, &callback = _readCallback](const std::string& message) {
+						  [&ss, &callback = _readCallback](const std::string &message) {
 							  ss << "\n\t\t" << message.c_str();
 							  if (callback) {
 								  callback(message);

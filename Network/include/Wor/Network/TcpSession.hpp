@@ -22,6 +22,9 @@ namespace Wor::Network {
 			  public boost::asio::noncopyable {
 	public:
 		using ptr = std::shared_ptr<TcpSession>;
+		using Socket = boost::asio::ip::tcp::socket;
+		using EndPoint = boost::asio::ip::tcp::endpoint;
+		using Callback = std::function<void(const std::string&)>;
 
 		/**
 		 * @brief
@@ -68,20 +71,29 @@ namespace Wor::Network {
 		 */
 		void parseBuffer() noexcept;
 
-		boost::asio::ip::tcp::socket _socket;
+		Socket _socket;
 
 		boost::asio::streambuf _buffer;
 
-		std::string _name;
+		std::string _alias;
 
 		std::function<void(TcpSession::ptr)> _closeCallback;
 
-		std::function<void(const std::string& message)> _receiveCallback;
-
-		bool _isActive;
+		Callback _receiveCallback;
 
 	public:
 #pragma region Accessors/Mutators
+
+		/**
+		 * @brief	Check session is running.
+		 *			It's means session has been linked with remote endpoint.
+		 *
+		 * @return	@code true @endcode		Session is active.
+		 *			<p>
+		 *			@code false @endcode	Session is not active.
+		 */
+		[[nodiscard]]
+		bool bound() const noexcept;
 
 		/**
 		 * @brief	Socket accessor.
@@ -89,22 +101,14 @@ namespace Wor::Network {
 		 * @return	Socket reference.
 		 */
 		[[nodiscard]]
-		boost::asio::ip::tcp::socket& socket() noexcept;
+		Socket& socket() noexcept;
 
 		/**
 		 * @brief
 		 *
-		 * @param name
+		 * @param alias
 		 */
-		void name(std::string name) noexcept;
-
-		/**
-		 * @brief
-		 *
-		 * @return
-		 */
-		[[nodiscard]]
-		const std::string& name() noexcept;
+		void alias(std::string alias) noexcept;
 
 		/**
 		 * @brief
@@ -112,7 +116,15 @@ namespace Wor::Network {
 		 * @return
 		 */
 		[[nodiscard]]
-		boost::asio::ip::tcp::endpoint endpoint() const noexcept;
+		const std::string& alias() noexcept;
+
+		/**
+		 * @brief
+		 *
+		 * @return
+		 */
+		[[nodiscard]]
+		EndPoint endpoint() const noexcept;
 
 		/**
 		 * @brief
@@ -128,7 +140,7 @@ namespace Wor::Network {
 		 *
 		 * @param	callback Receive callback.
 		 */
-		void receiveCallback(std::function<void(const std::string& message)> callback) noexcept;
+		void receiveCallback(Callback callback) noexcept;
 
 #pragma endregion Accessors/Mutators
 	};
