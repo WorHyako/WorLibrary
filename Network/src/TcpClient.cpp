@@ -9,27 +9,27 @@ using namespace Wor::Network;
 using namespace boost;
 using namespace boost::asio::ip;
 
-TcpClient::TcpClient(asio::io_service &ctx) noexcept
+TcpClient::TcpClient(asio::io_service& ctx) noexcept
 	: _socket(ctx),
 	  _stopped(false) {
 }
 
-void TcpClient::start(const tcp::resolver::iterator &endPointIt) noexcept {
+void TcpClient::start(const tcp::resolver::iterator& endPointIt) noexcept {
 	_socket.async_connect(endPointIt->endpoint(),
-						  [this, endPointIt](const system::error_code &ec) {
-							  if (!ec) {
-								  handleConnect(endPointIt);
+						  [this, endPointIt](const system::error_code& ec) {
+							  if (ec) {
+								  std::stringstream ss;
+								  ss << "TcpClient: Error in connection.\n"
+										  << "Error:"
+										  << ec.message();
+								  spdlog::error(ss.str());
 								  return;
 							  }
-							  std::stringstream ss;
-							  ss << "TcpClient: Error in connection.\n"
-									  << "Error:"
-									  << ec.message();
-							  spdlog::error(ss.str());
+							  handleConnect(endPointIt);
 						  });
 }
 
-void TcpClient::handleConnect(const tcp::resolver::iterator &endPoint) noexcept {
+void TcpClient::handleConnect(const tcp::resolver::iterator& endPoint) noexcept {
 	if (_stopped) {
 		return;
 	}
@@ -49,6 +49,7 @@ void TcpClient::stop() noexcept {
 		return;
 	}
 	_stopped = true;
+	_socket.cancel();
 	_socket.close();
 }
 
@@ -56,10 +57,10 @@ void TcpClient::startRead() noexcept {
 	async_read_until(_socket,
 					 _readBuffer,
 					 '\n',
-					 [this](const system::error_code &ec, std::size_t) {
+					 [this](const system::error_code& ec, std::size_t) {
 						 if (ec) {
 							 std::stringstream ss;
-							 ss << "TcpClient: Reading error:"
+							 ss << "TcpClient. Reading error:"
 									 << ec.what().c_str();
 							 spdlog::error(ss.str());
 							 return;
@@ -78,8 +79,10 @@ void TcpClient::handleRead() noexcept {
 	if (size == 0) {
 		return;
 	}
-	const std::string message = {buffers_begin(_readBuffer.data()),
-								 buffers_end(_readBuffer.data())};
+	const std::string message = {
+				buffers_begin(_readBuffer.data()),
+				buffers_end(_readBuffer.data())
+			};
 	_readBuffer.consume(_readBuffer.size());
 
 	if (message.empty()) {
@@ -96,18 +99,26 @@ void TcpClient::handleRead() noexcept {
 	startRead();
 }
 
-void TcpClient::send(const std::string &message) noexcept {
+void TcpClient::send(const std::string& message) noexcept {
 	if (_stopped) {
 		return;
 	}
+	std::stringstream ss;
+	ss << "TcpClient. Sending message.\n\tMessage:"
+			<< message
+			<< "\n\tRemote host: "
+			<< _socket.remote_endpoint().address().to_string()
+			<< ":"
+			<< _socket.remote_endpoint().port();
+	spdlog::info(ss.str());
 	async_write(_socket,
 				asio::buffer(message),
-				[this](const system::error_code &ec, std::size_t bytes) {
+				[this](const system::error_code& ec, std::size_t bytes) {
 					if (ec) {
 						std::stringstream ss;
-						ss << "TcpClient: Error in writing.\nError: "
+						ss << "TcpClient. Error in writing.\nError: "
 								<< ec.what().c_str();
-						spdlog::info(ss.str());
+						spdlog::error(ss.str());
 						return;
 					}
 					handleWrite();

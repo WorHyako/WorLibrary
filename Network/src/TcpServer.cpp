@@ -64,7 +64,7 @@ void TcpServer::closeSession(const TcpSession::ptr& session) noexcept {
 	spdlog::info("TcpServer: Closing session: {}", session->name().c_str());
 
 	session->close();
-	const auto position = std::ranges::remove(_sessionsList, session).begin();
+	const auto position = std::begin(std::ranges::remove(_sessionsList, session));
 	if (position == _sessionsList.end()) {
 		return;
 	}
@@ -128,7 +128,7 @@ bool TcpServer::bindTo(const tcp::endpoint& endPoint) noexcept {
 	auto& ioService = Utils::IoService::get();
 	_acceptor = std::make_unique<tcp::acceptor>(ioService);
 	std::stringstream ss;
-	ss << "TcpServer: Start binding to: "
+	ss << "TcpServer. Start binding to: "
 			<< endPoint.address().to_string().c_str()
 			<< ":"
 			<< endPoint.port();

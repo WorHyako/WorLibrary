@@ -26,6 +26,7 @@ namespace {
     io_service ioService;
 }
 
+[[nodiscard]]
 io_service &IoService::get() noexcept {
     return ::ioService;
 }

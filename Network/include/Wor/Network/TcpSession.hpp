@@ -1,6 +1,6 @@
 #pragma once
 
-#include "boost/asio.hpp"
+#include <boost/asio.hpp>
 
 #include <functional>
 
@@ -41,7 +41,7 @@ namespace Wor::Network {
 		/**
 		 * @brief
 		 */
-		void close();
+		void close() noexcept;
 
 		/**
 		 * @brief
@@ -104,7 +104,7 @@ namespace Wor::Network {
 		 * @return
 		 */
 		[[nodiscard]]
-		std::string name() noexcept;
+		const std::string& name() noexcept;
 
 		/**
 		 * @brief

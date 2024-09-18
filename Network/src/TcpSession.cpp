@@ -110,7 +110,7 @@ void TcpSession::parseBuffer() noexcept {
 	spdlog::info(ss.str());
 }
 
-void TcpSession::close() {
+void TcpSession::close() noexcept {
 	if (!_isActive) {
 		return;
 	}
@@ -141,7 +141,7 @@ void TcpSession::name(std::string name) noexcept {
 	_name = std::move(name);
 }
 
-std::string TcpSession::name() noexcept {
+const std::string& TcpSession::name() noexcept {
 	return _name;
 }
 

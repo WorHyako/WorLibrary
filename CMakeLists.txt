@@ -6,9 +6,10 @@ project(WorLibrary
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(WORLIBRARY_JSON "" OFF)
+option(WORLIBRARY_LOG "" OFF)
 option(WORLIBRARY_NETWORK "" OFF)
 option(WORLIBRARY_SQL "" OFF)
 option(WORLIBRARY_MATH "" OFF)
@@ -22,19 +23,17 @@ option(WORLIBRARY_MIDI "" OFF)
 #############
 set(Boost_NO_WARN_NEW_VERSIONS ON)
 set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_NO_BOOST_CMAKE ON)
+set(Boost_USE_STATIC_LIBS OFF)
 find_package(Boost 1.85 REQUIRED GLOBAL COMPONENTS
         date_time
         thread)
 
-##############
-#   spdlog   #
-##############
-find_package(spdlog GLOBAL REQUIRED)
-
 if (WORLIBRARY_DEFINEUTILS)
     add_subdirectory(DefineUtils)
+endif ()
+
+if (WORLIBRARY_LOG)
+    add_subdirectory(Log)
 endif ()
 
 if (WORLIBRARY_CURRENCY)

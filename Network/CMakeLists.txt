@@ -16,5 +16,6 @@ target_include_directories(WorLib_Network
 
 target_link_libraries(WorLib_Network
         PUBLIC
-        ${Boost_LIBRARIES}
-        spdlog::spdlog)
+        Boost::date_time
+        Boost::thread
+        Wor::Log)
