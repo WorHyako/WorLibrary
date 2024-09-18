@@ -16,7 +16,7 @@ UdpServer::~UdpServer() noexcept {
 void UdpServer::start(const Endpoint& endpoint) noexcept {
 	stop();
 	auto& ioService = Utils::IoService::get();
-	_socket = std::make_unique<Socket>(ioService, endpoint);
+	_socket = std::make_unique<Socket>(ioService);
 
 	worInfo("Binding to {}:{}", endpoint.address().to_string(), endpoint.port());
 
@@ -33,6 +33,7 @@ void UdpServer::start(const Endpoint& endpoint) noexcept {
 	}
 
 	worInfo("Successful binding.");
+	startReading();
 }
 
 #pragma clang diagnostic push
@@ -63,7 +64,7 @@ void UdpServer::startReading() noexcept {
 #pragma clang diagnostic pop
 
 void UdpServer::stop() noexcept {
-	if (!isRunning()) {
+	if (!bound()) {
 		return;
 	}
 	_socket->cancel();
@@ -115,7 +116,7 @@ void UdpServer::parseBuffer(const Endpoint& remoteEndpoint) noexcept {
 }
 
 void UdpServer::sendTo(const Endpoint& endpoint, const std::string& message) noexcept {
-	if (!isRunning()) {
+	if (!bound()) {
 		return;
 	}
 	_socket->async_send_to(asio::buffer(message),
