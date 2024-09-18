@@ -17,17 +17,25 @@ namespace Wor::Network {
 	 */
 	class UdpClient {
 	public:
+		using Socket = boost::asio::ip::udp::socket;
+		using Endpoint = boost::asio::ip::udp::endpoint;
+		using Callback = std::function<void(const std::string&)>;
 		/**
 		 * @brief	Ctor.
 		 */
 		explicit UdpClient() noexcept = default;
 
 		/**
+		 * @brief	Dtor.
+		 */
+		virtual ~UdpClient() noexcept;
+
+		/**
 		 * @brief
 		 *
 		 * @param	endpoint
 		 */
-		void start(const boost::asio::ip::udp::endpoint& endpoint) noexcept;
+		void start(const Endpoint& endpoint) noexcept;
 
 		/**
 		 * @brief
@@ -55,12 +63,12 @@ namespace Wor::Network {
 		/**
 		 * @brief
 		 */
-		boost::asio::ip::udp::endpoint _remoteEndpoint;
+		Endpoint _remoteEndpoint;
 
 		/**
 		 * @brief
 		 */
-		std::unique_ptr<boost::asio::ip::udp::socket> _socket;
+		std::unique_ptr<Socket> _socket;
 
 		/**
 		 * @brief
@@ -70,7 +78,7 @@ namespace Wor::Network {
 		/**
 		 * @brief
 		 */
-		std::function<void(std::string)> _readCallback;
+		Callback _readCallback;
 
 	public:
 #pragma region Accessors/Mutators
@@ -78,10 +86,12 @@ namespace Wor::Network {
 		/**
 		 * @brief
 		 *
-		 * @return
+		 * @return	@code true @endcode
+		 *			<p>
+		 *			@code false @endcode
 		 */
 		[[nodiscard]]
-		bool isRunning() const noexcept;
+		bool bound() const noexcept;
 
 		/**
 		 * @brief
@@ -89,21 +99,21 @@ namespace Wor::Network {
 		 * @return
 		 */
 		[[nodiscard]]
-		boost::asio::ip::udp::endpoint localEndpoint() const noexcept;
+		Endpoint localEndpoint() const noexcept;
 
 		/**
 		 * @brief
 		 *
 		 * @param remoteEndpoint
 		 */
-		void remoteEndpoint(boost::asio::ip::udp::endpoint remoteEndpoint) noexcept;
+		void remoteEndpoint(Endpoint remoteEndpoint) noexcept;
 
 		/**
 		 * @brief
 		 *
 		 * @param callback
 		 */
-		void readCallback(std::function<void(std::string)> callback) noexcept;
+		void readCallback(Callback callback) noexcept;
 
 #pragma endregion Accessors/Mutators
 	};

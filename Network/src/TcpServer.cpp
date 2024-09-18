@@ -135,18 +135,18 @@ bool TcpServer::bindTo(const tcp::endpoint& endPoint) noexcept {
 	spdlog::info(ss.str());
 
 	system::error_code ec;
-	ec = _acceptor->open(endPoint.protocol(), ec);
+	std::ignore = _acceptor->open(endPoint.protocol(), ec);
 	if (ec) {
 		spdlog::error("TcpServer. Open port error: {}", ec.what().c_str());
 		return false;
 	}
 	_acceptor->set_option(tcp::acceptor::reuse_address(true));
-	ec = _acceptor->bind(endPoint, ec);
+	std::ignore = _acceptor->bind(endPoint, ec);
 	if (ec) {
 		spdlog::error("TcpServer. Binding error: {}", ec.what().c_str());
 		return false;
 	}
-	ec = _acceptor->listen(asio::socket_base::max_listen_connections, ec);
+	std::ignore = _acceptor->listen(asio::socket_base::max_listen_connections, ec);
 	if (ec) {
 		spdlog::error("TcpServer. Listening error: {}", ec.what().c_str());
 		return false;

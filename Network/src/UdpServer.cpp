@@ -3,8 +3,6 @@
 #include "Network/Utils/IoService.hpp"
 #include "Wor/Log/Log.hpp"
 
-#include <spdlog/spdlog.h>
-
 #include <sstream>
 
 using namespace Wor::Network;
@@ -15,75 +13,50 @@ UdpServer::~UdpServer() noexcept {
 	stop();
 }
 
-bool UdpServer::bindTo(const udp::endpoint& endpoint) noexcept {
+void UdpServer::start(const Endpoint& endpoint) noexcept {
 	stop();
 	auto& ioService = Utils::IoService::get();
-	_socket = std::make_unique<udp::socket>(ioService, endpoint);
-	std::stringstream ss;
-	ss << "UdpServer. Start binding to: "
-			<< endpoint.address().to_string().c_str()
-			<< ":"
-			<< endpoint.port();
-	worInfo(ss.str());
+	_socket = std::make_unique<Socket>(ioService, endpoint);
 
-	if (!_socket->is_open()) {
-		worError("Udp server. Open port error.");
-		return false;
-	}
+	worInfo("Binding to {}:{}", endpoint.address().to_string(), endpoint.port());
 
-	// system::error_code ec;
-	// std::ignore = _socket->bind(endpoint, ec);
-	//
-	// if (ec) {
-	// 	spdlog::error("Udp server. Binding to local port error: {}", ec.message());
-	// 	return false;
-	// }
-	//
-	// std::ignore = _socket->open(endpoint.protocol(), ec);
-	// if (ec) {
-	// 	spdlog::error("Udp server. Open port error: {}", ec.message());
-	// 	return false;
-	// }
-	worInfo("UdpServer. Successful binding.");
-	return true;
-}
-
-void UdpServer::start() noexcept {
-	if (!isRunning()) {
+	system::error_code ec;
+	std::ignore = _socket->open(endpoint.protocol(), ec);
+	if (ec) {
+		worError("Open error: {}", ec.message());
 		return;
 	}
-	startReading();
+	std::ignore = _socket->bind(endpoint, ec);
+	if (ec) {
+		worError("Binding error: {}", ec.message());
+		return;
+	}
+
+	worInfo("Successful binding.");
 }
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "misc-no-recursion"
 
 void UdpServer::startReading() noexcept {
-	static udp::endpoint remoteEndpoint;
-	asio::mutable_buffer mBuffer = _buffer.prepare(1024);
+	static Endpoint remoteEndpoint;
+	asio::mutable_buffer mBuffer{_buffer.prepare(64)};
 	_socket->async_receive_from(buffer(mBuffer),
 								remoteEndpoint,
 								[this](const system::error_code& ec, std::size_t bytesTransferred) {
+									worInfo("Message was received from {}:{}",
+											remoteEndpoint.address().to_string(),
+											remoteEndpoint.port());
 									if (ec) {
-										std::stringstream ss;
-										ss << "UdpServer. Error on reading packet.\nEndpoint: "
-												<< endpoint().address().to_string().c_str()
-												<< ":"
-												<< endpoint().port()
-												<< "\nError: "
-												<< ec.what().c_str();
-										worError(ss.str());
-										startReading();
+										worError("Error: {}", ec.message());
+									} else if (bytesTransferred < 1) {
+										worError("Zero bytes packet.");
 									} else {
-										std::stringstream ss;
-										ss << "UdpServer. Receiving packet.\nEndpoint: "
-												<< remoteEndpoint.address().to_string().c_str()
-												<< ":"
-												<< remoteEndpoint.port();
-										worTrace(ss.str());
-										startReading();
+										_buffer.commit(bytesTransferred);
 										parseBuffer(remoteEndpoint);
 									}
+
+									startReading();
 								});
 }
 
@@ -96,9 +69,10 @@ void UdpServer::stop() noexcept {
 	_socket->cancel();
 	_socket->close();
 	_socket.reset();
+	worInfo("Stopped.");
 }
 
-void UdpServer::parseBuffer(const udp::endpoint& remoteEndpoint) noexcept {
+void UdpServer::parseBuffer(const Endpoint& remoteEndpoint) noexcept {
 	const std::size_t size = std::distance(buffers_begin(_buffer.data()),
 										   buffers_end(_buffer.data()));
 	if (size == 0) {
@@ -124,19 +98,13 @@ void UdpServer::parseBuffer(const udp::endpoint& remoteEndpoint) noexcept {
 	}
 
 	std::stringstream ss;
-	ss << "UdpServer. Parsed message from "
-			<< remoteEndpoint.address().to_string()
-			<< ":"
-			<< remoteEndpoint.port()
-			<< "\nMessages:\n";
-
+	ss << "\tMessages:";
 	std::ranges::for_each(messages,
 						  [&ss, &callbacks = _receiveCallbacks, &remoteEndpoint](const std::string& message) {
-							  ss << message.c_str() << "\n";
+							  ss << "\n\t\t" << message.c_str();
 							  auto callback = std::ranges::find_if(callbacks,
 																   [&remoteEndpoint](
-															   const std::pair<udp::endpoint, std::function<void (
-																				   const std::string&)>>& pair) {
+															   const std::pair<Endpoint, Callback>& pair) {
 																	   return pair.first == remoteEndpoint;
 																   });
 							  if (callback != std::end(callbacks) && callback->second) {
@@ -146,21 +114,44 @@ void UdpServer::parseBuffer(const udp::endpoint& remoteEndpoint) noexcept {
 	worTrace(ss.str());
 }
 
+void UdpServer::sendTo(const Endpoint& endpoint, const std::string& message) noexcept {
+	if (!isRunning()) {
+		return;
+	}
+	_socket->async_send_to(asio::buffer(message),
+						   endpoint,
+						   [&endpoint, &message](const system::error_code& ec, std::size_t) {
+							   std::stringstream ss;
+							   ss << "Sending message."
+									   << "\n\tEndpoint: "
+									   << endpoint.address().to_string().c_str()
+									   << ":"
+									   << endpoint.port()
+									   << "\n\tMessage: "
+									   << message.c_str();
+							   worTrace(ss.str());
+							   if (ec) {
+								   worError("Sending message error: {}", ec.message());
+								   return;
+							   }
+							   worInfo("Sending message success");
+						   });
+}
+
 #pragma region Accessors/Mutators
 
-bool UdpServer::isRunning() const noexcept {
+bool UdpServer::bound() const noexcept {
 	if (!_socket) {
 		return false;
 	}
 	return _socket->is_open();
 }
 
-void UdpServer::receiveCallback(udp::endpoint remoteEndpoint,
-								std::function<void(const std::string&)> callback) noexcept {
+void UdpServer::receiveCallback(Endpoint remoteEndpoint, Callback callback) noexcept {
 	_receiveCallbacks.emplace(std::move(remoteEndpoint), std::move(callback));
 }
 
-udp::endpoint UdpServer::endpoint() const noexcept {
+UdpServer::Endpoint UdpServer::endpoint() const noexcept {
 	return _socket->local_endpoint();
 }
 

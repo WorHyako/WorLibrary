@@ -22,6 +22,7 @@ namespace Wor::Log {
 	 */
 	static void configureLogger() {
 #ifdef WOR_DEV_LOG
+		spdlog::set_level(spdlog::level::trace);
 		spdlog::set_pattern("[%H:%M:%e] [%^%l%$] [thread %t] [source %s:%#] [function %!] \n%v");
 #else
 		spdlog::set_pattern("[%H:%M:%e] [%^%l%$] \n%v");

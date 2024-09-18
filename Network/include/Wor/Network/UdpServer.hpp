@@ -18,6 +18,9 @@ namespace Wor::Network {
 	 */
 	class UdpServer {
 	public:
+		using Endpoint = boost::asio::ip::udp::endpoint;
+		using Socket = boost::asio::ip::udp::socket;
+		using Callback = std::function<void(const std::string&)>;
 		/**
 		 * @brief	Ctor.
 		 */
@@ -30,19 +33,8 @@ namespace Wor::Network {
 
 		/**
 		 * @brief
-		 *
-		 * @param	endpoint
-		 *
-		 * @return	@code true @endcode
-		 *			<p>
-		 *			@code false @endcode
 		 */
-		bool bindTo(const boost::asio::ip::udp::endpoint& endpoint) noexcept;
-
-		/**
-		 * @brief
-		 */
-		void start() noexcept;
+		void start(const Endpoint& endpoint) noexcept;
 
 		/**
 		 * @brief
@@ -52,11 +44,20 @@ namespace Wor::Network {
 		/**
 		 * @brief
 		 *
-		 * @param	remoteEndpoint
+		 * @param endpoint
+		 *
+		 * @param message
 		 */
-		void parseBuffer(const boost::asio::ip::udp::endpoint& remoteEndpoint) noexcept;
+		void sendTo(const Endpoint& endpoint, const std::string& message) noexcept;
 
 	private:
+		/**
+		 * @brief
+		 *
+		 * @param	remoteEndpoint
+		 */
+		void parseBuffer(const Endpoint& remoteEndpoint) noexcept;
+
 		/**
 		 * @brief
 		 */
@@ -65,8 +66,7 @@ namespace Wor::Network {
 		/**
 		 * @brief	Storage for receiving callbacks.
 		 */
-		std::unordered_map<boost::asio::ip::udp::endpoint,
-						   std::function<void(const std::string&)>> _receiveCallbacks;
+		std::unordered_map<Endpoint, Callback> _receiveCallbacks;
 
 		/**
 		 * @brief	Buffer for incoming packets.
@@ -76,7 +76,7 @@ namespace Wor::Network {
 		/**
 		 * @brief	Socket.
 		 */
-		std::unique_ptr<boost::asio::ip::udp::socket> _socket;
+		std::unique_ptr<Socket> _socket;
 
 	public:
 #pragma region Accessors/Mutators
@@ -89,7 +89,7 @@ namespace Wor::Network {
 		 *			@code false @endcode
 		 */
 		[[nodiscard]]
-		bool isRunning() const noexcept;
+		bool bound() const noexcept;
 
 		/**
 		 * @brief
@@ -98,8 +98,7 @@ namespace Wor::Network {
 		 *
 		 * @param callback
 		 */
-		void receiveCallback(boost::asio::ip::udp::endpoint remoteEndpoint,
-							 std::function<void(const std::string&)> callback) noexcept;
+		void receiveCallback(Endpoint remoteEndpoint, Callback callback) noexcept;
 
 		/**
 		 * @brief
@@ -107,7 +106,7 @@ namespace Wor::Network {
 		 * @return
 		 */
 		[[nodiscard]]
-		boost::asio::ip::udp::endpoint endpoint() const noexcept;
+		Endpoint endpoint() const noexcept;
 
 #pragma endregion Accessors/Mutators
 	};

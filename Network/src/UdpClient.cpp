@@ -1,76 +1,97 @@
 #include "Network/UdpClient.hpp"
 
-#include <Network/Utils/IoService.hpp>
+#include "Network/Utils/IoService.hpp"
 
 #include "Wor/Log/Log.hpp"
 
-#include <spdlog/spdlog.h>
-
 using namespace Wor::Network;
 using namespace boost;
-using namespace boost::asio;
+using namespace boost::asio::ip;
 
-void UdpClient::start(const ip::udp::endpoint& localEndpoint) noexcept {
+UdpClient::~UdpClient() noexcept {
+	stop();
+}
+
+void UdpClient::start(const Endpoint& localEndpoint) noexcept {
+	stop();
 	auto& ctx = Utils::IoService::get();
+	_socket = std::make_unique<Socket>(ctx);
+
+	worInfo("Binding to {}:{}", localEndpoint.address().to_string(), localEndpoint.port());
+
 	system::error_code ec;
-	_socket = std::make_unique<ip::udp::socket>(ctx, localEndpoint);
-	std::stringstream ss;
-	ss << localEndpoint.address().to_string()
-			<< ":"
-			<< localEndpoint.port();
-	if (!_socket->is_open()) {
-		worError("Binding to local port error", ec.message());
+	std::ignore = _socket->open(localEndpoint.protocol(), ec);
+	if (ec) {
+		worError("Open error: {}", ec.message());
 		return;
 	}
-	//
-	// ec = _socket.open(localEndpoint.protocol(), ec);
-	// if (ec) {
-	// 	Log::write({"Opening local port error", ec.message()}, Log::Type::Error);
-	// 	return;
-	// }
+	std::ignore = _socket->bind(localEndpoint, ec);
+	if (ec) {
+		worError("Binding error: {}", ec.message());
+		return;
+	}
 
 	worInfo("Successful opening local port");
+	startRead();
 }
 
 void UdpClient::stop() noexcept {
+	if (!bound()) {
+		return;
+	}
 	_socket->cancel();
 	_socket->close();
+	_socket.reset();
+	worInfo("Stopped.");
 }
 
 void UdpClient::send(const std::string& message) noexcept {
-	if (!isRunning()) {
+	if (!bound()) {
 		return;
 	}
-	_socket->async_send_to(buffer(message),
+	_socket->async_send_to(asio::buffer(message),
 						   _remoteEndpoint,
-						   [&message](const system::error_code& ec, std::size_t bytesTransferred) {
+						   [&message, &endpoint = _remoteEndpoint](const system::error_code& ec, std::size_t) {
+							   std::stringstream ss;
+							   ss << "Sending message."
+									   << "\n\tEndpoint: "
+									   << endpoint.address().to_string().c_str()
+									   << ":"
+									   << endpoint.port()
+									   << "\n\tMessage: "
+									   << message.c_str();
+							   worTrace(ss.str());
 							   if (ec) {
 								   worError("Sending error:", ec.message());
 								   return;
 							   }
-							   worInfo(std::format("Successful sending message: {}", message));
+							   worInfo("Successful sending message: {}", message);
 						   });
 }
 
 void UdpClient::startRead() noexcept {
-	if (!isRunning()) {
+	if (!bound()) {
 		return;
 	}
-	mutable_buffer buffer = _buffer.prepare(1024);
-	_socket->async_receive(buffer,
-						   [this](const system::error_code& ec, std::size_t bytesTransferred) {
-							   if (ec) {
-								   worError("Reading error:", ec.what());
-								   return;
-							   }
+	static udp::endpoint remoteEndpoint;
+	asio::mutable_buffer buffer{_buffer.prepare(64)};
+	_socket->async_receive_from(buffer,
+								remoteEndpoint,
+								[this](const system::error_code& ec, std::size_t bytesTransferred) {
+									worInfo("Message was received from {}:{}",
+											remoteEndpoint.address().to_string(),
+											remoteEndpoint.port());
+									if (ec) {
+										worError("Error: {}", ec.message());
+									} else if (bytesTransferred < 1) {
+										worError("Zero bytes packet.");
+									} else {
+										_buffer.commit(bytesTransferred);
+										parseBuffer();
+									}
 
-							   if (bytesTransferred < 1) {
-								   worError("Received zero bytes:");
-								   return;
-							   }
-
-							   parseBuffer();
-						   });
+									startRead();
+								});
 }
 
 void UdpClient::parseBuffer() noexcept {
@@ -98,18 +119,11 @@ void UdpClient::parseBuffer() noexcept {
 		begin = end + 1;
 	}
 
-	const ip::udp::endpoint endPoint = _socket->remote_endpoint();
-
 	std::stringstream ss;
-	ss << "TcpSession: Parse message from "
-			<< endPoint.address().to_string()
-			<< ":"
-			<< endPoint.port()
-			<< "\nMessages:\n";
-
+	ss << "\tMessages:";
 	std::ranges::for_each(messages,
 						  [&ss, &callback = _readCallback](const std::string& message) {
-							  ss << message.c_str() << "\n";
+							  ss << "\n\t\t" << message.c_str();
 							  if (callback) {
 								  callback(message);
 							  }
@@ -119,22 +133,22 @@ void UdpClient::parseBuffer() noexcept {
 
 #pragma region Accessors/Mutators
 
-bool UdpClient::isRunning() const noexcept {
+bool UdpClient::bound() const noexcept {
 	if (!_socket) {
 		return false;
 	}
 	return _socket->is_open();
 }
 
-ip::udp::endpoint UdpClient::localEndpoint() const noexcept {
+UdpClient::Endpoint UdpClient::localEndpoint() const noexcept {
 	return _socket->local_endpoint();
 }
 
-void UdpClient::remoteEndpoint(ip::udp::endpoint remoteEndpoint) noexcept {
+void UdpClient::remoteEndpoint(Endpoint remoteEndpoint) noexcept {
 	_remoteEndpoint = std::move(remoteEndpoint);
 }
 
-void UdpClient::readCallback(std::function<void(std::string)> callback) noexcept {
+void UdpClient::readCallback(Callback callback) noexcept {
 	_readCallback = std::move(callback);
 }
 
