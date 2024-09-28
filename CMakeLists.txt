@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
 project(WorLibrary
-        VERSION 0.2
+        VERSION 0.7
         LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
