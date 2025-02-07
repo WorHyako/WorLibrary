@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
 project(WorLibrary::Network
-        VERSION 1.0
+        VERSION 1.1
         LANGUAGES CXX)
 
 add_library(WorLib_Network)
