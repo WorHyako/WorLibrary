@@ -20,7 +20,7 @@ namespace Wor::Network {
 	public:
 		using Endpoint = boost::asio::ip::udp::endpoint;
 		using Socket = boost::asio::ip::udp::socket;
-		using Callback = std::function<void(const std::string&)>;
+		using Callback = std::function<void(const std::string_view&)>;
 		/**
 		 * @brief	Ctor.
 		 */
@@ -48,15 +48,15 @@ namespace Wor::Network {
 		 *
 		 * @param message
 		 */
-		void sendTo(const Endpoint& endpoint, const std::string& message) noexcept;
+		void sendTo(const Endpoint& endpoint, const std::string_view& message) noexcept;
 
 	private:
 		/**
 		 * @brief
 		 *
-		 * @param	remoteEndpoint
+		 * @param	remote_endpoint
 		 */
-		void parseBuffer(const Endpoint& remoteEndpoint) noexcept;
+		void parseBuffer(const Endpoint& remote_endpoint) noexcept;
 
 		/**
 		 * @brief
@@ -66,7 +66,7 @@ namespace Wor::Network {
 		/**
 		 * @brief	Storage for receiving callbacks.
 		 */
-		std::unordered_map<Endpoint, Callback> _receiveCallbacks;
+		std::unordered_map<Endpoint, Callback> _receive_callbacks;
 
 		/**
 		 * @brief	Buffer for incoming packets.
@@ -94,11 +94,11 @@ namespace Wor::Network {
 		/**
 		 * @brief
 		 *
-		 * @param remoteEndpoint
+		 * @param remote_endpoint
 		 *
 		 * @param callback
 		 */
-		void receiveCallback(Endpoint remoteEndpoint, Callback callback) noexcept;
+		void receiveCallback(Endpoint remote_endpoint, Callback callback) noexcept;
 
 		/**
 		 * @brief

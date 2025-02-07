@@ -19,7 +19,7 @@ namespace Wor::Network {
 	public:
 		using Socket = boost::asio::ip::udp::socket;
 		using Endpoint = boost::asio::ip::udp::endpoint;
-		using Callback = std::function<void(const std::string&)>;
+		using Callback = std::function<void(const std::string_view&)>;
 		/**
 		 * @brief	Ctor.
 		 */
@@ -47,7 +47,7 @@ namespace Wor::Network {
 		 *
 		 * @param	message
 		 */
-		void send(const std::string& message) noexcept;
+		void send(const std::string_view& message) noexcept;
 
 	private:
 		/**
@@ -63,7 +63,7 @@ namespace Wor::Network {
 		/**
 		 * @brief
 		 */
-		Endpoint _remoteEndpoint;
+		Endpoint _remote_endpoint;
 
 		/**
 		 * @brief
@@ -78,7 +78,7 @@ namespace Wor::Network {
 		/**
 		 * @brief
 		 */
-		Callback _readCallback;
+		Callback _read_callback;
 
 	public:
 #pragma region Accessors/Mutators
@@ -104,9 +104,9 @@ namespace Wor::Network {
 		/**
 		 * @brief
 		 *
-		 * @param remoteEndpoint
+		 * @param remote_endpoint
 		 */
-		void remoteEndpoint(Endpoint remoteEndpoint) noexcept;
+		void remoteEndpoint(Endpoint remote_endpoint) noexcept;
 
 		/**
 		 * @brief

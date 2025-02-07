@@ -15,7 +15,7 @@ Repo to make my life better a little bit and my codding process easier.
 - [Wrappers](Wrappers/readme.md)
   - Work with classes which make my life better: Singleton template.
 - [Sql](Sql/readme.md)
-  - Work with data bases.
+  - Work with database.
 - [DefineUtils](DefineUtils/readme.md)
   - Work with helpful defines.
 - [Log](Log/readme.md)

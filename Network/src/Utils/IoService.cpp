@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <thread>
-#include <cstdio>
 
 #include "boost/asio.hpp"
 
@@ -10,39 +9,37 @@ using namespace Wor::Network::Utils;
 using namespace boost::asio;
 
 namespace {
+	/**
+	 * @brief
+	 *
+	 * @author WorHyako
+	 */
+	pthread_t io_thread_handle;
 
-    /**
-     * @brief
-     *
-     * @author WorHyako
-     */
-    pthread_t ioThreadHandle;
-
-    /**
-     * @brief
-     *
-     * @author WorHyako
-     */
-    io_service ioService;
+	/**
+	 * @brief
+	 *
+	 * @author WorHyako
+	 */
+	io_context ctx;
 }
 
 [[nodiscard]]
-io_service &IoService::get() noexcept {
-    return ::ioService;
+io_context& IoService::get() noexcept {
+	return ::ctx;
 }
 
 void IoService::run() noexcept {
-    if (isRunning()) {
-        return;
-    }
-    std::thread t([&io = ::ioService]() {
-        boost::system::error_code ec;
-        std::ignore = io.run(ec);
-    });
-    ::ioThreadHandle = t.native_handle();
-    t.detach();
+	if (isRunning()) {
+		return;
+	}
+	std::thread t([&io{::ctx}]() {
+		std::ignore = io.run();
+	});
+	::io_thread_handle = t.native_handle();
+	t.detach();
 }
 
 bool IoService::isRunning() noexcept {
-    return ::ioThreadHandle != nullptr;
+	return ::io_thread_handle != nullptr;
 }

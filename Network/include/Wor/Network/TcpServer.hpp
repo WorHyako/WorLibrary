@@ -27,7 +27,7 @@ namespace Wor::Network {
 	public:
 		using Endpoint = boost::asio::ip::tcp::endpoint;
 		using Acceptor = boost::asio::ip::tcp::acceptor;
-		using Callback = std::function<void(const std::string&)>;
+		using Callback = std::function<void(const std::string_view&)>;
 
 		/**
 		 * @brief	Ctor.
@@ -48,14 +48,14 @@ namespace Wor::Network {
 		 *			<p>
 		 *			If server is running already, tries restart it.
 		 *
-		 * @param	endPoint Local endpoint.
+		 * @param	endpoint Local endpoint.
 		 *
 		 * @return	@code true @endcode		Port has been linked to local endpoint.
 		 *			<p>
 		 *			@code false @endcode	Error in port linking.
 		 */
 		[[nodiscard]]
-		bool bindTo(const Endpoint& endPoint) noexcept;
+		bool bindTo(const Endpoint& endpoint) noexcept;
 
 		/**
 		 * @brief	Listens local port for a new session to make new sessions.
@@ -76,21 +76,21 @@ namespace Wor::Network {
 		 *
 		 * @param	name Session's name.
 		 */
-		void closeSession(const std::string& name) noexcept;
+		void closeSession(const std::string_view& name) noexcept;
 
 		/**
 		 * @brief	Closes session with selected endpoint.
 		 *
-		 * @param	remoteEndpoint Session's endpoint.
+		 * @param	remote_endpoint Session's endpoint.
 		 */
-		void closeSession(const Endpoint& remoteEndpoint) noexcept;
+		void closeSession(const Endpoint& remote_endpoint) noexcept;
 
 		/**
 		 * @brief	Sends selected message to all available endpoints.
 		 *
 		 * @param	message	Message.
 		 */
-		void sendToAll(const std::string& message) const noexcept;
+		void sendToAll(const std::string_view& message) const noexcept;
 
 	private:
 		/**
@@ -126,12 +126,12 @@ namespace Wor::Network {
 		 *			<p>
 		 *			It is replenished with session accepting.
 		 */
-		std::vector<TcpSession::ptr> _sessionsList;
+		std::vector<TcpSession::ptr> _sessions_list;
 
 		/**
 		 * @brief	Storage for receive callbacks.
 		 */
-		std::unordered_map<Endpoint, Callback> _receiveCallbacks;
+		std::unordered_map<Endpoint, Callback> _receive_callbacks;
 
 	public:
 #pragma region Accessors/Mutators
@@ -139,14 +139,14 @@ namespace Wor::Network {
 		/**
 		 * @brief	Session pointer accessor.
 		 *
-		 * @param	name Session's name.
+		 * @param	alias Session's name.
 		 *
 		* @return	Session pointer.
 		 *			<p>
 		 *			@code nullptr @endcode If session doesn't exist.
 		 */
 		[[nodiscard]]
-		TcpSession::ptr session(const std::string& name) noexcept;
+		TcpSession::ptr session(const std::string_view& alias) noexcept;
 
 		/**
 		 * @brief	Session pointer accessor.

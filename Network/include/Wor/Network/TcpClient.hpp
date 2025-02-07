@@ -17,7 +17,8 @@ namespace Wor::Network {
 	 */
 	class TcpClient final {
 	public:
-		using Callback = std::function<void(const std::string&)>;
+		using Callback = std::function<void(const std::string_view&)>;
+		using IoContext = boost::asio::io_context;
 		using Socket = boost::asio::ip::tcp::socket;
 		using Endpoint = boost::asio::ip::tcp::endpoint;
 
@@ -26,14 +27,14 @@ namespace Wor::Network {
 		 *
 		 * @param	ctx
 		 */
-		explicit TcpClient(boost::asio::io_service& ctx) noexcept;
+		explicit TcpClient(IoContext& ctx) noexcept;
 
 		/**
 		 * @brief
 		 *
-		 * @param	endPoint
+		 * @param	endpoint
 		 */
-		void start(const boost::asio::ip::tcp::resolver::iterator& endPoint) noexcept;
+		void start(const Endpoint& endpoint) noexcept;
 
 		/**
 		 * @brief
@@ -45,7 +46,7 @@ namespace Wor::Network {
 		 *
 		 * @param	message
 		 */
-		void send(const std::string& message) noexcept;
+		void send(const std::string_view& message) noexcept;
 
 	private:
 		/**
@@ -61,9 +62,9 @@ namespace Wor::Network {
 		/**
 		 * @brief
 		 *
-		 * @param	endPoint
+		 * @param	endpoint
 		 */
-		void handleConnect(const boost::asio::ip::tcp::resolver::iterator& endPoint) noexcept;
+		void handleConnect(const Endpoint& endpoint) noexcept;
 
 		/**
 		 * @brief
@@ -78,7 +79,7 @@ namespace Wor::Network {
 		/**
 		 * @brief
 		 */
-		Callback _receiveCallback;
+		Callback _receive_callback;
 
 #pragma region Accessors/Methods;
 

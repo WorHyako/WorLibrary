@@ -13,6 +13,7 @@ namespace Wor::Network::Utils::IoService {
      *
      * @author WorHyako
      */
+    [[nodiscard]]
     boost::asio::io_context& get() noexcept;
 
     /**

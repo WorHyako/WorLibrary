@@ -6,26 +6,25 @@
 
 using namespace Wor::Network;
 using namespace boost;
-using namespace boost::asio::ip;
 
 UdpClient::~UdpClient() noexcept {
 	stop();
 }
 
-void UdpClient::start(const Endpoint &localEndpoint) noexcept {
+void UdpClient::start(const Endpoint& endpoint) noexcept {
 	stop();
-	auto &ctx = Utils::IoService::get();
+	auto& ctx{Utils::IoService::get()};
 	_socket = std::make_unique<Socket>(ctx);
 
-	worInfo("Binding to {}:{}", localEndpoint.address().to_string(), localEndpoint.port());
+	worInfo("Binding to {}:{}", endpoint.address().to_string(), endpoint.port());
 
 	system::error_code ec;
-	std::ignore = _socket->open(localEndpoint.protocol(), ec);
+	std::ignore = _socket->open(endpoint.protocol(), ec);
 	if (ec) {
 		worError("Open error: {}", ec.message());
 		return;
 	}
-	std::ignore = _socket->bind(localEndpoint, ec);
+	std::ignore = _socket->bind(endpoint, ec);
 	if (ec) {
 		worError("Binding error: {}", ec.message());
 		return;
@@ -45,13 +44,13 @@ void UdpClient::stop() noexcept {
 	worInfo("Stopped.");
 }
 
-void UdpClient::send(const std::string &message) noexcept {
+void UdpClient::send(const std::string_view& message) noexcept {
 	if (!bound()) {
 		return;
 	}
 	_socket->async_send_to(asio::buffer(message),
-						   _remoteEndpoint,
-						   [&message, &endpoint = _remoteEndpoint](const system::error_code &ec, std::size_t) {
+						   _remote_endpoint,
+						   [&message, &endpoint{_remote_endpoint}](const system::error_code& ec, std::size_t) {
 							   std::stringstream ss;
 							   ss << "Sending message."
 									   << "\n\tEndpoint: "
@@ -59,7 +58,7 @@ void UdpClient::send(const std::string &message) noexcept {
 									   << ":"
 									   << endpoint.port()
 									   << "\n\tMessage: "
-									   << message.c_str();
+									   << message;
 							   worTrace(ss.str());
 							   if (ec) {
 								   worError("Sending error:", ec.message());
@@ -73,20 +72,20 @@ void UdpClient::startRead() noexcept {
 	if (!bound()) {
 		return;
 	}
-	static udp::endpoint remoteEndpoint;
+	static Endpoint remote_endpoint;
 	asio::mutable_buffer buffer{_buffer.prepare(64)};
 	_socket->async_receive_from(buffer,
-								remoteEndpoint,
-								[this](const system::error_code &ec, std::size_t bytesTransferred) {
+								remote_endpoint,
+								[this](const system::error_code& ec, std::size_t bytes_transferred) {
 									worInfo("Message was received from {}:{}",
-											remoteEndpoint.address().to_string(),
-											remoteEndpoint.port());
+											remote_endpoint.address().to_string(),
+											remote_endpoint.port());
 									if (ec) {
 										worError("Error: {}", ec.message());
-									} else if (bytesTransferred < 1) {
+									} else if (bytes_transferred < 1) {
 										worError("Zero bytes packet.");
 									} else {
-										_buffer.commit(bytesTransferred);
+										_buffer.commit(bytes_transferred);
 										parseBuffer();
 									}
 
@@ -95,34 +94,37 @@ void UdpClient::startRead() noexcept {
 }
 
 void UdpClient::parseBuffer() noexcept {
-	const std::size_t size = std::distance(buffers_begin(_buffer.data()),
-										   buffers_end(_buffer.data()));
+	const auto size{
+				std::distance(buffers_begin(_buffer.data()),
+							  buffers_end(_buffer.data()))
+			};
 	if (size == 0) {
 		return;
 	}
-	std::string strBuffer = {
-			buffers_begin(_buffer.data()),
-			buffers_end(_buffer.data())};
+	std::string str_buffer{
+				buffers_begin(_buffer.data()),
+				buffers_end(_buffer.data())
+			};
 
 	_buffer.consume(size);
 
-	std::vector<std::string> messages;
-	std::size_t begin = 0;
+	std::vector<std::string> messages{};
+	std::size_t begin{0};
 	while (begin < size) {
-		const std::size_t end = strBuffer.find('\0', begin);
+		const std::size_t end{str_buffer.find('\0', begin)};
 		if (end == static_cast<std::size_t>(-1)) {
-			messages.emplace_back(strBuffer);
+			messages.emplace_back(str_buffer);
 			break;
 		}
-		messages.emplace_back(strBuffer.substr(begin, end - begin));
+		messages.emplace_back(str_buffer.substr(begin, end - begin));
 		begin = end + 1;
 	}
 
 	std::stringstream ss;
 	ss << "\tMessages:";
 	std::ranges::for_each(messages,
-						  [&ss, &callback = _readCallback](const std::string &message) {
-							  ss << "\n\t\t" << message.c_str();
+						  [&ss, &callback{_read_callback}](const std::string_view& message) {
+							  ss << "\n\t\t" << message;
 							  if (callback) {
 								  callback(message);
 							  }
@@ -143,12 +145,12 @@ UdpClient::Endpoint UdpClient::localEndpoint() const noexcept {
 	return _socket->local_endpoint();
 }
 
-void UdpClient::remoteEndpoint(Endpoint remoteEndpoint) noexcept {
-	_remoteEndpoint = std::move(remoteEndpoint);
+void UdpClient::remoteEndpoint(Endpoint remote_endpoint) noexcept {
+	_remote_endpoint = std::move(remote_endpoint);
 }
 
 void UdpClient::readCallback(Callback callback) noexcept {
-	_readCallback = std::move(callback);
+	_read_callback = std::move(callback);
 }
 
 #pragma endregion Accessors/Mutators
