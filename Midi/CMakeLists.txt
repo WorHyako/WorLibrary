@@ -11,10 +11,12 @@ add_library(Wor::Midi ALIAS WorLib_Midi)
 
 file(GLOB_RECURSE Sources src/*.cpp)
 target_sources(WorLib_Midi
-        PRIVATE ${Sources})
+        PRIVATE
+        ${Sources})
 
 target_include_directories(WorLib_Midi
-        PUBLIC include
+        PUBLIC
+        include
         PRIVATE
         include/Wor
         ${RtMidi_INCLUDEDIR})

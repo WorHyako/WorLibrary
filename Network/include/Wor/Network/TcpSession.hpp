@@ -23,9 +23,8 @@ namespace Wor::Network {
 	public:
 		using ptr = std::shared_ptr<TcpSession>;
 		using Socket = boost::asio::ip::tcp::socket;
-		using Endpoint = boost::asio::ip::tcp::endpoint;
-		using IoContext = boost::asio::io_context;
-		using Callback = std::function<void(const std::string_view&)>;
+		using EndPoint = boost::asio::ip::tcp::endpoint;
+		using Callback = std::function<void(const std::string&)>;
 
 		/**
 		 * @brief
@@ -35,12 +34,12 @@ namespace Wor::Network {
 		/**
 		 * @brief
 		 *
-		 * @param ctx
+		 * @param ioService
 		 *
 		 * @return
 		 */
 		[[nodiscard]]
-		static TcpSession::ptr create(IoContext& ctx) noexcept;
+		static TcpSession::ptr create(boost::asio::io_context& ioService) noexcept;
 
 		/**
 		 * @brief
@@ -52,15 +51,15 @@ namespace Wor::Network {
 		 *
 		 * @param	message
 		 */
-		void send(const std::string_view& message) noexcept;
+		void send(const std::string& message) noexcept;
 
 	private:
 		/**
 		 * @brief	Ctor.
 		 *
-		 * @param	ctx
+		 * @param	ioContext
 		 */
-		explicit TcpSession(IoContext& ctx) noexcept;
+		explicit TcpSession(boost::asio::io_context& ioContext) noexcept;
 
 		/**
 		 * @brief
@@ -78,7 +77,7 @@ namespace Wor::Network {
 
 		std::string _alias;
 
-		std::function<void(TcpSession::ptr)> _close_callback;
+		std::function<void(TcpSession::ptr)> _closeCallback;
 
 		Callback _receiveCallback;
 
@@ -109,7 +108,7 @@ namespace Wor::Network {
 		 *
 		 * @param alias
 		 */
-		void alias(const std::string_view& alias) noexcept;
+		void alias(std::string alias) noexcept;
 
 		/**
 		 * @brief
@@ -125,7 +124,7 @@ namespace Wor::Network {
 		 * @return
 		 */
 		[[nodiscard]]
-		Endpoint endpoint() const noexcept;
+		EndPoint endpoint() const noexcept;
 
 		/**
 		 * @brief

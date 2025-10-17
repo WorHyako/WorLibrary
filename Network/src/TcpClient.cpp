@@ -7,17 +7,19 @@
 using namespace Wor::Network;
 
 using namespace boost;
+using namespace boost::asio::ip;
 
-TcpClient::TcpClient(IoContext& ctx) noexcept
+TcpClient::TcpClient(asio::io_context &ctx) noexcept
 	: _socket(ctx) {
 }
 
-void TcpClient::start(const Endpoint& endpoint) noexcept {
+void TcpClient::start(const tcp::resolver::results_type &endPointIt) noexcept {
 	if (!bound()) {
 		return;
 	}
-	_socket.async_connect(endpoint,
-						  [this, &endpoint](const system::error_code& ec) {
+
+	asio::async_connect(_socket, endPointIt,
+						  [this, endPointIt](const system::error_code &ec, const tcp::endpoint& endpoint) {
 							  worInfo("Connecting to: {}:{}",
 									  endpoint.address().to_string(),
 									  endpoint.port());
@@ -36,13 +38,13 @@ void TcpClient::stop() noexcept {
 	}
 	try {
 		_socket.cancel();
-	} catch (const system::system_error& e) {
+	} catch (const system::system_error &e) {
 		worError("Error in socket canceling: {}.", e.what());
 	}
 
 	try {
 		_socket.close();
-	} catch (const system::system_error& e) {
+	} catch (const system::system_error &e) {
 		worError("Error in socket closing: {}. Descriptor was closed.", e.what());
 	}
 }
@@ -51,13 +53,13 @@ void TcpClient::startRead() noexcept {
 	async_read_until(_socket,
 					 _buffer,
 					 '\n',
-					 [this](const system::error_code& ec, std::size_t bytes_transferred) {
+					 [this](const system::error_code &ec, std::size_t bytesTransferred) {
 						 worInfo("Receive packet from {}:{}",
 								 remoteEndpoint().address().to_string(),
 								 remoteEndpoint().port());
 						 if (ec) {
 							 worError("Reading packet error: {}", ec.message());
-						 } else if (bytes_transferred < 1) {
+						 } else if (bytesTransferred < 1) {
 							 worError("Received zero packet.");
 						 } else {
 							 parseBuffer();
@@ -67,29 +69,26 @@ void TcpClient::startRead() noexcept {
 }
 
 void TcpClient::parseBuffer() noexcept {
-	const auto size{
-				std::distance(buffers_begin(_buffer.data()),
-							  buffers_end(_buffer.data()))
-			};
+	const std::size_t size = std::distance(buffers_begin(_buffer.data()),
+										   buffers_end(_buffer.data()));
 	if (size == 0) {
 		return;
 	}
-	const std::string str_buffer{
-				buffers_begin(_buffer.data()),
-				buffers_end(_buffer.data())
-			};
+	const std::string strBuffer = {
+			buffers_begin(_buffer.data()),
+			buffers_end(_buffer.data())};
 
 	_buffer.consume(size);
 
-	std::vector<std::string> messages{};
-	std::size_t begin{0};
+	std::vector<std::string> messages;
+	std::size_t begin = 0;
 	while (begin < size) {
-		const std::size_t end{str_buffer.find('\0', begin)};
+		const std::size_t end = strBuffer.find('\0', begin);
 		if (end == static_cast<std::size_t>(-1)) {
-			messages.emplace_back(str_buffer);
+			messages.emplace_back(strBuffer);
 			break;
 		}
-		messages.emplace_back(str_buffer.substr(begin, end - begin));
+		messages.emplace_back(strBuffer.substr(begin, end - begin));
 		begin = end + 1;
 	}
 
@@ -97,8 +96,8 @@ void TcpClient::parseBuffer() noexcept {
 	ss << "\tMessages:";
 
 	std::ranges::for_each(messages,
-						  [&ss, &callback{_receive_callback}](const std::string_view& message) {
-							  ss << "\n\t\t" << message;
+						  [&ss, &callback = _receiveCallback](const std::string &message) {
+							  ss << "\n\t\t" << message.c_str();
 							  if (callback) {
 								  callback(message);
 							  }
@@ -106,20 +105,20 @@ void TcpClient::parseBuffer() noexcept {
 	worTrace(ss.str());
 }
 
-void TcpClient::send(const std::string_view& message) noexcept {
+void TcpClient::send(const std::string &message) noexcept {
 	if (!bound()) {
 		return;
 	}
 	async_write(_socket,
 				asio::buffer(message),
-				[this, &message](const system::error_code& ec, std::size_t bytes_transferred) {
+				[this, &message](const system::error_code &ec, std::size_t bytesTransferred) {
 					worInfo("Sending packet to {}:{}\n\tPacket: {}.",
 							remoteEndpoint().address().to_string(),
 							remoteEndpoint().port(),
 							message);
 					if (ec) {
 						worError("Error sending message {}.", ec.message());
-					} else if (bytes_transferred < 1) {
+					} else if (bytesTransferred < 1) {
 						worError("Error to send zero packet.");
 					} else {
 						worTrace("Success.");
@@ -130,7 +129,7 @@ void TcpClient::send(const std::string_view& message) noexcept {
 #pragma region Accessors/Mutators
 
 void TcpClient::receiveCallback(Callback callback) noexcept {
-	_receive_callback = std::move(callback);
+	_receiveCallback = std::move(callback);
 }
 
 TcpClient::Endpoint TcpClient::remoteEndpoint() const noexcept {

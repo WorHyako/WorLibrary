@@ -9,11 +9,14 @@ add_library(Wor::Json ALIAS WorLib_Json)
 
 file(GLOB_RECURSE Sources src/*.cpp)
 target_sources(WorLib_Json
-        PRIVATE ${Sources})
+        PRIVATE
+        ${Sources})
 
 target_include_directories(WorLib_Json
-        PUBLIC include
-        PRIVATE include/Wor)
+        PUBLIC
+        include
+        PRIVATE
+        include/Wor)
 
 target_link_libraries(WorLib_Json
         PUBLIC

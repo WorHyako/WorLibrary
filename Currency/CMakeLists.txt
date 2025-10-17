@@ -6,8 +6,11 @@ add_library(Wor::Currency ALIAS WorLib_Currency)
 file(GLOB_RECURSE Sources src/*.cpp)
 
 target_sources(WorLib_Currency
-        PRIVATE ${Sources})
+        PRIVATE
+        ${Sources})
 
 target_include_directories(WorLib_Currency
-        PUBLIC include
-        PRIVATE include/Currency)
+        PUBLIC
+        include
+        PRIVATE
+        include/Currency)

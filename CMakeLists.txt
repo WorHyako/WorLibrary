@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
 project(WorLibrary
-        VERSION 0.7
+        VERSION 0.3
         LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -18,14 +18,15 @@ option(WORLIBRARY_WRAPPER "" OFF)
 option(WORLIBRARY_DEFINEUTILS "" OFF)
 option(WORLIBRARY_MIDI "" OFF)
 
-#############
+# --------- #
 #   Boost   #
-#############
+# --------- #
 set(Boost_NO_WARN_NEW_VERSIONS ON)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_LIBS OFF)
-find_package(Boost 1.85 REQUIRED GLOBAL COMPONENTS
+find_package(Boost REQUIRED GLOBAL COMPONENTS
         date_time
+        asio
         thread)
 
 if (WORLIBRARY_DEFINEUTILS)

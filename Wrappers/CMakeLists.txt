@@ -8,4 +8,5 @@ add_library(WorLib_Wrappers INTERFACE)
 add_library(Wor::Wrappers ALIAS WorLib_Wrappers)
 
 target_include_directories(WorLib_Wrappers
-        INTERFACE include)
+        INTERFACE
+        include)

@@ -10,16 +10,19 @@ add_library(Wor::Network ALIAS WorLib_Network)
 file(GLOB_RECURSE Sources src/*.cpp)
 
 target_sources(WorLib_Network
-        PRIVATE ${Sources})
+        PRIVATE
+        ${Sources})
 
 target_include_directories(WorLib_Network
         PUBLIC
         include
         ${Boost_INCLUDE_DIR}
-        PRIVATE include/Wor)
+        PRIVATE
+        include/Wor)
 
 target_link_libraries(WorLib_Network
         PUBLIC
+        Boost::asio
         Boost::date_time
         Boost::thread
         Wor::Log)

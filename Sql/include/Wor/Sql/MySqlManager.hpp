@@ -1,8 +1,7 @@
 #pragma once
 
-#include "soci/soci.h"
-#include "soci/empty/soci-empty.h"
-#include "soci/mysql/soci-mysql.h"
+#include <soci/soci.h>
+#include <soci/mysql/soci-mysql.h>
 
 #include "Wor/Sql/DataBaseParameters.hpp"
 #include "Wor/Sql/Event/SelectStatementData.hpp"

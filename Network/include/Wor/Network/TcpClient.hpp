@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-
 #include "boost/asio.hpp"
 
 namespace Wor::Network {
@@ -17,8 +15,7 @@ namespace Wor::Network {
 	 */
 	class TcpClient final {
 	public:
-		using Callback = std::function<void(const std::string_view&)>;
-		using IoContext = boost::asio::io_context;
+		using Callback = std::function<void(const std::string&)>;
 		using Socket = boost::asio::ip::tcp::socket;
 		using Endpoint = boost::asio::ip::tcp::endpoint;
 
@@ -27,14 +24,14 @@ namespace Wor::Network {
 		 *
 		 * @param	ctx
 		 */
-		explicit TcpClient(IoContext& ctx) noexcept;
+		explicit TcpClient(boost::asio::io_context& ctx) noexcept;
 
 		/**
 		 * @brief
 		 *
-		 * @param	endpoint
+		 * @param	endPoint
 		 */
-		void start(const Endpoint& endpoint) noexcept;
+		void start(const boost::asio::ip::tcp::resolver::results_type& endPoint) noexcept;
 
 		/**
 		 * @brief
@@ -46,7 +43,7 @@ namespace Wor::Network {
 		 *
 		 * @param	message
 		 */
-		void send(const std::string_view& message) noexcept;
+		void send(const std::string& message) noexcept;
 
 	private:
 		/**
@@ -62,9 +59,9 @@ namespace Wor::Network {
 		/**
 		 * @brief
 		 *
-		 * @param	endpoint
+		 * @param	endPoint
 		 */
-		void handleConnect(const Endpoint& endpoint) noexcept;
+		void handleConnect(const boost::asio::ip::tcp::resolver::results_type& endPoint) noexcept;
 
 		/**
 		 * @brief
@@ -79,7 +76,7 @@ namespace Wor::Network {
 		/**
 		 * @brief
 		 */
-		Callback _receive_callback;
+		Callback _receiveCallback;
 
 #pragma region Accessors/Methods;
 
